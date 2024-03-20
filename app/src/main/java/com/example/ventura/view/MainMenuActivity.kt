@@ -1,21 +1,30 @@
 package com.example.ventura.view
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.ventura.R
 
-class MainMenuActivity : AppCompatActivity() {
+import android.widget.Button
+import androidx.activity.ComponentActivity
+
+class MainMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main_menu)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        val buttonProfile = findViewById<Button>(R.id.buttonProfile)
+        val buttonMap = findViewById<Button>(R.id.buttonMap)
+        val buttonSettings = findViewById<Button>(R.id.buttonSettings)
+
+        buttonProfile.setOnClickListener {
+            // Navigate to Profile Activity
+        }
+
+        buttonMap.setOnClickListener {
+            // Navigate to Map Activity
+        }
+
+        buttonSettings.setOnClickListener {
+            // Navigate to Settings Activity
         }
     }
 }
