@@ -15,7 +15,12 @@
         <activity
             android:name=".view.MainMenuActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".view.SignUpActivity"
+            android:exported="false" />
         <!-- Actividad SplashActivity -->
+
         <activity
             android:name=".view.SplashActivity"
             android:exported="true"
