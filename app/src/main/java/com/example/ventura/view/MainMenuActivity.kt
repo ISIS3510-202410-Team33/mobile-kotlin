@@ -100,6 +100,8 @@ class MainMenuActivity : ComponentActivity() {
             finish()
         }
 
+
+
         buttonSettings.setOnClickListener {
             // Navigate to Settings Activity
         }

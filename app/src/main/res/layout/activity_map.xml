@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linear_layout"
     android:layout_width="match_parent"
@@ -8,6 +9,15 @@
     android:padding="16dp"
     android:background="@android:color/white"
     tools:context=".view.MapsActivity">
+
+
+    <Button
+        android:id="@+id/buttonBackToMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home"
+        android:layout_marginTop="16dp"
+        />
 
     <!-- Aquí se agregarán las cajas dinámicamente -->
 
