@@ -8,16 +8,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.example.ventura.R
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.ViewModelProvider
+import com.example.ventura.viewmodel.LoginViewModel
 
 class LoginActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
+    private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        auth = FirebaseAuth.getInstance()
+        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
         val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
         val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
@@ -29,7 +30,17 @@ class LoginActivity : ComponentActivity() {
             val password = editTextPassword.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                signIn(email, password)
+                viewModel.signIn(email, password,
+                    onSuccess = {
+                        val intent = Intent(this, MainMenuActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    },
+                    onFailure = {
+                        Toast.makeText(baseContext, "Authentication failed.",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                )
             } else {
                 Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT).show()
             }
@@ -39,19 +50,5 @@ class LoginActivity : ComponentActivity() {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
         }
-    }
-
-    private fun signIn(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val intent = Intent(this, MainMenuActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                }
-            }
     }
 }

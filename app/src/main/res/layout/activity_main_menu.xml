@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"> <!-- Adding grey wallpaper background -->
+    android:background="@drawable/grey_wallpaper"> <!-- Adding grey wallpaper background -->
 
     <LinearLayout
         android:layout_width="match_parent"
