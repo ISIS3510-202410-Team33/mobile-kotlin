@@ -7,16 +7,17 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.example.ventura.R
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.ViewModelProvider
+import com.example.ventura.viewmodel.SignUpViewModel
 
 class SignUpActivity : ComponentActivity() {
-    private lateinit var auth: FirebaseAuth
+    private lateinit var viewModel: SignUpViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
 
-        auth = FirebaseAuth.getInstance()
+        viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
 
         val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
         val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
@@ -27,29 +28,22 @@ class SignUpActivity : ComponentActivity() {
             val password = editTextPassword.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                signUp(email, password)
+                viewModel.signUp(email, password,
+                    onSuccess = {
+                        val intent = Intent(this, LoginActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                        Toast.makeText(baseContext, "Successfully registered. Please log in.",
+                            Toast.LENGTH_SHORT).show()
+                    },
+                    onFailure = {
+                        Toast.makeText(baseContext, "Authentication failed.",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                )
             } else {
                 Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
-private fun signUp(email: String, password: String) {
-    auth.createUserWithEmailAndPassword(email, password)
-        .addOnCompleteListener(this) { task ->
-            if (task.isSuccessful) {
-                // Change the intent to LoginActivity
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
-
-                // Show a popup message indicating successful registration
-                Toast.makeText(baseContext, "Successfully registered. Please log in.",
-                    Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(baseContext, "Authentication failed.",
-                    Toast.LENGTH_SHORT).show()
-            }
-        }
-}
 }
