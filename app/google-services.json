@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1093994746575",
+    "project_id": "ventura-bfe66",
+    "storage_bucket": "ventura-bfe66.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1093994746575:android:6ed14e23b5e57650d75dba",
+        "android_client_info": {
+          "package_name": "com.example.ventura"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv6oyLVSlDp2X4Dcf_iExeTSsDKDTV2BM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

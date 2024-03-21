@@ -4,43 +4,50 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
-import com.example.ventura.viewmodel.DataViewModel
-import androidx.lifecycle.Observer
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : ComponentActivity() {
-    private lateinit var viewModel: DataViewModel
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProvider(this).get(DataViewModel::class.java)
+        auth = FirebaseAuth.getInstance()
 
         val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
         val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
         val buttonLogin = findViewById<Button>(R.id.buttonLogin)
 
         buttonLogin.setOnClickListener {
-            val email = editTextEmail.text.toString()
-            val password = editTextPassword.text.toString()
+            buttonLogin.setOnClickListener {
+                val email = editTextEmail.text.toString()
+                val password = editTextPassword.text.toString()
 
-            viewModel.setEmail(email)
-            viewModel.setPassword(password)
-            viewModel.onLoginButtonClick()
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    signIn(email, password)
+                } else {
+                    Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
 
         }
+    }
 
-        viewModel.loginStatus.observe(this, Observer { isSuccess ->
-            if (isSuccess) {
-                val intent = Intent(this, MainMenuActivity::class.java)
-                startActivity(intent)
-                finish()
-            } else {
-                // Show error message
+    private fun signIn(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val intent = Intent(this, MainMenuActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                }
             }
-        })
     }
 }
