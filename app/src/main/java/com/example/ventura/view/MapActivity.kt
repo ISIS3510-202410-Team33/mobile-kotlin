@@ -17,12 +17,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
+import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
+import com.example.ventura.viewmodel.JsonViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 
 class MapsActivity : AppCompatActivity() {
@@ -30,6 +34,7 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
+    private var jsonOb: JSONObject? = null
     private var lastKnownLocation: Location? = null
 
     // Variables para almacenar las coordenadas y la distancia
@@ -42,10 +47,29 @@ class MapsActivity : AppCompatActivity() {
     private var averageBikeDelay: Float = 3F
     private var averageCarDelay: Float = 2F
 
+    private lateinit var jsonViewModel: JsonViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
+
+
+        jsonViewModel = ViewModelProvider(this).get(JsonViewModel::class.java)
+
+        // Llamar a la función fetchJsonData bloqueando el hilo principal
+        runBlocking(Dispatchers.IO) {
+            try {
+                val jsonObject = jsonViewModel.fetchJsonData()
+                // Manejar el JSONObject recibido
+                jsonOb = jsonObject
+
+                Log.d("vaina", "llego esta vaiana")
+            } catch (e: Exception) {
+                // Manejar cualquier error
+                Log.d("asd", "no llego esta vaina")
+            }
+        }
 
         val buttonBackToMenu = findViewById<Button>(R.id.buttonBackToMenu)
         buttonBackToMenu.setOnClickListener {
@@ -91,138 +115,112 @@ class MapsActivity : AppCompatActivity() {
 
         val linearLayout = findViewById<LinearLayout>(R.id.linear_layout)
 
-        val jsonString = "{\n" +
-                "    \"spaces\": {\n" +
-                "        \"Edificio_ML\": {\n" +
-                "            \"coordenadas\": [4.602645428131801, -74.06487758466257],\n" +
-                "            \"cantidad_pisos\": 10,\n" +
-                "            \"cantidad_restaurantes\": 2,\n" +
-                "            \"cantidad_zonas_verdes\":0,\n" +
-                "            \"obstrucciones\": false\n" + // Nuevo atributo
-                "        },\n" +
-                "        \"Edificio_W\": {\n" +
-                "            \"coordenadas\": [4.602322724127535, -74.06502244862835],\n" +
-                "            \"cantidad_pisos\": 15,\n" +
-                "            \"cantidad_restaurantes\": 3,\n" +
-                "            \"cantidad_zonas_verdes\":0,\n" +
-                "            \"obstrucciones\": true\n" + // Nuevo atributo
-                "        },\n" +
-                "        \"Centro_del_Japon\": {\n" +
-                "            \"coordenadas\": [4.60106570194588, -74.06644974069125],\n" +
-                "            \"cantidad_pisos\": 20,\n" +
-                "            \"cantidad_restaurantes\": 5,\n" +
-                "            \"cantidad_zonas_verdes\":0,\n" +
-                "            \"obstrucciones\": false\n" + // Nuevo atributo
-                "        }\n" +
-                "    }\n" +
-                "}"
+        val spaces = jsonOb?.getJSONObject("spaces")
 
+        if (spaces != null) {
+            for (spaceKey in spaces.keys()) {
+                val textLayout = LinearLayout(this)
+                textLayout.orientation = LinearLayout.HORIZONTAL
+                textLayout.layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                textLayout.setPadding(16)
 
-        val jsonObject = JSONObject(jsonString)
-        val spaces = jsonObject.getJSONObject("spaces")
+                val layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+                layoutParams.gravity = Gravity.CENTER_VERTICAL
 
-        for (spaceKey in spaces.keys()) {
-            val textLayout = LinearLayout(this)
-            textLayout.orientation = LinearLayout.HORIZONTAL
-            textLayout.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            textLayout.setPadding(16)
+                val textView = TextView(this)
+                textView.text = spaceKey
+                textView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                textView.layoutParams = layoutParams
 
-            val layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            )
-            layoutParams.gravity = Gravity.CENTER_VERTICAL
+                val verMas = TextView(this)
+                verMas.text = "Ver más"
+                verMas.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                verMas.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
 
-            val textView = TextView(this)
-            textView.text = spaceKey
-            textView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-            textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
-            textView.layoutParams = layoutParams
+                val button = Button(this)
+                button.text = "Ubicar"
 
-            val verMas = TextView(this)
-            verMas.text = "Ver más"
-            verMas.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-            verMas.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                val infoView = TextView(this)
+                infoView.visibility = View.GONE
+                infoView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
 
-            val button = Button(this)
-            button.text = "Ubicar"
+                // Agregar sombra a la vista del contenedor
+                textLayout.background = ContextCompat.getDrawable(this, R.drawable.container_background)
 
-            val infoView = TextView(this)
-            infoView.visibility = View.GONE
-            infoView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-            infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                verMas.setOnClickListener {
+                    if (infoView.visibility == View.VISIBLE) {
+                        infoView.visibility = View.GONE
+                        verMas.text = "Ver más"
+                    } else {
+                        infoView.visibility = View.VISIBLE
+                        verMas.text = "Ver menos"
 
-            // Agregar sombra a la vista del contenedor
-            textLayout.background = ContextCompat.getDrawable(this, R.drawable.container_background)
+                        // Obtener las coordenadas del edificio
+                        val spaceObject = spaces.getJSONObject(spaceKey)
+                        val coordenadasEdificio = spaceObject.getJSONArray("coordenadas")
+                        val latitudEdificio = coordenadasEdificio.getDouble(0)
+                        val longitudEdificio = coordenadasEdificio.getDouble(1)
+                        buildingCoordinates = Pair(latitudEdificio, longitudEdificio)
 
-            verMas.setOnClickListener {
-                if (infoView.visibility == View.VISIBLE) {
-                    infoView.visibility = View.GONE
-                    verMas.text = "Ver más"
-                } else {
-                    infoView.visibility = View.VISIBLE
-                    verMas.text = "Ver menos"
+                        // Calcular la distancia entre las coordenadas del usuario y las del edificio
+                        userCoordinates?.let { userCoords ->
+                            buildingCoordinates?.let { buildingCoords ->
+                                val results = FloatArray(1)
+                                Location.distanceBetween(userCoords.first, userCoords.second, buildingCoords.first, buildingCoords.second, results)
+                                distanceToBuilding = results[0]
 
-                    // Obtener las coordenadas del edificio
-                    val spaceObject = spaces.getJSONObject(spaceKey)
-                    val coordenadasEdificio = spaceObject.getJSONArray("coordenadas")
-                    val latitudEdificio = coordenadasEdificio.getDouble(0)
-                    val longitudEdificio = coordenadasEdificio.getDouble(1)
-                    buildingCoordinates = Pair(latitudEdificio, longitudEdificio)
+                                // Convertir la distancia a metros y kilómetros
+                                val distanceInMeters = distanceToBuilding
+                                val distanceInKilometers = distanceToBuilding?.div(1000)
+                                val wakExpectedTimeMin = distanceInKilometers?.times(averageWalkingDelay)
+                                val carExpectedTimeMin = distanceInKilometers?.times(averageCarDelay)
+                                val bikeExpectedTimeMin = distanceInKilometers?.times(averageBikeDelay)
 
-                    // Calcular la distancia entre las coordenadas del usuario y las del edificio
-                    userCoordinates?.let { userCoords ->
-                        buildingCoordinates?.let { buildingCoords ->
-                            val results = FloatArray(1)
-                            Location.distanceBetween(userCoords.first, userCoords.second, buildingCoords.first, buildingCoords.second, results)
-                            distanceToBuilding = results[0]
-
-                            // Convertir la distancia a metros y kilómetros
-                            val distanceInMeters = distanceToBuilding
-                            val distanceInKilometers = distanceToBuilding?.div(1000)
-                            val wakExpectedTimeMin = distanceInKilometers?.times(averageWalkingDelay)
-                            val carExpectedTimeMin = distanceInKilometers?.times(averageCarDelay)
-                            val bikeExpectedTimeMin = distanceInKilometers?.times(averageBikeDelay)
-
-                            // Actualizar la información adicional
-                            val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, wakExpectedTimeMin, carExpectedTimeMin, bikeExpectedTimeMin)
-                            infoView.text = infoText
+                                // Actualizar la información adicional
+                                val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, wakExpectedTimeMin, carExpectedTimeMin, bikeExpectedTimeMin)
+                                infoView.text = infoText
+                            }
                         }
+
+
                     }
-
-
                 }
-            }
 
 
-            button.setOnClickListener {
+                button.setOnClickListener {
+                    val spaceObject = spaces.getJSONObject(spaceKey)
+                    val coordenadas = spaceObject.getJSONArray("coordenadas")
+                    val latitud = coordenadas.getDouble(0)
+                    val longitud = coordenadas.getDouble(1)
+                    abrirGoogleMaps(latitud, longitud)
+                }
+
+                textLayout.addView(textView)
+                textLayout.addView(button)
+                textLayout.addView(verMas)
+                linearLayout.addView(textLayout)
                 val spaceObject = spaces.getJSONObject(spaceKey)
                 val coordenadas = spaceObject.getJSONArray("coordenadas")
                 val latitud = coordenadas.getDouble(0)
                 val longitud = coordenadas.getDouble(1)
-                abrirGoogleMaps(latitud, longitud)
+                val distanceInMeters: Float? = null // No tenemos la distancia aquí
+                val distanceInKilometers: Float? = null // No tenemos la distancia aquí
+                val exTimeMinWal: Float? = null // No tenemos la distancia aquí
+                val carTimeMinWal: Float? = null // No tenemos la distancia aquí
+                val bikeTimeMinWal: Float? = null // No tenemos la distancia aquí
+                infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, exTimeMinWal, carTimeMinWal, bikeTimeMinWal)
+                linearLayout.addView(infoView)
+
             }
-
-            textLayout.addView(textView)
-            textLayout.addView(button)
-            textLayout.addView(verMas)
-            linearLayout.addView(textLayout)
-            val spaceObject = spaces.getJSONObject(spaceKey)
-            val coordenadas = spaceObject.getJSONArray("coordenadas")
-            val latitud = coordenadas.getDouble(0)
-            val longitud = coordenadas.getDouble(1)
-            val distanceInMeters: Float? = null // No tenemos la distancia aquí
-            val distanceInKilometers: Float? = null // No tenemos la distancia aquí
-            val exTimeMinWal: Float? = null // No tenemos la distancia aquí
-            val carTimeMinWal: Float? = null // No tenemos la distancia aquí
-            val bikeTimeMinWal: Float? = null // No tenemos la distancia aquí
-            infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, exTimeMinWal, carTimeMinWal, bikeTimeMinWal)
-            linearLayout.addView(infoView)
-
         }
 
     }
