@@ -1,11 +1,13 @@
 package com.example.ventura.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
 
 class DataViewModel : ViewModel() {
 
     private var email: String = ""
     private var password: String = ""
+    val loginStatus: MutableLiveData<Boolean> = MutableLiveData()
 
     fun setEmail(email: String) {
         this.email = email
@@ -16,7 +18,8 @@ class DataViewModel : ViewModel() {
     }
 
     fun onLoginButtonClick() {
-        // Aquí puedes implementar la lógica para manejar el evento de clic del botón de inicio de sesión
-        // Por ejemplo, puedes realizar la autenticación del usuario, llamar a una función en el modelo, etc.
+        // You can perform your login logic here
+        // For now, we're setting loginStatus to true regardless of the login logic
+        loginStatus.postValue(true)
     }
 }
