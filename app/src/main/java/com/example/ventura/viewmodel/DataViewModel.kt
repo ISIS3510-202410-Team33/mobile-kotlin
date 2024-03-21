@@ -1,25 +1,26 @@
 package com.example.ventura.viewmodel
-
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
 
-class DataViewModel : ViewModel() {
+class JsonViewModel : ViewModel() {
+    private val storage = Firebase.storage
+    private val jsonRef = storage.reference.child("edificios.json")
 
-    private var email: String = ""
-    private var password: String = ""
-    val loginStatus: MutableLiveData<Boolean> = MutableLiveData()
-
-    fun setEmail(email: String) {
-        this.email = email
-    }
-
-    fun setPassword(password: String) {
-        this.password = password
-    }
-
-    fun onLoginButtonClick() {
-        // You can perform your login logic here
-        // For now, we're setting loginStatus to true regardless of the login logic
-        loginStatus.postValue(true)
+    suspend fun fetchJsonData(): JSONObject {
+        return viewModelScope.async(Dispatchers.IO) {
+            try {
+                val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
+                val jsonString = String(jsonBytes)
+                JSONObject(jsonString)
+            } catch (e: Exception) {
+                throw e
+            }
+        }.await() // Esperar a que la coroutine termine y devolver el resultado
     }
 }
