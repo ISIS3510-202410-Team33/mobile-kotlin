@@ -17,15 +17,38 @@ import com.example.ventura.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.bumptech.glide.Glide
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+
 class MainMenuActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_menu)
 
         Log.d("MainMenuActivity", "onCreate")
+
+        locationRequest = LocationRequest.create().apply {
+            interval = 10000 // Set the desired interval for active location updates, in milliseconds.
+            fastestInterval = 5000 // Set the fastest rate for active location updates, in milliseconds.
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY // Set the priority of the request.
+        }
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                for (location in locationResult.locations){
+                    // Update UI with location data
+                    // Call a method to handle the current location.
+                    Log.d("Location", "$location")
+                    weatherViewModel.getWeather(location.latitude, location.longitude)
+                }
+            }
+        }
 
         val weatherTextView = findViewById<TextView>(R.id.weatherTextView)
         val cityTextView = findViewById<TextView>(R.id.cityTextView)
@@ -49,7 +72,6 @@ class MainMenuActivity : ComponentActivity() {
                 else -> "https://emojiapi.dev/api/v1/question_mark/512.png"
             }
             humidityTextView.text = "Humidity: $humidity%"
-            Glide.with(this).load(weatherIconUrl).into(weatherIconImageView)
         })
 
         if (ActivityCompat.checkSelfPermission(
@@ -59,24 +81,8 @@ class MainMenuActivity : ComponentActivity() {
             // Request location permissions
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         } else {
-            // Permissions are already granted, get the location
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    weatherViewModel.getWeather(location.latitude, location.longitude)
-                } else {
-                    // Handle the situation when location data is null
-                    // Use Bogota, Colombia as the default city
-                    val defaultLatitude = 4.7110
-                    val defaultLongitude = -74.0721
-                    weatherViewModel.getWeather(defaultLatitude, defaultLongitude)
-                }
-
-            }
-        }
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                weatherViewModel.getWeather(location.latitude, location.longitude)
-            }
+            // Permissions are already granted, start location updates
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
         }
 
         val buttonProfile = findViewById<Button>(R.id.buttonProfile)
@@ -94,5 +100,15 @@ class MainMenuActivity : ComponentActivity() {
         buttonSettings.setOnClickListener {
             // Navigate to Settings Activity
         }
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
+
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 }

@@ -52,14 +52,6 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/buttonProfile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Profile"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#363c45"/>
 
     <Button
         android:id="@+id/buttonMap"
@@ -69,6 +61,16 @@
         android:text="Map"
         android:textColor="@android:color/white"
         android:backgroundTint="#363c45"/>
+
+    <Button
+        android:id="@+id/buttonProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Profile"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#363c45"/>
+
 
     <Button
         android:id="@+id/buttonSettings"
