@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.example.ventura.R
@@ -21,19 +22,22 @@ class LoginActivity : ComponentActivity() {
         val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
         val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
         val buttonLogin = findViewById<Button>(R.id.buttonLogin)
+        val textViewSignUp = findViewById<TextView>(R.id.textViewSignUp)
 
         buttonLogin.setOnClickListener {
-            buttonLogin.setOnClickListener {
-                val email = editTextEmail.text.toString()
-                val password = editTextPassword.text.toString()
+            val email = editTextEmail.text.toString()
+            val password = editTextPassword.text.toString()
 
-                if (email.isNotEmpty() && password.isNotEmpty()) {
-                    signIn(email, password)
-                } else {
-                    Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT).show()
-                }
+            if (email.isNotEmpty() && password.isNotEmpty()) {
+                signIn(email, password)
+            } else {
+                Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT).show()
             }
+        }
 
+        textViewSignUp.setOnClickListener {
+            val intent = Intent(this, SignUpActivity::class.java)
+            startActivity(intent)
         }
     }
 
