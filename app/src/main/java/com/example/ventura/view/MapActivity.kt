@@ -1,4 +1,3 @@
-// MapsActivity.kt FUNCIONAL SIN GPS
 package com.example.ventura.view
 
 import android.Manifest
@@ -14,7 +13,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,7 +24,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import org.json.JSONObject
-import kotlin.math.roundToInt
 
 class MapsActivity : AppCompatActivity() {
 
@@ -34,14 +31,29 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private var lastKnownLocation: Location? = null
+
     // Variables para almacenar las coordenadas y la distancia
     private var userCoordinates: Pair<Double, Double>? = null
     private var buildingCoordinates: Pair<Double, Double>? = null
     private var distanceToBuilding: Float? = null
 
+    // Average delay in km/h on city
+    private var averageWalkingDelay: Float = 5F
+    private var averageBikeDelay: Float = 3F
+    private var averageCarDelay: Float = 2F
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
+
+        val buttonBackToMenu = findViewById<Button>(R.id.buttonBackToMenu)
+        buttonBackToMenu.setOnClickListener {
+            // Crear un intent para regresar al MainMenuActivity
+            val intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
+            finish() // Opcional: finaliza la actividad actual para liberar recursos
+        }
 
         locationRequest = LocationRequest.create().apply {
             interval = 10000 // Set the desired interval for active location updates, in milliseconds.
@@ -85,22 +97,26 @@ class MapsActivity : AppCompatActivity() {
                 "            \"coordenadas\": [4.602645428131801, -74.06487758466257],\n" +
                 "            \"cantidad_pisos\": 10,\n" +
                 "            \"cantidad_restaurantes\": 2,\n" +
-                "            \"cantidad_zonas_verdes\":0\n" +
+                "            \"cantidad_zonas_verdes\":0,\n" +
+                "            \"obstrucciones\": false\n" + // Nuevo atributo
                 "        },\n" +
                 "        \"Edificio_W\": {\n" +
                 "            \"coordenadas\": [4.602322724127535, -74.06502244862835],\n" +
                 "            \"cantidad_pisos\": 15,\n" +
                 "            \"cantidad_restaurantes\": 3,\n" +
-                "            \"cantidad_zonas_verdes\":0\n" +
+                "            \"cantidad_zonas_verdes\":0,\n" +
+                "            \"obstrucciones\": true\n" + // Nuevo atributo
                 "        },\n" +
                 "        \"Centro_del_Japon\": {\n" +
                 "            \"coordenadas\": [4.60106570194588, -74.06644974069125],\n" +
                 "            \"cantidad_pisos\": 20,\n" +
                 "            \"cantidad_restaurantes\": 5,\n" +
-                "            \"cantidad_zonas_verdes\":0\n" +
+                "            \"cantidad_zonas_verdes\":0,\n" +
+                "            \"obstrucciones\": false\n" + // Nuevo atributo
                 "        }\n" +
                 "    }\n" +
                 "}"
+
 
         val jsonObject = JSONObject(jsonString)
         val spaces = jsonObject.getJSONObject("spaces")
@@ -168,12 +184,17 @@ class MapsActivity : AppCompatActivity() {
                             // Convertir la distancia a metros y kilómetros
                             val distanceInMeters = distanceToBuilding
                             val distanceInKilometers = distanceToBuilding?.div(1000)
+                            val wakExpectedTimeMin = distanceInKilometers?.times(averageWalkingDelay)
+                            val carExpectedTimeMin = distanceInKilometers?.times(averageCarDelay)
+                            val bikeExpectedTimeMin = distanceInKilometers?.times(averageBikeDelay)
 
                             // Actualizar la información adicional
-                            val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers)
+                            val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, wakExpectedTimeMin, carExpectedTimeMin, bikeExpectedTimeMin)
                             infoView.text = infoText
                         }
                     }
+
+
                 }
             }
 
@@ -196,7 +217,10 @@ class MapsActivity : AppCompatActivity() {
             val longitud = coordenadas.getDouble(1)
             val distanceInMeters: Float? = null // No tenemos la distancia aquí
             val distanceInKilometers: Float? = null // No tenemos la distancia aquí
-            infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers)
+            val exTimeMinWal: Float? = null // No tenemos la distancia aquí
+            val carTimeMinWal: Float? = null // No tenemos la distancia aquí
+            val bikeTimeMinWal: Float? = null // No tenemos la distancia aquí
+            infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, exTimeMinWal, carTimeMinWal, bikeTimeMinWal)
             linearLayout.addView(infoView)
 
         }
@@ -225,8 +249,9 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
-    private fun obtenerInformacionAdicional(spaceObject: JSONObject, distanceInMeters: Float?, distanceInKilometers: Float?): String {
+    private fun obtenerInformacionAdicional(spaceObject: JSONObject, distanceInMeters: Float?, distanceInKilometers: Float?, timeWak: Float?, timeCar: Float?, timeBike: Float?): String {
         val cantidadPisos = spaceObject.getInt("cantidad_pisos")
+        val obstrucciones = spaceObject.getBoolean("obstrucciones")
         val cantidadRestaurantes = spaceObject.getInt("cantidad_restaurantes")
         val cantidadZonasVerdes = spaceObject.getInt("cantidad_zonas_verdes")
 
@@ -249,13 +274,28 @@ class MapsActivity : AppCompatActivity() {
             "Distancia al edificio: Desconocida\n"
         }
 
-        return "Cantidad de pisos: $cantidadPisos\nCantidad de restaurantes: $cantidadRestaurantes\nCantidad de zonas verdes: $cantidadZonasVerdes\n$userCoordsString$buildingCoordsString$distanceString"
+        val timeWakMin = if (distanceInMeters != null && distanceInKilometers != null) {
+            "Tiempo estimado caminando: ${String.format("%.2f", timeWak)} minutos)\n"
+        } else {
+            "Tiempo estimado caminando: Desconocido\n"
+        }
+
+        val timeCarMin = if (distanceInMeters != null && distanceInKilometers != null) {
+            "Tiempo estimado en carro: ${String.format("%.2f", timeCar)} minutos)\n"
+        } else {
+            "Tiempo estimado en carro: Desconocido\n"
+        }
+
+        val timeBikeMin = if (distanceInMeters != null && distanceInKilometers != null) {
+            "Tiempo estimado en bike: ${String.format("%.2f", timeBike)} minutos)\n"
+        } else {
+            "Tiempo estimado en bike: Desconocido\n"
+        }
+
+        return "Cantidad de pisos: $cantidadPisos \nCantidad de restaurantes: $cantidadRestaurantes \n" +
+                "Obstrucciones: $obstrucciones \nCantidad de zonas verdes: $cantidadZonasVerdes\n$userCoordsString$buildingCoordsString$distanceString" +
+                timeWakMin + timeCarMin + timeBikeMin
     }
 
-
-
-    private fun mostrarMensaje(mensaje: String) {
-        Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
-    }
 
 }

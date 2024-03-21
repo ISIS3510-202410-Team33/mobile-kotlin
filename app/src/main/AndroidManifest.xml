@@ -36,7 +36,7 @@
         <!-- Actividad com.example.ventura.view.MapActivity -->
         <activity
             android:name=".view.MapsActivity"
-            android:label="Campus Map"
+            android:label="Campus Sites"
             android:theme="@style/Theme.AppCompat">
         </activity>
 
