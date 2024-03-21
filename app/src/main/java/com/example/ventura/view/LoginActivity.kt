@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.viewmodel.DataViewModel
+import androidx.lifecycle.Observer
+import android.content.Intent
 
 class LoginActivity : ComponentActivity() {
     private lateinit var viewModel: DataViewModel
@@ -29,5 +31,15 @@ class LoginActivity : ComponentActivity() {
             viewModel.setPassword(password)
             viewModel.onLoginButtonClick()
         }
+
+        viewModel.loginStatus.observe(this, Observer { isSuccess ->
+            if (isSuccess) {
+                val intent = Intent(this, MainMenuActivity::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                // Show error message
+            }
+        })
     }
 }
