@@ -1,5 +1,6 @@
 package com.example.ventura.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -28,6 +29,10 @@ class LoginActivity : ComponentActivity() {
             viewModel.setEmail(email)
             viewModel.setPassword(password)
             viewModel.onLoginButtonClick()
+
+            // Crear un Intent para abrir la nueva actividad com.example.ventura.view.com.example.ventura.view.MapActivity
+            val intent = Intent(this, MapsActivity::class.java)
+            startActivity(intent)
         }
     }
 }
