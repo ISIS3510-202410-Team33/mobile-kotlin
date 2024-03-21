@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.viewmodel.DataViewModel
 import androidx.lifecycle.Observer
-import android.content.Intent
 
 class LoginActivity : ComponentActivity() {
     private lateinit var viewModel: DataViewModel
