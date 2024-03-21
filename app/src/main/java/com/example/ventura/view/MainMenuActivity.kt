@@ -1,6 +1,7 @@
 package com.example.ventura.view
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -94,7 +95,9 @@ class MainMenuActivity : ComponentActivity() {
         }
 
         buttonMap.setOnClickListener {
-            // Navigate to Map Activity
+            val intent = Intent(this, MapsActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
         buttonSettings.setOnClickListener {

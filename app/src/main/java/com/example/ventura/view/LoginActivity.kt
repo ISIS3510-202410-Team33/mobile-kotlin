@@ -1,5 +1,6 @@
 package com.example.ventura.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -8,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.viewmodel.DataViewModel
 import androidx.lifecycle.Observer
-import android.content.Intent
 
 class LoginActivity : ComponentActivity() {
     private lateinit var viewModel: DataViewModel
@@ -30,6 +30,7 @@ class LoginActivity : ComponentActivity() {
             viewModel.setEmail(email)
             viewModel.setPassword(password)
             viewModel.onLoginButtonClick()
+
         }
 
         viewModel.loginStatus.observe(this, Observer { isSuccess ->
