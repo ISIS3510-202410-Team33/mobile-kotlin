@@ -1,46 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/grey_wallpaper"> <!-- Adding grey wallpaper background -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="16dp"
+        android:padding="16dp"
+        android:background="@drawable/weather_info_background"> <!-- Adding rounded corner box with grey background for weather info -->
+
+        <TextView
+            android:id="@+id/weatherTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:text="Loading weather data..." />
+
+        <TextView
+            android:id="@+id/temperatureTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:text="Loading weather data..." />
+
+        <TextView
+            android:id="@+id/humidityTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:text="Humidity: N/A" /> <!-- Placeholder for humidity -->
+
+        <TextView
+            android:id="@+id/cityTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:text="Loading city..." />
+
+        <ImageView
+            android:id="@+id/weatherIconImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/buttonProfile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Profile" />
+        android:layout_margin="16dp"
+        android:text="Profile"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#363c45"/>
 
     <Button
         android:id="@+id/buttonMap"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Map" />
+        android:layout_margin="16dp"
+        android:text="Map"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#363c45"/>
 
     <Button
         android:id="@+id/buttonSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Settings" />
-
-    <TextView
-        android:id="@+id/weatherTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_centerInParent="true"
-        android:text="Loading weather data..." />
-
-    <TextView
-        android:id="@+id/cityTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:layout_centerInParent="true"
-        android:text="Loading city..." />
+        android:layout_margin="16dp"
+        android:text="Settings"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#363c45"/>
 
     <ImageView
-        android:id="@+id/weatherIconImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
+        android:src="@drawable/duck"
+        android:padding="64dp"/>
+
+
 </LinearLayout>

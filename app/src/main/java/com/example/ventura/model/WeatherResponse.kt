@@ -10,5 +10,6 @@ data class Weather(
 )
 
 data class Main(
-    val temp: Double
+    val temp: Double,
+    val humidity: Double
 )

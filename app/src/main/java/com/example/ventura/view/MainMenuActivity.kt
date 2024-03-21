@@ -30,19 +30,25 @@ class MainMenuActivity : ComponentActivity() {
         val weatherTextView = findViewById<TextView>(R.id.weatherTextView)
         val cityTextView = findViewById<TextView>(R.id.cityTextView)
         val weatherIconImageView = findViewById<ImageView>(R.id.weatherIconImageView)
+        val humidityTextView = findViewById<TextView>(R.id.humidityTextView)
+        val temperatureTextView = findViewById<TextView>(R.id.temperatureTextView)
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         weatherViewModel.weatherLiveData.observe(this, Observer { weatherResponse ->
             cityTextView.text = "City: Bogotá"
             val tempInCelsius = weatherResponse.main.temp - 273.15
+            val humidity = weatherResponse.main.humidity
             val formattedTemp = String.format("%.1f", tempInCelsius)
-            weatherTextView.text = "Weather: ${weatherResponse.weather[0].description}, Temperature: ${formattedTemp}°C"
+            weatherTextView.text = "Weather: ${weatherResponse.weather[0].description}"
+            temperatureTextView.text = "Temperature: ${formattedTemp}°C"
             val weatherIconUrl = when (weatherResponse.weather[0].description){
                 "Clear" -> "https://emojiapi.dev/api/v1/sun/512.png"
                 "Clouds" -> "https://emojiapi.dev/api/v1/cloud/512.png"
                 "Rain" -> "https://emojiapi.dev/api/v1/rain/512.png"
                 else -> "https://emojiapi.dev/api/v1/question_mark/512.png"
             }
+            humidityTextView.text = "Humidity: $humidity%"
             Glide.with(this).load(weatherIconUrl).into(weatherIconImageView)
         })
 
