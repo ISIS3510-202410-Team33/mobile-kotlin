@@ -1,25 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@android:color/white"
-    tools:context=".view.MapsActivity">
+    tools:ignore="ExtraText">
+    android:background="@drawable/grey_wallpaper"> <!-- Adding grey wallpaper background -->
 
-
-    <Button
-        android:id="@+id/buttonBackToMenu"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Home"
-        android:layout_marginTop="16dp"
-        />
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        tools:context=".view.MapsActivity">
 
-    <!-- Aquí se agregarán las cajas dinámicamente -->
 
 
-</LinearLayout>
+        <Button
+            android:id="@+id/buttonBackToMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Home"
+            android:layout_marginTop="16dp" />
+
+        <!-- Aquí se agregarán las cajas dinámicamente -->
+
+    </LinearLayout>
+
+</ScrollView>

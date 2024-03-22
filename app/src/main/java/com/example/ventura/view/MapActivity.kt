@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.viewmodel.JsonViewModel
@@ -26,9 +28,11 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
+import java.nio.charset.Charset
 
 class MapsActivity : AppCompatActivity() {
 
@@ -128,112 +132,149 @@ class MapsActivity : AppCompatActivity() {
         val spaces = jsonOb?.getJSONObject("spaces")
 
         if (spaces != null) {
-            for (spaceKey in spaces.keys()) {
-                val textLayout = LinearLayout(this)
-                textLayout.orientation = LinearLayout.HORIZONTAL
-                textLayout.layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                textLayout.setPadding(16)
 
-                val layoutParams = LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
-                )
-                layoutParams.gravity = Gravity.CENTER_VERTICAL
+            val obtainedRecommendationsLiveData = MutableLiveData<List<String>>()
 
-                val textView = TextView(this)
-                textView.text = spaceKey
-                textView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-                textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
-                textView.layoutParams = layoutParams
+            // create recomendations
+            userPrefViewModel.getData(userEmail).observe(this, Observer { jsonObject: JSONObject ->
+                Log.d("recomendation", "started")
+                Log.d("Recomendation visited", jsonObject.toString())
 
-                val verMas = TextView(this)
-                verMas.text = "Ver más"
-                verMas.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-                verMas.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
-
-                val button = Button(this)
-                button.text = "Ubicar"
-
-                val infoView = TextView(this)
-                infoView.visibility = View.GONE
-                infoView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-                infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
-
-                // Agregar sombra a la vista del contenedor
-                textLayout.background = ContextCompat.getDrawable(this, R.drawable.container_background)
-
-                verMas.setOnClickListener {
-                    if (infoView.visibility == View.VISIBLE) {
-                        infoView.visibility = View.GONE
-                        verMas.text = "Ver más"
-                    } else {
-                        infoView.visibility = View.VISIBLE
-                        verMas.text = "Ver menos"
-
-                        // Obtener las coordenadas del edificio
-                        val spaceObject = spaces.getJSONObject(spaceKey)
-                        val coordenadasEdificio = spaceObject.getJSONArray("coordenadas")
-                        val latitudEdificio = coordenadasEdificio.getDouble(0)
-                        val longitudEdificio = coordenadasEdificio.getDouble(1)
-                        buildingCoordinates = Pair(latitudEdificio, longitudEdificio)
-
-                        // Calcular la distancia entre las coordenadas del usuario y las del edificio
-                        userCoordinates?.let { userCoords ->
-                            buildingCoordinates?.let { buildingCoords ->
-                                val results = FloatArray(1)
-                                Location.distanceBetween(userCoords.first, userCoords.second, buildingCoords.first, buildingCoords.second, results)
-                                distanceToBuilding = results[0]
-
-                                // Convertir la distancia a metros y kilómetros
-                                val distanceInMeters = distanceToBuilding
-                                val distanceInKilometers = distanceToBuilding?.div(1000)
-                                val wakExpectedTimeMin = distanceInKilometers?.times(averageWalkingDelay)
-                                val carExpectedTimeMin = distanceInKilometers?.times(averageCarDelay)
-                                val bikeExpectedTimeMin = distanceInKilometers?.times(averageBikeDelay)
-
-                                // Actualizar la información adicional
-                                val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, wakExpectedTimeMin, carExpectedTimeMin, bikeExpectedTimeMin)
-                                infoView.text = infoText
-                            }
-                        }
-
-
+                var maxEntry = Pair("", 0)
+                for (key in jsonObject.keys()) {
+                    val value = jsonObject.getInt(key)
+                    if (value > maxEntry.second) {
+                        maxEntry = Pair(key, value)
                     }
                 }
+                Log.d("Recomendation most visited", maxEntry.first.toString())
+                val obtainedRecommendations = generateRecommendations(maxEntry.first, spaces)
+                Log.d("FORMAT RECOMENDATION - ALL", obtainedRecommendations.toString())
+
+                // Update the LiveData variable
+                obtainedRecommendationsLiveData.postValue(obtainedRecommendations)
+            })
+
+            // Observe this LiveData in your activity/fragment to get updates
+            obtainedRecommendationsLiveData.observe(this, Observer { recommendations ->
+                // Do whatever you want with the recommendations here
 
 
-                button.setOnClickListener {
+
+                for (spaceKey in spaces.keys()) {
+                    val textLayout = LinearLayout(this)
+                    textLayout.orientation = LinearLayout.VERTICAL // Change orientation to vertical
+                    textLayout.layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    textLayout.setPadding(16)
+
+                    val layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, // Adjust width to match parent
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    layoutParams.gravity = Gravity.CENTER_VERTICAL
+
+                    val textView = TextView(this)
+                    textView.text = spaceKey
+                    textView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                    textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                    textView.layoutParams = layoutParams
+
+                    val verMas = TextView(this)
+                    verMas.text = "Ver más"
+                    verMas.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                    verMas.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+
+                    val button = Button(this)
+                    button.text = "Ubicar"
+
+                    val infoView = TextView(this)
+                    infoView.visibility = View.GONE
+                    infoView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                    infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+
+                    val isRecommended = recommendations.contains(spaceKey)
+
+                    if (isRecommended) {
+                        val recommendedMessage = TextView(this)
+                        recommendedMessage.text = "Recommended location!"
+                        recommendedMessage.setTextColor(0xFFFF0000.toInt()) // Set text color to red
+                        recommendedMessage.setTypeface(Typeface.DEFAULT_BOLD)
+                        textLayout.addView(recommendedMessage) // Add recommended message here
+                    }
+
+                    textLayout.addView(textView)
+                    textLayout.addView(button)
+                    textLayout.addView(verMas)
+                    linearLayout.addView(textLayout)
+
+                    verMas.setOnClickListener {
+                        if (infoView.visibility == View.VISIBLE) {
+                            infoView.visibility = View.GONE
+                            verMas.text = "Ver más"
+                        } else {
+                            infoView.visibility = View.VISIBLE
+                            verMas.text = "Ver menos"
+
+                            // Obtener las coordenadas del edificio
+                            val spaceObject = spaces.getJSONObject(spaceKey)
+                            val coordenadasEdificio = spaceObject.getJSONArray("coordenadas")
+                            val latitudEdificio = coordenadasEdificio.getDouble(0)
+                            val longitudEdificio = coordenadasEdificio.getDouble(1)
+                            buildingCoordinates = Pair(latitudEdificio, longitudEdificio)
+
+                            // Calcular la distancia entre las coordenadas del usuario y las del edificio
+                            userCoordinates?.let { userCoords ->
+                                buildingCoordinates?.let { buildingCoords ->
+                                    val results = FloatArray(1)
+                                    Location.distanceBetween(userCoords.first, userCoords.second, buildingCoords.first, buildingCoords.second, results)
+                                    distanceToBuilding = results[0]
+
+                                    // Convertir la distancia a metros y kilómetros
+                                    val distanceInMeters = distanceToBuilding
+                                    val distanceInKilometers = distanceToBuilding?.div(1000)
+                                    val wakExpectedTimeMin = distanceInKilometers?.times(averageWalkingDelay)
+                                    val carExpectedTimeMin = distanceInKilometers?.times(averageCarDelay)
+                                    val bikeExpectedTimeMin = distanceInKilometers?.times(averageBikeDelay)
+
+                                    // Actualizar la información adicional
+                                    val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, wakExpectedTimeMin, carExpectedTimeMin, bikeExpectedTimeMin)
+                                    infoView.text = infoText
+
+                                }
+                            }
+
+
+                        }
+                    }
+
+
+                    button.setOnClickListener {
+                        val spaceObject = spaces.getJSONObject(spaceKey)
+                        val coordenadas = spaceObject.getJSONArray("coordenadas")
+                        val latitud = coordenadas.getDouble(0)
+                        val longitud = coordenadas.getDouble(1)
+                        abrirGoogleMaps(latitud, longitud)
+
+                        // Llamar a la función del ViewModel para guardar o actualizar los datos en Firebase Storage
+                        userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
+                    }
+
                     val spaceObject = spaces.getJSONObject(spaceKey)
                     val coordenadas = spaceObject.getJSONArray("coordenadas")
                     val latitud = coordenadas.getDouble(0)
                     val longitud = coordenadas.getDouble(1)
-                    abrirGoogleMaps(latitud, longitud)
-
-                    // Llamar a la función del ViewModel para guardar o actualizar los datos en Firebase Storage
-                    userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
+                    val distanceInMeters: Float? = null // No tenemos la distancia aquí
+                    val distanceInKilometers: Float? = null // No tenemos la distancia aquí
+                    val exTimeMinWal: Float? = null // No tenemos la distancia aquí
+                    val carTimeMinWal: Float? = null // No tenemos la distancia aquí
+                    val bikeTimeMinWal: Float? = null // No tenemos la distancia aquí
+                    infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, exTimeMinWal, carTimeMinWal, bikeTimeMinWal)
+                    linearLayout.addView(infoView)
                 }
-
-                textLayout.addView(textView)
-                textLayout.addView(button)
-                textLayout.addView(verMas)
-                linearLayout.addView(textLayout)
-                val spaceObject = spaces.getJSONObject(spaceKey)
-                val coordenadas = spaceObject.getJSONArray("coordenadas")
-                val latitud = coordenadas.getDouble(0)
-                val longitud = coordenadas.getDouble(1)
-                val distanceInMeters: Float? = null // No tenemos la distancia aquí
-                val distanceInKilometers: Float? = null // No tenemos la distancia aquí
-                val exTimeMinWal: Float? = null // No tenemos la distancia aquí
-                val carTimeMinWal: Float? = null // No tenemos la distancia aquí
-                val bikeTimeMinWal: Float? = null // No tenemos la distancia aquí
-                infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, exTimeMinWal, carTimeMinWal, bikeTimeMinWal)
-                linearLayout.addView(infoView)
-
-            }
+            })
         }
 
     }
@@ -245,6 +286,17 @@ class MapsActivity : AppCompatActivity() {
 
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun generateRecommendations(mostVisited: String, spaces: JSONObject): List<String> {
+        val recommendations = mutableListOf<String>()
+        for (spaceKey in spaces.keys()) {
+            if (spaceKey.contains(mostVisited)) {
+                recommendations.add(spaceKey)
+                Log.d("Recommendation", spaceKey)
+            }
+        }
+        return recommendations
     }
 
     private fun abrirGoogleMaps(latitud: Double, longitud: Double) {
@@ -259,6 +311,8 @@ class MapsActivity : AppCompatActivity() {
             // o no haya una actividad que maneje el intent
         }
     }
+
+
 
     private fun obtenerInformacionAdicional(spaceObject: JSONObject, distanceInMeters: Float?, distanceInKilometers: Float?, timeWak: Float?, timeCar: Float?, timeBike: Float?): String {
         val cantidadPisos = spaceObject.getInt("cantidad_pisos")
