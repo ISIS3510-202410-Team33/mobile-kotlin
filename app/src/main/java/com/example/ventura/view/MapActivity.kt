@@ -20,6 +20,7 @@ import androidx.core.view.setPadding
 import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.viewmodel.JsonViewModel
+import com.example.ventura.viewmodel.UserPreferencesViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -48,14 +49,21 @@ class MapsActivity : AppCompatActivity() {
     private var averageCarDelay: Float = 2F
 
     private lateinit var jsonViewModel: JsonViewModel
+    private lateinit var userPrefViewModel: UserPreferencesViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
+        // Recuperar el correo del usuario de los extras del intent
+        val userEmail = intent.getStringExtra("user_email")
+
+
+        Log.d("MainMenuActivity", "$userEmail")
 
         jsonViewModel = ViewModelProvider(this).get(JsonViewModel::class.java)
+        userPrefViewModel = ViewModelProvider(this).get(UserPreferencesViewModel::class.java)
 
         // Llamar a la función fetchJsonData bloqueando el hilo principal
         runBlocking(Dispatchers.IO) {
@@ -71,10 +79,12 @@ class MapsActivity : AppCompatActivity() {
             }
         }
 
+
         val buttonBackToMenu = findViewById<Button>(R.id.buttonBackToMenu)
         buttonBackToMenu.setOnClickListener {
             // Crear un intent para regresar al MainMenuActivity
             val intent = Intent(this, MainMenuActivity::class.java)
+            intent.putExtra("user_email", userEmail) // Aquí pasamos el correo como un extra
             startActivity(intent)
             finish() // Opcional: finaliza la actividad actual para liberar recursos
         }
@@ -202,6 +212,9 @@ class MapsActivity : AppCompatActivity() {
                     val latitud = coordenadas.getDouble(0)
                     val longitud = coordenadas.getDouble(1)
                     abrirGoogleMaps(latitud, longitud)
+
+                    // Llamar a la función del ViewModel para guardar o actualizar los datos en Firebase Storage
+                    userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
                 }
 
                 textLayout.addView(textView)

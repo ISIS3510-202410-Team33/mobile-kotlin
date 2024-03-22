@@ -31,7 +31,12 @@ class MainMenuActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_menu)
 
-        Log.d("MainMenuActivity", "onCreate")
+
+        // Recuperar el correo del usuario de los extras del intent
+        val userEmail = intent.getStringExtra("user_email")
+
+
+        Log.d("Bienvenido!, ", "$userEmail")
 
         locationRequest = LocationRequest.create().apply {
             interval = 10000 // Set the desired interval for active location updates, in milliseconds.
@@ -96,6 +101,7 @@ class MainMenuActivity : ComponentActivity() {
 
         buttonMap.setOnClickListener {
             val intent = Intent(this, MapsActivity::class.java)
+            intent.putExtra("user_email", userEmail) // Aquí pasamos el correo como un extra
             startActivity(intent)
             finish()
         }
