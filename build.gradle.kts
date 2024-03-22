@@ -7,5 +7,5 @@ buildscript {
 plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
-
+    id("com.google.firebase.crashlytics") version "2.9.9" apply false
 }
