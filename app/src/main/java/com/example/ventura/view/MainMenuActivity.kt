@@ -36,7 +36,7 @@ class MainMenuActivity : ComponentActivity() {
         val userEmail = intent.getStringExtra("user_email")
 
 
-        Log.d("Bienvenido!, ", "$userEmail")
+        Log.d("screen-flow", "¡Bienvenido, $userEmail!")
 
         locationRequest = LocationRequest.create().apply {
             interval = 10000 // Set the desired interval for active location updates, in milliseconds.
@@ -96,7 +96,7 @@ class MainMenuActivity : ComponentActivity() {
         val buttonSettings = findViewById<Button>(R.id.buttonSettings)
 
         buttonProfile.setOnClickListener {
-            // Navigate to Profile Activity
+
         }
 
         buttonMap.setOnClickListener {
