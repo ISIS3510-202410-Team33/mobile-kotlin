@@ -33,6 +33,7 @@ class LoginActivity : ComponentActivity() {
                 viewModel.signIn(email, password,
                     onSuccess = {
                         val intent = Intent(this, MainMenuActivity::class.java)
+                        intent.putExtra("user_email", email) // Aquí pasamos el correo como un extra
                         startActivity(intent)
                         finish()
                     },
@@ -45,6 +46,7 @@ class LoginActivity : ComponentActivity() {
                 Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT).show()
             }
         }
+
 
         textViewSignUp.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
