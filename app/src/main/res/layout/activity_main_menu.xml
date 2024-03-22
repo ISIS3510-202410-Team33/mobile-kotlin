@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:textColor="@android:color/white"
-            android:text="Humidity: N/A"
+            android:text="Loading weather data..."
             android:layout_below="@id/temperatureTextView"
             android:layout_alignStart="@id/weatherTextView"
             android:layout_alignLeft="@id/weatherTextView"/>
@@ -59,13 +59,26 @@
 
         <ImageView
             android:id="@+id/weatherIconImageView"
-            android:layout_width="wrap_content"
+            android:layout_width="128dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/cloud"
             android:layout_toEndOf="@id/weatherTextView"
             android:layout_toRightOf="@id/weatherTextView"
+            android:layout_marginStart="32dp"
+            android:scaleType="fitCenter"
             android:layout_alignTop="@id/weatherTextView"
             android:layout_alignBottom="@id/cityTextView"/>
+
+        <TextView
+            android:id="@+id/weatherMessageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:text=""
+            android:layout_below="@id/cityTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"/> <!-- Add vertical spacing -->
+
 
     </RelativeLayout>
 
