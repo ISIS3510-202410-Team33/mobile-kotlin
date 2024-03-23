@@ -19,6 +19,13 @@
         <activity
             android:name=".view.SignUpActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".view.ProfileActivity"
+            android:theme="@style/Theme.AppCompat.Light">
+
+        </activity>
+        <!-- Add any other attributes as needed -->
         <!-- Actividad SplashActivity -->
 
         <activity
