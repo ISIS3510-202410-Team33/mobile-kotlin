@@ -4,11 +4,14 @@ import android.Manifest
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Typeface
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -45,7 +48,6 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private var jsonOb: JSONObject? = null
-    private var bestRated: String? = null
     private var lastKnownLocation: Location? = null
 
     // Variables para almacenar las coordenadas y la distancia
@@ -163,6 +165,10 @@ class MapsActivity : AppCompatActivity() {
                 obtainedRecommendationsLiveData.postValue(obtainedRecommendations)
             })
 
+            ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
+                // Log the result
+                Log.d("YourOtherActivity", "Mejor edificio: $mejorEdificio")
+
             // Observe this LiveData in your activity/fragment to get updates
             obtainedRecommendationsLiveData.observe(this, Observer { recommendations ->
                 // Do whatever you want with the recommendations here
@@ -187,41 +193,51 @@ class MapsActivity : AppCompatActivity() {
 
                     val textView = TextView(this)
                     textView.text = spaceKey
-                    textView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                    textView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
                     textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // Set text size to 20sp
                     textView.layoutParams = layoutParams
 
 
                     val verMas = TextView(this)
-                    verMas.text = "Ver más"
-                    verMas.setTextColor(ContextCompat.getColor(this, android.R.color.holo_blue_light))
-                    verMas.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                    verMas.text = "View more information"
+                    verMas.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
+                    verMas.setTextColor(Color.parseColor("#d0d4f5"));
+                    verMas.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
 
                     val button = Button(this)
-                    button.text = "Ubicar"
+                    button.text = "Locate in map"
+                    button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#363c45")) // Set button background color to red
 
                     val buttonCalificar = TextView(this)
-                    buttonCalificar.text = "Calificar"
-                    buttonCalificar.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
-                    buttonCalificar.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                    buttonCalificar.text = "Rate this location!"
+                    buttonCalificar.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
+                    buttonCalificar.setTextColor(Color.parseColor("#ddf5b8"));
+                    buttonCalificar.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
 
 
                     val infoView = TextView(this)
                     infoView.visibility = View.GONE
-                    infoView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                    infoView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
                     infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
 
                     val isRecommended = recommendations.contains(spaceKey)
-
-                    Log.d("VAINAAA", "bestRated: $bestRated")
-
+                    val isBestRated = mejorEdificio.contains(spaceKey)
 
                     if (isRecommended) {
                         val recommendedMessage = TextView(this)
                         recommendedMessage.text = "Recommended location!"
-                        recommendedMessage.setTextColor(0xFFFF0000.toInt()) // Set text color to red
+                        recommendedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
                         recommendedMessage.setTypeface(Typeface.DEFAULT_BOLD)
                         textLayout.addView(recommendedMessage) // Add recommended message here
+                    }
+
+                    if (isBestRated) {
+                        val rateddedMessage = TextView(this)
+                        rateddedMessage.text = "Best Rated location!"
+                        rateddedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
+                        rateddedMessage.setTypeface(Typeface.DEFAULT_BOLD)
+                        textLayout.addView(rateddedMessage) // Add recommended message here
                     }
 
 
@@ -235,10 +251,10 @@ class MapsActivity : AppCompatActivity() {
                     verMas.setOnClickListener {
                         if (infoView.visibility == View.VISIBLE) {
                             infoView.visibility = View.GONE
-                            verMas.text = "Ver más"
+                            verMas.text = "View more information"
                         } else {
                             infoView.visibility = View.VISIBLE
-                            verMas.text = "Ver menos"
+                            verMas.text = "View less"
 
                             // Obtener las coordenadas del edificio
                             val spaceObject = spaces.getJSONObject(spaceKey)
@@ -312,6 +328,8 @@ class MapsActivity : AppCompatActivity() {
                     linearLayout.addView(infoView)
                 }
             })
+
+            })
         }
 
     }
@@ -357,45 +375,49 @@ class MapsActivity : AppCompatActivity() {
         val cantidadRestaurantes = spaceObject.getInt("cantidad_restaurantes")
         val cantidadZonasVerdes = spaceObject.getInt("cantidad_zonas_verdes")
 
-        // Verificar si las coordenadas del usuario y del edificio están disponibles
-        val userCoordsString = if (userCoordinates != null) {
-            "Coordenadas del usuario: ${userCoordinates!!.first}, ${userCoordinates!!.second}\n"
-        } else {
-            "Coordenadas del usuario: Desconocidas\n"
-        }
+        /*
 
-        val buildingCoordsString = if (buildingCoordinates != null) {
-            "Coordenadas del edificio: ${buildingCoordinates!!.first}, ${buildingCoordinates!!.second}\n"
-        } else {
-            "Coordenadas del edificio: Desconocidas\n"
-        }
+                // Verificar si las coordenadas del usuario y del edificio están disponibles
+                val userCoordsString = if (userCoordinates != null) {
+                    "Your current coordenates: ${userCoordinates!!.first}, ${userCoordinates!!.second}\n"
+                } else {
+                    "Your current coordenate: Desconocidas\n"
+                }
+
+                val buildingCoordsString = if (buildingCoordinates != null) {
+                    "Destination coordinates: ${buildingCoordinates!!.first}, ${buildingCoordinates!!.second}\n"
+                } else {
+                    "Destination coordinates: Desconocidas\n"
+                }
+
+                */
 
         val distanceString = if (distanceInMeters != null && distanceInKilometers != null) {
-            "Distancia al edificio: $distanceInMeters metros (${String.format("%.2f", distanceInKilometers)} kilómetros)\n"
+            "Distance to this location: $distanceInMeters m (${String.format("%.2f", distanceInKilometers)} km)\n"
         } else {
-            "Distancia al edificio: Desconocida\n"
+            "Distance to this location: Desconocida\n"
         }
 
         val timeWakMin = if (distanceInMeters != null && distanceInKilometers != null) {
-            "Tiempo estimado caminando: ${String.format("%.2f", timeWak)} minutos)\n"
+            "Travel time walking: ${String.format("%.2f", timeWak)} min\n"
         } else {
-            "Tiempo estimado caminando: Desconocido\n"
+            "Travel time walking: Desconocido\n"
         }
 
         val timeCarMin = if (distanceInMeters != null && distanceInKilometers != null) {
-            "Tiempo estimado en carro: ${String.format("%.2f", timeCar)} minutos)\n"
+            "Travel time by car: ${String.format("%.2f", timeCar)} min\n"
         } else {
-            "Tiempo estimado en carro: Desconocido\n"
+            "Travel time by car: Desconocido\n"
         }
 
         val timeBikeMin = if (distanceInMeters != null && distanceInKilometers != null) {
-            "Tiempo estimado en bike: ${String.format("%.2f", timeBike)} minutos)\n"
+            "Travel time by bike: ${String.format("%.2f", timeBike)} min\n"
         } else {
-            "Tiempo estimado en bike: Desconocido\n"
+            "Travel time by bike: Desconocido\n"
         }
-
-        return "Cantidad de pisos: $cantidadPisos \nCantidad de restaurantes: $cantidadRestaurantes \n" +
-                "Obstrucciones: $obstrucciones \nCantidad de zonas verdes: $cantidadZonasVerdes\n$userCoordsString$buildingCoordsString$distanceString" +
+        var obstrucciones2 = if (obstrucciones) "Yes" else "None"
+        return "Floors: $cantidadPisos \nRestaurants: $cantidadRestaurantes \n" +
+                "Obstructions: $obstrucciones2 \nGreen areas: $cantidadZonasVerdes\n$distanceString" +
                 timeWakMin + timeCarMin + timeBikeMin
     }
 

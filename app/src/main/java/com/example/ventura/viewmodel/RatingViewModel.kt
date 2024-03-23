@@ -1,6 +1,8 @@
 package com.example.ventura.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.storage.FirebaseStorage
@@ -89,8 +91,8 @@ class RatingViewModel : ViewModel() {
         }
     }
 
-    fun obtenerEdificioConMejorPuntaje(): String {
-        var mejorEdificio = ""
+    fun obtenerEdificioConMejorPuntaje(): LiveData<String> {
+        val mejorEdificioLiveData = MutableLiveData<String>()
         var mejorPuntaje = Float.MIN_VALUE
 
         // Obtener referencia al archivo JSON en Firebase
@@ -104,18 +106,14 @@ class RatingViewModel : ViewModel() {
             // Convertir el String JSON a un JSONObject
             val json = JSONObject(jsonStr)
 
-            // Verificar si el JSON contiene espacios
             if (json.has("spaces")) {
                 val spaces = json.getJSONObject("spaces")
-
-                // Iterar sobre los espacios para encontrar el mejor puntaje
                 val iterator = spaces.keys()
                 while (iterator.hasNext()) {
                     val spaceKey = iterator.next()
                     val space = spaces.getJSONObject(spaceKey)
                     val calificacionesArray = space.getJSONArray("calificaciones")
 
-                    // Calcular el puntaje promedio del edificio
                     var sum = 0F
                     var count = 0
                     for (i in 0 until calificacionesArray.length()) {
@@ -125,31 +123,18 @@ class RatingViewModel : ViewModel() {
                     }
                     val promedio = if (count > 0) sum / count else 0F
 
-                    // Actualizar el mejor edificio si corresponde
                     if (promedio > mejorPuntaje) {
                         mejorPuntaje = promedio
-                        mejorEdificio = spaceKey
+                        mejorEdificioLiveData.postValue(spaceKey)
                     }
                 }
             }
-
-            // Log para verificar el resultado
-            Log.d("RatingViewModel", "Mejor edificio: $mejorEdificio, Puntaje: $mejorPuntaje")
         }.addOnFailureListener { e ->
             Log.e("RatingViewModel", "Error al obtener el archivo JSON de Firebase: ${e.message}", e)
         }
 
-        return mejorEdificio
+        return mejorEdificioLiveData
     }
 
-    suspend fun fetchMejorEdificio(): String {
-        return viewModelScope.async(Dispatchers.IO) {
-            try {
-                obtenerEdificioConMejorPuntaje()
-            } catch (e: Exception) {
-                throw e
-            }
-        }.await() // Esperar a que la coroutine termine y devolver el resultado
-    }
 
 }
