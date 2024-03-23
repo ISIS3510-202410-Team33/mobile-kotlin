@@ -1,6 +1,7 @@
 package com.example.ventura.view
 
 import android.Manifest
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
@@ -11,8 +12,11 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -22,6 +26,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.viewmodel.JsonViewModel
+import com.example.ventura.viewmodel.RatingViewModel
 import com.example.ventura.viewmodel.UserPreferencesViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -40,6 +45,7 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private var jsonOb: JSONObject? = null
+    private var bestRated: String? = null
     private var lastKnownLocation: Location? = null
 
     // Variables para almacenar las coordenadas y la distancia
@@ -54,6 +60,7 @@ class MapsActivity : AppCompatActivity() {
 
     private lateinit var jsonViewModel: JsonViewModel
     private lateinit var userPrefViewModel: UserPreferencesViewModel
+    private lateinit var ratingViewModel: RatingViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +75,7 @@ class MapsActivity : AppCompatActivity() {
 
         jsonViewModel = ViewModelProvider(this).get(JsonViewModel::class.java)
         userPrefViewModel = ViewModelProvider(this).get(UserPreferencesViewModel::class.java)
+        ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
 
         // Llamar a la función fetchJsonData bloqueando el hilo principal
         runBlocking(Dispatchers.IO) {
@@ -161,6 +169,7 @@ class MapsActivity : AppCompatActivity() {
 
 
 
+
                 for (spaceKey in spaces.keys()) {
                     val textLayout = LinearLayout(this)
                     textLayout.orientation = LinearLayout.VERTICAL // Change orientation to vertical
@@ -182,13 +191,20 @@ class MapsActivity : AppCompatActivity() {
                     textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
                     textView.layoutParams = layoutParams
 
+
                     val verMas = TextView(this)
                     verMas.text = "Ver más"
-                    verMas.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                    verMas.setTextColor(ContextCompat.getColor(this, android.R.color.holo_blue_light))
                     verMas.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
 
                     val button = Button(this)
                     button.text = "Ubicar"
+
+                    val buttonCalificar = TextView(this)
+                    buttonCalificar.text = "Calificar"
+                    buttonCalificar.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
+                    buttonCalificar.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+
 
                     val infoView = TextView(this)
                     infoView.visibility = View.GONE
@@ -196,6 +212,9 @@ class MapsActivity : AppCompatActivity() {
                     infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
 
                     val isRecommended = recommendations.contains(spaceKey)
+
+                    Log.d("VAINAAA", "bestRated: $bestRated")
+
 
                     if (isRecommended) {
                         val recommendedMessage = TextView(this)
@@ -205,9 +224,12 @@ class MapsActivity : AppCompatActivity() {
                         textLayout.addView(recommendedMessage) // Add recommended message here
                     }
 
+
+
                     textLayout.addView(textView)
                     textLayout.addView(button)
                     textLayout.addView(verMas)
+                    textLayout.addView(buttonCalificar)
                     linearLayout.addView(textLayout)
 
                     verMas.setOnClickListener {
@@ -250,6 +272,21 @@ class MapsActivity : AppCompatActivity() {
                         }
                     }
 
+
+                    button.setOnClickListener {
+                        val spaceObject = spaces.getJSONObject(spaceKey)
+                        val coordenadas = spaceObject.getJSONArray("coordenadas")
+                        val latitud = coordenadas.getDouble(0)
+                        val longitud = coordenadas.getDouble(1)
+                        abrirGoogleMaps(latitud, longitud)
+
+                        // Llamar a la función del ViewModel para guardar o actualizar los datos en Firebase Storage
+                        userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
+                    }
+
+                    buttonCalificar.setOnClickListener {
+                        mostrarFormularioCalificacion(spaceKey)
+                    }
 
                     button.setOnClickListener {
                         val spaceObject = spaces.getJSONObject(spaceKey)
@@ -361,6 +398,38 @@ class MapsActivity : AppCompatActivity() {
                 "Obstrucciones: $obstrucciones \nCantidad de zonas verdes: $cantidadZonasVerdes\n$userCoordsString$buildingCoordsString$distanceString" +
                 timeWakMin + timeCarMin + timeBikeMin
     }
+
+    private fun mostrarFormularioCalificacion(spaceKey: String) {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_calification)
+
+        val btnEnviar = dialog.findViewById<Button>(R.id.btnEnviar)
+        val ratingBar = dialog.findViewById<RatingBar>(R.id.ratingBar)
+        val comentarioEditText = dialog.findViewById<EditText>(R.id.comentarioEditText)
+
+        btnEnviar.setOnClickListener {
+            // Obtener la calificación y el comentario del usuario
+            val calificacion = ratingBar.rating
+            val comentario = comentarioEditText.text.toString()
+
+            // Llamar al método del ViewModel para enviar la calificación a Firebase
+            ratingViewModel.enviarCalificacionALaBaseDeDatos(spaceKey, calificacion, comentario)
+
+            // Mostrar la notificación al usuario
+            mostrarNotificacion()
+
+            // Cerrar el diálogo después de enviar la calificación
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun mostrarNotificacion() {
+        Toast.makeText(this, "Thanks for sharing your opinion with us!", Toast.LENGTH_SHORT).show()
+    }
+
+
 
 
 }
