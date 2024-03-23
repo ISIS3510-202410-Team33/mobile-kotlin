@@ -81,12 +81,12 @@ class MainMenuActivity : ComponentActivity() {
             val weatherDescription = weatherResponse.weather[0].description.toLowerCase()
             val weatherIconUrl = when {
                 weatherDescription.contains("rain") || weatherDescription.contains("drizzle") ->
-                    "https://emojiapi.dev/api/v1/rain/512.png"
+                    "https://emojiapi.dev/api/v1/cloud_with_rain/512.png"
                 weatherDescription.contains("cloud") ->
                     "https://emojiapi.dev/api/v1/cloud/512.png"
                 weatherDescription.contains("clear") ->
-                    "https://emojiapi.dev/api/v1/sun/512.png"
-                else -> "https://emojiapi.dev/api/v1/question_mark/512.png"
+                    "https://emojiapi.dev/api/v1/sun_behind_cloud/512.png"
+                else -> "https://emojiapi.dev/api/v1/cloud/512.png"
             }
             Glide.with(this).load(weatherIconUrl).into(weatherIconImageView)
 
