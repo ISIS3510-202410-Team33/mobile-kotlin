@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:ignore="ExtraText">
-    android:background="@drawable/grey_wallpaper"> <!-- Adding grey wallpaper background -->
 
     <LinearLayout
         android:id="@+id/linear_layout"
@@ -13,16 +11,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="@android:color/white"
-        tools:context=".view.MapsActivity">
-
-
+        android:background="@drawable/grey_wallpaper">
 
         <Button
             android:id="@+id/buttonBackToMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Home"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#363c45"
             android:layout_marginTop="16dp" />
 
         <!-- Aquí se agregarán las cajas dinámicamente -->
