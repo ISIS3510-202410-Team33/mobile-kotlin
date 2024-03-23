@@ -95,7 +95,7 @@
         android:gravity="center"
         android:inputType="text"
         android:letterSpacing="0.1"
-        android:text="First time using Ventura?"
+        android:text="First time using Ventura? Sign up here"
         android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/imageView3"
         app:layout_constraintEnd_toEndOf="parent"
