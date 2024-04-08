@@ -29,6 +29,7 @@ class MainMenuActivity : ComponentActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu");
+    val context = this.applicationContext
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +59,7 @@ class MainMenuActivity : ComponentActivity() {
                         // Update UI with location data
                         // Call a method to handle the current location.
                         Log.d("Location", "$location")
-                        weatherViewModel.getWeather(location.latitude, location.longitude)
+                        weatherViewModel.getWeather(location.latitude, location.longitude, context)
                     }
                 }
             }
