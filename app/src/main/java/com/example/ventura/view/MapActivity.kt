@@ -69,6 +69,7 @@ class MapsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
+
         // Recuperar el correo del usuario de los extras del intent
         val userEmail = intent.getStringExtra("user_email")
 
@@ -169,12 +170,8 @@ class MapsActivity : AppCompatActivity() {
                 // Log the result
                 Log.d("YourOtherActivity", "Mejor edificio: $mejorEdificio")
 
-            // Observe this LiveData in your activity/fragment to get updates
+            // Observe the Live Data to get updates
             obtainedRecommendationsLiveData.observe(this, Observer { recommendations ->
-                // Do whatever you want with the recommendations here
-
-
-
 
                 for (spaceKey in spaces.keys()) {
                     val textLayout = LinearLayout(this)
