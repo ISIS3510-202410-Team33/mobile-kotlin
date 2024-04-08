@@ -1,8 +1,11 @@
 package com.example.ventura.view
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import com.example.ventura.R
@@ -22,6 +25,7 @@ import com.example.ventura.model.analytics.FeatureCrashHandler
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import android.provider.Settings
 
 class MainMenuActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
@@ -35,6 +39,12 @@ class MainMenuActivity : ComponentActivity() {
         try {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main_menu)
+
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                // Mostrar un diálogo de alerta al usuario
+                mostrarDialogoGPS()
+            }
 
 
             // Recuperar el correo del usuario de los extras del intent
@@ -156,5 +166,23 @@ class MainMenuActivity : ComponentActivity() {
 
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun mostrarDialogoGPS() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("GPS Desactivado")
+            .setMessage("Para usar esta aplicación, debes activar el GPS.")
+            .setCancelable(false)
+            .setPositiveButton("Activar GPS") { dialog, _ ->
+                // Abrir la configuración de ubicación del dispositivo
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                dialog.dismiss()
+            }
+            .setNegativeButton("Salir") { dialog, _ ->
+                dialog.dismiss()
+                finish() // Opcional: cierra la actividad si el usuario decide salir
+            }
+        val alert = builder.create()
+        alert.show()
     }
 }

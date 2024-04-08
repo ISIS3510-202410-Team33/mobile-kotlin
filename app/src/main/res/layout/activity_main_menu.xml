@@ -1,122 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/grey_wallpaper"> <!-- Adding grey wallpaper background -->
+    android:background="@drawable/background_gradient"
+    android:orientation="vertical"> <!-- Adding grey wallpaper background -->
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:text="Hi, Juan!"
+        android:textColor="@color/white"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingTop="1dp"
+        android:text="fecha hoy"
+        android:textColor="#989898" />
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:padding="16dp"
-        android:background="@drawable/weather_info_background"> <!-- Adding rounded corner box with grey background for weather info -->
+        android:background="#0DFFFFFF"
+        android:padding="16dp"> <!-- Adding rounded corner box with grey background for weather info -->
 
         <TextView
             android:id="@+id/weatherTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:text="Loading weather data..."
-            android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Loading weather data..."
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/temperatureTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:text="Loading weather data..."
             android:layout_below="@id/weatherTextView"
             android:layout_alignStart="@id/weatherTextView"
-            android:layout_alignLeft="@id/weatherTextView"/>
+            android:layout_alignLeft="@id/weatherTextView"
+            android:text="Loading weather data..."
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/humidityTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:text="Loading weather data..."
             android:layout_below="@id/temperatureTextView"
             android:layout_alignStart="@id/weatherTextView"
-            android:layout_alignLeft="@id/weatherTextView"/>
+            android:layout_alignLeft="@id/weatherTextView"
+            android:text="Loading weather data..."
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/cityTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:text="Loading city..."
             android:layout_below="@id/humidityTextView"
             android:layout_alignStart="@id/weatherTextView"
-            android:layout_alignLeft="@id/weatherTextView"/>
+            android:layout_alignLeft="@id/weatherTextView"
+            android:text="Loading city..."
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/weatherIconImageView"
             android:layout_width="128dp"
             android:layout_height="wrap_content"
+            android:layout_alignTop="@id/weatherTextView"
+            android:layout_alignBottom="@id/cityTextView"
+            android:layout_marginStart="32dp"
             android:layout_toEndOf="@id/weatherTextView"
             android:layout_toRightOf="@id/weatherTextView"
-            android:layout_marginStart="32dp"
-            android:scaleType="fitCenter"
-            android:layout_alignTop="@id/weatherTextView"
-            android:layout_alignBottom="@id/cityTextView"/>
+            android:scaleType="fitCenter" />
 
         <TextView
             android:id="@+id/weatherMessageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"
-            android:text=""
             android:layout_below="@id/cityTextView"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"/> <!-- Add vertical spacing -->
+            android:layout_marginTop="20dp"
+            android:text=""
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
+        <!-- Add vertical spacing -->
 
 
     </RelativeLayout>
 
 
-
-    <Button
-        android:id="@+id/buttonMap"
+    <TextView
+        android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Map"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#363c45"/>
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/university_button"
+        android:paddingVertical="10dp"
+        android:text="Universidad de los Andes"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/buttonProfile"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Profile"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#363c45"/>
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/main_menu_scroll">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
 
-    <Button
-        android:id="@+id/buttonSettings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Settings"
-        android:textColor="@android:color/white"
-        android:backgroundTint="#363c45"/>
+            <Button
+                android:id="@+id/buttonMap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:height="80dp"
+                android:background="@drawable/main_menu_scroll2"
+                android:text="Map"
+                android:textColor="@android:color/white" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/duck"
-        android:padding="64dp"/>
+            <Button
+                android:id="@+id/buttonProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:height="80dp"
+                android:background="@drawable/main_menu_scroll2"
+                android:text="Profile"
+                android:textColor="@android:color/white" />
 
+            <Button
+                android:id="@+id/buttonSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:height="80dp"
+                android:background="@drawable/main_menu_scroll2"
+                android:text="Settings"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

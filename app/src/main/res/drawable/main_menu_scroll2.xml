@@ -1,0 +1,33 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <layer-list>
+            <!-- Configurar el fondo con gradiente -->
+            <item>
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:startColor="#424343"
+                        android:endColor="#303134"
+                        android:angle="45" />
+                    <corners
+                        android:radius="45dp" />
+                </shape>
+            </item>
+            <!-- Agregar sombra -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners
+                        android:radius="45dp" />
+                    <solid android:color="@android:color/transparent" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="@android:color/transparent" />
+                    <padding
+                        android:left="8dp"
+                        android:top="8dp"
+                        android:right="8dp"
+                        android:bottom="8dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>
