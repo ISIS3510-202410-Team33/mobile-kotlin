@@ -26,6 +26,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import android.provider.Settings
+import androidx.core.content.ContextCompat
 
 class MainMenuActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
@@ -37,6 +38,7 @@ class MainMenuActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
+
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main_menu)
 
@@ -45,6 +47,8 @@ class MainMenuActivity : ComponentActivity() {
                 // Mostrar un diálogo de alerta al usuario
                 mostrarDialogoGPS()
             }
+
+            // requestStoragePermission()
 
 
             // Recuperar el correo del usuario de los extras del intent
@@ -166,6 +170,12 @@ class MainMenuActivity : ComponentActivity() {
 
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun requestStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+        }
     }
 
     private fun mostrarDialogoGPS() {

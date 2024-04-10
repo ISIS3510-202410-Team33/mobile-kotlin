@@ -29,6 +29,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.viewmodel.JsonViewModel
+import com.example.ventura.viewmodel.JsonViewModelFactory
 import com.example.ventura.viewmodel.RatingViewModel
 import com.example.ventura.viewmodel.UserPreferencesViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -76,9 +77,13 @@ class MapsActivity : AppCompatActivity() {
 
         Log.d("MainMenuActivity", "$userEmail")
 
-        jsonViewModel = ViewModelProvider(this).get(JsonViewModel::class.java)
+        jsonViewModel = ViewModelProvider(this, JsonViewModelFactory(this)).get(JsonViewModel::class.java)
         userPrefViewModel = ViewModelProvider(this).get(UserPreferencesViewModel::class.java)
         ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
+
+        if (!jsonViewModel.isDataAvailableLocally()) {
+            Toast.makeText(this, "La información se está obteniendo del servidor, por favor espere...", Toast.LENGTH_LONG).show()
+        }
 
         // Llamar a la función fetchJsonData bloqueando el hilo principal
         runBlocking(Dispatchers.IO) {
@@ -87,11 +92,18 @@ class MapsActivity : AppCompatActivity() {
                 // Manejar el JSONObject recibido
                 jsonOb = jsonObject
 
+
                 Log.d("vaina", "llego esta vaiana")
             } catch (e: Exception) {
                 // Manejar cualquier error
                 Log.d("asd", "no llego esta vaina")
             }
+        }
+
+        runOnUiThread {
+            Toast.makeText(this, "Información cargada exitosamente", Toast.LENGTH_SHORT).show()
+
+
         }
 
 
