@@ -36,21 +36,20 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
-import java.nio.charset.Charset
 
 class MapsActivity : AppCompatActivity() {
 
+    // Variables to storage the components of the location provider
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private var jsonOb: JSONObject? = null
     private var lastKnownLocation: Location? = null
 
-    // Variables para almacenar las coordenadas y la distancia
+    // Variables to storage coordinates and distances
     private var userCoordinates: Pair<Double, Double>? = null
     private var buildingCoordinates: Pair<Double, Double>? = null
     private var distanceToBuilding: Float? = null
@@ -60,6 +59,7 @@ class MapsActivity : AppCompatActivity() {
     private var averageBikeDelay: Float = 3F
     private var averageCarDelay: Float = 2F
 
+    // Lateinit vars to use the corresponding ViewModels
     private lateinit var jsonViewModel: JsonViewModel
     private lateinit var userPrefViewModel: UserPreferencesViewModel
     private lateinit var ratingViewModel: RatingViewModel
@@ -69,39 +69,36 @@ class MapsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
-
-        // Recuperar el correo del usuario de los extras del intent
+        // Retrieve the email from the extras of the intent
         val userEmail = intent.getStringExtra("user_email")
-
-
-        Log.d("MainMenuActivity", "$userEmail")
 
         jsonViewModel = ViewModelProvider(this).get(JsonViewModel::class.java)
         userPrefViewModel = ViewModelProvider(this).get(UserPreferencesViewModel::class.java)
         ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
 
-        // Llamar a la función fetchJsonData bloqueando el hilo principal
+        // Coroutine_1 -> callback to the fetchJsonData function while blocking the main thread (using the thread pool of the scope)
         runBlocking(Dispatchers.IO) {
             try {
+                // Calling the JsonData through the ViewModel functions
                 val jsonObject = jsonViewModel.fetchJsonData()
-                // Manejar el JSONObject recibido
+
+                //Handle the obtained json object
                 jsonOb = jsonObject
 
-                Log.d("vaina", "llego esta vaiana")
             } catch (e: Exception) {
-                // Manejar cualquier error
-                Log.d("asd", "no llego esta vaina")
+                // TODO: Handling exceptions when the JSONobject is not obtained
+                Log.d("Data Error", "Couldn´t receive the json with the data expected")
             }
         }
 
-
         val buttonBackToMenu = findViewById<Button>(R.id.buttonBackToMenu)
         buttonBackToMenu.setOnClickListener {
-            // Crear un intent para regresar al MainMenuActivity
+
+            // Intent to go back to the main menu activity
             val intent = Intent(this, MainMenuActivity::class.java)
-            intent.putExtra("user_email", userEmail) // Aquí pasamos el correo como un extra
+            intent.putExtra("user_email", userEmail)
             startActivity(intent)
-            finish() // Opcional: finaliza la actividad actual para liberar recursos
+            finish() // Optional: finishes current activity to free resources
         }
 
         locationRequest = LocationRequest.create().apply {
@@ -144,10 +141,22 @@ class MapsActivity : AppCompatActivity() {
 
         if (spaces != null) {
 
+            /*
+             * <-- BQ 1 -->
+             *
+             * Here we use the ViewModel in order to observe if the user recommendations json
+             * has been updated in which case we update the recommended buildings to be shown
+             * in the activity to the user. So, we are using the live data component to keep
+             * data updated and allow reactive communication between different
+             * parts of the application
+             *
+             */
+
             val obtainedRecommendationsLiveData = MutableLiveData<List<String>>()
 
             // create recomendations
             userPrefViewModel.getData(this, userEmail).observe(this, Observer { jsonObject: JSONObject ->
+
                 Log.d("recomendation", "started")
                 Log.d("Recomendation visited", jsonObject.toString())
 
@@ -166,10 +175,15 @@ class MapsActivity : AppCompatActivity() {
                 obtainedRecommendationsLiveData.postValue(obtainedRecommendations)
             })
 
-            ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
-                // Log the result
-                Log.d("YourOtherActivity", "Mejor edificio: $mejorEdificio")
+            /*
+            * <-- BQ 4 -->
+            *
+            * Here we use the rates ViewModel in order to observe if there are any updates
+            * in the best rated building so it can be shown by the user.
+            *
+            */
 
+            ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
             // Observe the Live Data to get updates
             obtainedRecommendationsLiveData.observe(this, Observer { recommendations ->
 
@@ -195,7 +209,6 @@ class MapsActivity : AppCompatActivity() {
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // Set text size to 20sp
                     textView.layoutParams = layoutParams
 
-
                     val verMas = TextView(this)
                     verMas.text = "View more information"
                     verMas.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
@@ -211,7 +224,6 @@ class MapsActivity : AppCompatActivity() {
                     buttonCalificar.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
                     buttonCalificar.setTextColor(Color.parseColor("#ddf5b8"));
                     buttonCalificar.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
-
 
                     val infoView = TextView(this)
                     infoView.visibility = View.GONE
@@ -229,6 +241,14 @@ class MapsActivity : AppCompatActivity() {
                         textLayout.addView(recommendedMessage) // Add recommended message here
                     }
 
+                    /*
+                       * <-- BQ 4 -->
+                       *
+                       * We show to the user which is the best rated location/s or the ones
+                       * with the most positive feedback
+                       *
+                    */
+
                     if (isBestRated) {
                         val rateddedMessage = TextView(this)
                         rateddedMessage.text = "Best Rated location!"
@@ -236,8 +256,6 @@ class MapsActivity : AppCompatActivity() {
                         rateddedMessage.setTypeface(Typeface.DEFAULT_BOLD)
                         textLayout.addView(rateddedMessage) // Add recommended message here
                     }
-
-
 
                     textLayout.addView(textView)
                     textLayout.addView(button)
@@ -285,32 +303,46 @@ class MapsActivity : AppCompatActivity() {
                         }
                     }
 
-
+                    /*
+                     * <-- BQ 1 -->
+                     *
+                     * Here is the "locate in map" button listener for
+                     * achieving this business question. When the user clicks on
+                     * a building to be located in the map, we call (in
+                     * background) the view model in charge,
+                     * so it can update the buildings preferences
+                     * on the firebase json.
+                     *
+                     */
                     button.setOnClickListener {
+
+                        /*
+                         * function call to open google maps location handler
+                         */
                         val spaceObject = spaces.getJSONObject(spaceKey)
                         val coordenadas = spaceObject.getJSONArray("coordenadas")
                         val latitud = coordenadas.getDouble(0)
                         val longitud = coordenadas.getDouble(1)
                         abrirGoogleMaps(latitud, longitud)
 
-                        // Llamar a la función del ViewModel para guardar o actualizar los datos en Firebase Storage
+                        /*
+                         * we call the view model here to save or update the
+                         * buildings preferences data in the firebase storage
+                         */
                         userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
                     }
+
+                    /*
+                    * <-- BQ 2 -->
+                    *
+                    * Button listener to show the rating form so the user can rate a selected building
+                    *
+                    */
 
                     buttonCalificar.setOnClickListener {
                         mostrarFormularioCalificacion(spaceKey)
                     }
 
-                    button.setOnClickListener {
-                        val spaceObject = spaces.getJSONObject(spaceKey)
-                        val coordenadas = spaceObject.getJSONArray("coordenadas")
-                        val latitud = coordenadas.getDouble(0)
-                        val longitud = coordenadas.getDouble(1)
-                        abrirGoogleMaps(latitud, longitud)
-
-                        // Llamar a la función del ViewModel para guardar o actualizar los datos en Firebase Storage
-                        userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
-                    }
 
                     val spaceObject = spaces.getJSONObject(spaceKey)
                     val coordenadas = spaceObject.getJSONArray("coordenadas")
@@ -361,33 +393,17 @@ class MapsActivity : AppCompatActivity() {
         } else {
             // Manejar el caso en el que Google Maps no esté instalado en el dispositivo
             // o no haya una actividad que maneje el intent
+            val mapUrl = "https://www.google.com/maps/search/?api=1&query=$latitud,$longitud"
+            val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(mapUrl))
+            startActivity(mapIntent)
         }
     }
-
-
 
     private fun obtenerInformacionAdicional(spaceObject: JSONObject, distanceInMeters: Float?, distanceInKilometers: Float?, timeWak: Float?, timeCar: Float?, timeBike: Float?): String {
         val cantidadPisos = spaceObject.getInt("cantidad_pisos")
         val obstrucciones = spaceObject.getBoolean("obstrucciones")
         val cantidadRestaurantes = spaceObject.getInt("cantidad_restaurantes")
         val cantidadZonasVerdes = spaceObject.getInt("cantidad_zonas_verdes")
-
-        /*
-
-                // Verificar si las coordenadas del usuario y del edificio están disponibles
-                val userCoordsString = if (userCoordinates != null) {
-                    "Your current coordenates: ${userCoordinates!!.first}, ${userCoordinates!!.second}\n"
-                } else {
-                    "Your current coordenate: Desconocidas\n"
-                }
-
-                val buildingCoordsString = if (buildingCoordinates != null) {
-                    "Destination coordinates: ${buildingCoordinates!!.first}, ${buildingCoordinates!!.second}\n"
-                } else {
-                    "Destination coordinates: Desconocidas\n"
-                }
-
-                */
 
         val distanceString = if (distanceInMeters != null && distanceInKilometers != null) {
             "Distance to this location: $distanceInMeters m (${String.format("%.2f", distanceInKilometers)} km)\n"
@@ -418,6 +434,7 @@ class MapsActivity : AppCompatActivity() {
                 timeWakMin + timeCarMin + timeBikeMin
     }
 
+
     private fun mostrarFormularioCalificacion(spaceKey: String) {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_calification)
@@ -425,6 +442,14 @@ class MapsActivity : AppCompatActivity() {
         val btnEnviar = dialog.findViewById<Button>(R.id.btnEnviar)
         val ratingBar = dialog.findViewById<RatingBar>(R.id.ratingBar)
         val comentarioEditText = dialog.findViewById<EditText>(R.id.comentarioEditText)
+
+        /*
+           * <-- BQ 2 -->
+           *
+           * Here we use the rating ViewModel in order to submit the rating of the building
+           * to the corresponding firebase storage
+           *
+         */
 
         btnEnviar.setOnClickListener {
             // Obtener la calificación y el comentario del usuario
@@ -447,8 +472,5 @@ class MapsActivity : AppCompatActivity() {
     private fun mostrarNotificacion() {
         Toast.makeText(this, "Thanks for sharing your opinion with us!", Toast.LENGTH_SHORT).show()
     }
-
-
-
 
 }

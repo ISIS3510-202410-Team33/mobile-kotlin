@@ -18,7 +18,7 @@ class UserPreferencesViewModel : ViewModel() {
 
         userRef.getBytes(1024 * 1024)
             .addOnSuccessListener { bytes ->
-                // Si el archivo existe, actualizar los datos
+                // If th JSON exists we just update the data
                 val jsonString = String(bytes, Charset.defaultCharset())
                 val jsonObject = JSONObject(jsonString)
                 if (jsonObject.has(buildingName)) {
@@ -27,18 +27,22 @@ class UserPreferencesViewModel : ViewModel() {
                 } else {
                     jsonObject.put(buildingName, 1)
                 }
-                // Guardar los datos actualizados en Firebase Storage
+                // Then we save the data in the firebase storage
                 userRef.putBytes(jsonObject.toString().toByteArray())
             }
             .addOnFailureListener { exception ->
-                // Si el archivo no existe, crearlo con los datos iniciales
+                // Else, if the JSON doesn´t exist yet, we create a new one
                 val jsonObject = JSONObject()
                 jsonObject.put(buildingName, 1)
-                // Guardar los datos en Firebase Storage
+                // Then we save the data in the firebase storage
                 userRef.putBytes(jsonObject.toString().toByteArray())
             }
     }
 
+
+    /* Here we get the data source with the JSON preferences of the user to be used
+     * by the other app components.
+     */
     fun getData(context: Context, userEmail: String?): LiveData<JSONObject> {
         val data = MutableLiveData<JSONObject>()
 
