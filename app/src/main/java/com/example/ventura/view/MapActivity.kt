@@ -154,7 +154,9 @@ class MapsActivity : AppCompatActivity() {
 
             val obtainedRecommendationsLiveData = MutableLiveData<List<String>>()
 
-            userPrefViewModel.getData(userEmail).observe(this, Observer { jsonObject: JSONObject ->
+            // create recomendations
+            userPrefViewModel.getData(this, userEmail).observe(this, Observer { jsonObject: JSONObject ->
+
                 Log.d("recomendation", "started")
                 Log.d("Recomendation visited", jsonObject.toString())
 
