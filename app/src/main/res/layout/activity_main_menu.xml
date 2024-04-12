@@ -7,31 +7,70 @@
     android:background="@drawable/background_gradient"
     android:orientation="vertical"> <!-- Adding grey wallpaper background -->
 
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
-        android:paddingTop="10dp"
-        android:text="Hi, Juan!"
-        android:textColor="@color/white"
-        android:textSize="20dp" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:layout_margin="16dp">
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
-        android:paddingTop="1dp"
-        android:text="fecha hoy"
-        android:textColor="#989898" />
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hi, User!"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/textView6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Today Date"
+            android:textColor="#989898"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="42dp"
+            android:layout_height="38dp"
+            app:layout_constraintBottom_toTopOf="@+id/log_out"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/duck" />
+
+        <TextView
+            android:id="@+id/log_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="3"
+            android:text="Log out"
+            android:textColor="#FFFFFF"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView6" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:background="#0DFFFFFF"
+        android:background="#1BFFFFFF"
         android:padding="16dp"> <!-- Adding rounded corner box with grey background for weather info -->
 
         <TextView
@@ -42,7 +81,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:text="Loading weather data..."
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="16sp" />
 
         <TextView
@@ -53,7 +92,7 @@
             android:layout_alignStart="@id/weatherTextView"
             android:layout_alignLeft="@id/weatherTextView"
             android:text="Loading weather data..."
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="16sp" />
 
         <TextView
@@ -64,7 +103,7 @@
             android:layout_alignStart="@id/weatherTextView"
             android:layout_alignLeft="@id/weatherTextView"
             android:text="Loading weather data..."
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="16sp" />
 
         <TextView
@@ -75,7 +114,7 @@
             android:layout_alignStart="@id/weatherTextView"
             android:layout_alignLeft="@id/weatherTextView"
             android:text="Loading city..."
-            android:textColor="@android:color/white"
+            android:textColor="@color/white"
             android:textSize="16sp" />
 
         <ImageView
@@ -84,10 +123,12 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/weatherTextView"
             android:layout_alignBottom="@id/cityTextView"
+            android:layout_alignParentEnd="true"
             android:layout_marginStart="32dp"
+
             android:layout_toEndOf="@id/weatherTextView"
             android:layout_toRightOf="@id/weatherTextView"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitEnd" />
 
         <TextView
             android:id="@+id/weatherMessageTextView"
