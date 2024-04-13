@@ -22,9 +22,10 @@ import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginStart
+import androidx.core.view.setMargins
 import androidx.core.view.setPadding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -191,28 +192,40 @@ class MapsActivity : AppCompatActivity() {
                 obtainedRecommendationsLiveData.observe(this, Observer { recommendations ->
 
                     for (spaceKey in spaces.keys()) {
-                        val cardView = CardView(this)
-                        val layoutParams = LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                        )
-                        layoutParams.setMargins(16, 16, 16, 16)
-                        cardView.layoutParams = layoutParams
-                        cardView.radius = 8F // Set corner radius for card view
-
                         val textLayout = LinearLayout(this)
-                        textLayout.orientation = LinearLayout.VERTICAL // Change orientation to
-                        textLayout.layoutParams = LinearLayout.LayoutParams(
+                        textLayout.orientation = LinearLayout.VERTICAL
+                        // Change orientation to
+                        // Establece los parámetros de diseño del LinearLayout
+                        val layoutParams1 = LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
                         )
+
+// Establece los márgenes del LinearLayout (izquierda, arriba, derecha, abajo)
+                        layoutParams1.setMargins(16, 16, 16, 16)
+
+                        // Aplica los parámetros de diseño al LinearLayout
+                        textLayout.layoutParams = layoutParams2
+
+// Establece el fondo del LinearLayout
+                        textLayout.setBackgroundResource(R.drawable.container_background)
+
+// Establece el relleno del LinearLayout
                         textLayout.setPadding(16, 16, 16, 16)
+
+
+                        val layoutParams2 = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT, // Adjust width to match parent
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        layoutParams2.gravity = Gravity.CENTER_VERTICAL
 
                         val textView = TextView(this)
                         textView.text = spaceKey
                         textView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
                         textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
                         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // Set text size to 20sp
+                        textView.layoutParams = layoutParams2
 
                         val verMas = TextView(this)
                         verMas.text = "View more information"
@@ -263,12 +276,11 @@ class MapsActivity : AppCompatActivity() {
                         }
 
                         textLayout.addView(textView)
-                        textLayout.addView(verMas)
                         textLayout.addView(button)
                         textLayout.addView(buttonCalificar)
-                        textLayout.addView(infoView)
+                        textLayout.addView(verMas)
 
-                        cardView.addView(textLayout)
+                        linearLayout.addView(textLayout)
 
                         verMas.setOnClickListener {
                             if (infoView.visibility == View.VISIBLE) {
@@ -481,3 +493,4 @@ class MapsActivity : AppCompatActivity() {
     }
 
 }
+
