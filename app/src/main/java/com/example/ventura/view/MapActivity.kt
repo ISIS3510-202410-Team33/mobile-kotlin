@@ -202,13 +202,13 @@ class MapsActivity : AppCompatActivity() {
                         )
 
 // Establece los márgenes del LinearLayout (izquierda, arriba, derecha, abajo)
-                        layoutParams1.setMargins(16, 16, 16, 16)
+                        layoutParams1.setMargins(100, 32, 100, 32)
 
                         // Aplica los parámetros de diseño al LinearLayout
-                        textLayout.layoutParams = layoutParams2
+                        textLayout.layoutParams = layoutParams1
 
 // Establece el fondo del LinearLayout
-                        textLayout.setBackgroundResource(R.drawable.container_background)
+                        textLayout.setBackgroundResource(R.drawable.building_container)
 
 // Establece el relleno del LinearLayout
                         textLayout.setPadding(16, 16, 16, 16)
