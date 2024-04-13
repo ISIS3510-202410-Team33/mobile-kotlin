@@ -16,11 +16,13 @@ import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
@@ -66,6 +68,7 @@ class MapsActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
@@ -91,7 +94,7 @@ class MapsActivity : AppCompatActivity() {
             }
         }
 
-        val buttonBackToMenu = findViewById<Button>(R.id.buttonBackToMenu)
+        val buttonBackToMenu = findViewById<ImageView>(R.id.buttonBackToMenu)
         buttonBackToMenu.setOnClickListener {
 
             // Intent to go back to the main menu activity
@@ -184,179 +187,183 @@ class MapsActivity : AppCompatActivity() {
             */
 
             ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
-            // Observe the Live Data to get updates
-            obtainedRecommendationsLiveData.observe(this, Observer { recommendations ->
+                // Observe the Live Data to get updates
+                obtainedRecommendationsLiveData.observe(this, Observer { recommendations ->
 
-                for (spaceKey in spaces.keys()) {
-                    val textLayout = LinearLayout(this)
-                    textLayout.orientation = LinearLayout.VERTICAL // Change orientation to vertical
-                    textLayout.layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                    textLayout.setPadding(16)
+                    for (spaceKey in spaces.keys()) {
+                        val cardView = CardView(this)
+                        val layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        layoutParams.setMargins(16, 16, 16, 16)
+                        cardView.layoutParams = layoutParams
+                        cardView.radius = 8F // Set corner radius for card view
 
-                    val layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, // Adjust width to match parent
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                    layoutParams.gravity = Gravity.CENTER_VERTICAL
+                        val textLayout = LinearLayout(this)
+                        textLayout.orientation = LinearLayout.VERTICAL // Change orientation to
+                        textLayout.layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        textLayout.setPadding(16, 16, 16, 16)
 
-                    val textView = TextView(this)
-                    textView.text = spaceKey
-                    textView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-                    textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // Set text size to 20sp
-                    textView.layoutParams = layoutParams
+                        val textView = TextView(this)
+                        textView.text = spaceKey
+                        textView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                        textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // Set text size to 20sp
 
-                    val verMas = TextView(this)
-                    verMas.text = "View more information"
-                    verMas.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
-                    verMas.setTextColor(Color.parseColor("#d0d4f5"));
-                    verMas.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
+                        val verMas = TextView(this)
+                        verMas.text = "View more information"
+                        verMas.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
+                        verMas.setTextColor(Color.parseColor("#d0d4f5"));
+                        verMas.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
 
-                    val button = Button(this)
-                    button.text = "Locate in map"
-                    button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#363c45")) // Set button background color to red
+                        val button = Button(this)
+                        button.text = "Locate in map"
+                        button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#363c45")) // Set button background color to red
 
-                    val buttonCalificar = TextView(this)
-                    buttonCalificar.text = "Rate this location!"
-                    buttonCalificar.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
-                    buttonCalificar.setTextColor(Color.parseColor("#ddf5b8"));
-                    buttonCalificar.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
+                        val buttonCalificar = TextView(this)
+                        buttonCalificar.text = "Rate this location!"
+                        buttonCalificar.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
+                        buttonCalificar.setTextColor(Color.parseColor("#ddf5b8"));
+                        buttonCalificar.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
 
-                    val infoView = TextView(this)
-                    infoView.visibility = View.GONE
-                    infoView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-                    infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
+                        val infoView = TextView(this)
+                        infoView.visibility = View.GONE
+                        infoView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                        infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
 
-                    val isRecommended = recommendations.contains(spaceKey)
-                    val isBestRated = mejorEdificio.contains(spaceKey)
+                        val isRecommended = recommendations.contains(spaceKey)
+                        val isBestRated = mejorEdificio.contains(spaceKey)
 
-                    if (isRecommended) {
-                        val recommendedMessage = TextView(this)
-                        recommendedMessage.text = "Recommended location!"
-                        recommendedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
-                        recommendedMessage.setTypeface(Typeface.DEFAULT_BOLD)
-                        textLayout.addView(recommendedMessage) // Add recommended message here
-                    }
-
-                    /*
-                       * <-- BQ 4 -->
-                       *
-                       * We show to the user which is the best rated location/s or the ones
-                       * with the most positive feedback
-                       *
-                    */
-
-                    if (isBestRated) {
-                        val rateddedMessage = TextView(this)
-                        rateddedMessage.text = "Best Rated location!"
-                        rateddedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
-                        rateddedMessage.setTypeface(Typeface.DEFAULT_BOLD)
-                        textLayout.addView(rateddedMessage) // Add recommended message here
-                    }
-
-                    textLayout.addView(textView)
-                    textLayout.addView(button)
-                    textLayout.addView(verMas)
-                    textLayout.addView(buttonCalificar)
-                    linearLayout.addView(textLayout)
-
-                    verMas.setOnClickListener {
-                        if (infoView.visibility == View.VISIBLE) {
-                            infoView.visibility = View.GONE
-                            verMas.text = "View more information"
-                        } else {
-                            infoView.visibility = View.VISIBLE
-                            verMas.text = "View less"
-
-                            // Obtener las coordenadas del edificio
-                            val spaceObject = spaces.getJSONObject(spaceKey)
-                            val coordenadasEdificio = spaceObject.getJSONArray("coordenadas")
-                            val latitudEdificio = coordenadasEdificio.getDouble(0)
-                            val longitudEdificio = coordenadasEdificio.getDouble(1)
-                            buildingCoordinates = Pair(latitudEdificio, longitudEdificio)
-
-                            // Calcular la distancia entre las coordenadas del usuario y las del edificio
-                            userCoordinates?.let { userCoords ->
-                                buildingCoordinates?.let { buildingCoords ->
-                                    val results = FloatArray(1)
-                                    Location.distanceBetween(userCoords.first, userCoords.second, buildingCoords.first, buildingCoords.second, results)
-                                    distanceToBuilding = results[0]
-
-                                    // Convertir la distancia a metros y kilómetros
-                                    val distanceInMeters = distanceToBuilding
-                                    val distanceInKilometers = distanceToBuilding?.div(1000)
-                                    val wakExpectedTimeMin = distanceInKilometers?.times(averageWalkingDelay)
-                                    val carExpectedTimeMin = distanceInKilometers?.times(averageCarDelay)
-                                    val bikeExpectedTimeMin = distanceInKilometers?.times(averageBikeDelay)
-
-                                    // Actualizar la información adicional
-                                    val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, wakExpectedTimeMin, carExpectedTimeMin, bikeExpectedTimeMin)
-                                    infoView.text = infoText
-
-                                }
-                            }
-
-
+                        if (isRecommended) {
+                            val recommendedMessage = TextView(this)
+                            recommendedMessage.text = "Recommended location!"
+                            recommendedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
+                            recommendedMessage.setTypeface(Typeface.DEFAULT_BOLD)
+                            textLayout.addView(recommendedMessage) // Add recommended message here
                         }
-                    }
-
-                    /*
-                     * <-- BQ 1 -->
-                     *
-                     * Here is the "locate in map" button listener for
-                     * achieving this business question. When the user clicks on
-                     * a building to be located in the map, we call (in
-                     * background) the view model in charge,
-                     * so it can update the buildings preferences
-                     * on the firebase json.
-                     *
-                     */
-                    button.setOnClickListener {
 
                         /*
-                         * function call to open google maps location handler
+                           * <-- BQ 4 -->
+                           *
+                           * We show to the user which is the best rated location/s or the ones
+                           * with the most positive feedback
+                           *
+                        */
+
+                        if (isBestRated) {
+                            val rateddedMessage = TextView(this)
+                            rateddedMessage.text = "Best Rated location!"
+                            rateddedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
+                            rateddedMessage.setTypeface(Typeface.DEFAULT_BOLD)
+                            textLayout.addView(rateddedMessage) // Add recommended message here
+                        }
+
+                        textLayout.addView(textView)
+                        textLayout.addView(verMas)
+                        textLayout.addView(button)
+                        textLayout.addView(buttonCalificar)
+                        textLayout.addView(infoView)
+
+                        cardView.addView(textLayout)
+
+                        verMas.setOnClickListener {
+                            if (infoView.visibility == View.VISIBLE) {
+                                infoView.visibility = View.GONE
+                                verMas.text = "View more information"
+                            } else {
+                                infoView.visibility = View.VISIBLE
+                                verMas.text = "View less"
+
+                                // Obtener las coordenadas del edificio
+                                val spaceObject = spaces.getJSONObject(spaceKey)
+                                val coordenadasEdificio = spaceObject.getJSONArray("coordenadas")
+                                val latitudEdificio = coordenadasEdificio.getDouble(0)
+                                val longitudEdificio = coordenadasEdificio.getDouble(1)
+                                buildingCoordinates = Pair(latitudEdificio, longitudEdificio)
+
+                                // Calcular la distancia entre las coordenadas del usuario y las del edificio
+                                userCoordinates?.let { userCoords ->
+                                    buildingCoordinates?.let { buildingCoords ->
+                                        val results = FloatArray(1)
+                                        Location.distanceBetween(userCoords.first, userCoords.second, buildingCoords.first, buildingCoords.second, results)
+                                        distanceToBuilding = results[0]
+
+                                        // Convertir la distancia a metros y kilómetros
+                                        val distanceInMeters = distanceToBuilding
+                                        val distanceInKilometers = distanceToBuilding?.div(1000)
+                                        val wakExpectedTimeMin = distanceInKilometers?.times(averageWalkingDelay)
+                                        val carExpectedTimeMin = distanceInKilometers?.times(averageCarDelay)
+                                        val bikeExpectedTimeMin = distanceInKilometers?.times(averageBikeDelay)
+
+                                        // Actualizar la información adicional
+                                        val infoText = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, wakExpectedTimeMin, carExpectedTimeMin, bikeExpectedTimeMin)
+                                        infoView.text = infoText
+
+                                    }
+                                }
+
+
+                            }
+                        }
+
+                        /*
+                         * <-- BQ 1 -->
+                         *
+                         * Here is the "locate in map" button listener for
+                         * achieving this business question. When the user clicks on
+                         * a building to be located in the map, we call (in
+                         * background) the view model in charge,
+                         * so it can update the buildings preferences
+                         * on the firebase json.
+                         *
                          */
+                        button.setOnClickListener {
+
+                            /*
+                             * function call to open google maps location handler
+                             */
+                            val spaceObject = spaces.getJSONObject(spaceKey)
+                            val coordenadas = spaceObject.getJSONArray("coordenadas")
+                            val latitud = coordenadas.getDouble(0)
+                            val longitud = coordenadas.getDouble(1)
+                            abrirGoogleMaps(latitud, longitud)
+
+                            /*
+                             * we call the view model here to save or update the
+                             * buildings preferences data in the firebase storage
+                             */
+                            userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
+                        }
+
+                        /*
+                        * <-- BQ 2 -->
+                        *
+                        * Button listener to show the rating form so the user can rate a selected building
+                        *
+                        */
+
+                        buttonCalificar.setOnClickListener {
+                            mostrarFormularioCalificacion(spaceKey)
+                        }
+
+
                         val spaceObject = spaces.getJSONObject(spaceKey)
                         val coordenadas = spaceObject.getJSONArray("coordenadas")
                         val latitud = coordenadas.getDouble(0)
                         val longitud = coordenadas.getDouble(1)
-                        abrirGoogleMaps(latitud, longitud)
-
-                        /*
-                         * we call the view model here to save or update the
-                         * buildings preferences data in the firebase storage
-                         */
-                        userPrefViewModel.saveOrUpdateData(userEmail!!, spaceKey)
+                        val distanceInMeters: Float? = null // No tenemos la distancia aquí
+                        val distanceInKilometers: Float? = null // No tenemos la distancia aquí
+                        val exTimeMinWal: Float? = null // No tenemos la distancia aquí
+                        val carTimeMinWal: Float? = null // No tenemos la distancia aquí
+                        val bikeTimeMinWal: Float? = null // No tenemos la distancia aquí
+                        infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, exTimeMinWal, carTimeMinWal, bikeTimeMinWal)
+                        linearLayout.addView(infoView)
                     }
-
-                    /*
-                    * <-- BQ 2 -->
-                    *
-                    * Button listener to show the rating form so the user can rate a selected building
-                    *
-                    */
-
-                    buttonCalificar.setOnClickListener {
-                        mostrarFormularioCalificacion(spaceKey)
-                    }
-
-
-                    val spaceObject = spaces.getJSONObject(spaceKey)
-                    val coordenadas = spaceObject.getJSONArray("coordenadas")
-                    val latitud = coordenadas.getDouble(0)
-                    val longitud = coordenadas.getDouble(1)
-                    val distanceInMeters: Float? = null // No tenemos la distancia aquí
-                    val distanceInKilometers: Float? = null // No tenemos la distancia aquí
-                    val exTimeMinWal: Float? = null // No tenemos la distancia aquí
-                    val carTimeMinWal: Float? = null // No tenemos la distancia aquí
-                    val bikeTimeMinWal: Float? = null // No tenemos la distancia aquí
-                    infoView.text = obtenerInformacionAdicional(spaceObject, distanceInMeters, distanceInKilometers, exTimeMinWal, carTimeMinWal, bikeTimeMinWal)
-                    linearLayout.addView(infoView)
-                }
-            })
+                })
 
             })
         }
