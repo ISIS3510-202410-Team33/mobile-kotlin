@@ -2,6 +2,7 @@ package com.example.ventura.view
 
 import android.Manifest
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -9,7 +10,9 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.location.Location
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.text.InputFilter
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
@@ -207,7 +210,11 @@ class MapsActivity : AppCompatActivity() {
                         // Aplica los parámetros de diseño al LinearLayout
                         textLayout.layoutParams = layoutParams1
 
+                        // Establece la elevación del LinearLayout
+                        textLayout.elevation = resources.getDimension(R.dimen.elevation_3dp)
+
 // Establece el fondo del LinearLayout
+
                         textLayout.setBackgroundResource(R.drawable.building_container)
 
 // Establece el relleno del LinearLayout
@@ -222,40 +229,51 @@ class MapsActivity : AppCompatActivity() {
 
                         val textView = TextView(this)
                         textView.text = spaceKey
-                        textView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                        textView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
                         textView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
                         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20F) // Set text size to 20sp
                         textView.layoutParams = layoutParams2
 
-                        val verMas = TextView(this)
+                        val verMas = Button(this)
                         verMas.text = "View more information"
-                        verMas.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
-                        verMas.setTextColor(Color.parseColor("#d0d4f5"));
-                        verMas.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
+                        verMas.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#363c45"))
 
                         val button = Button(this)
                         button.text = "Locate in map"
                         button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#363c45")) // Set button background color to red
 
-                        val buttonCalificar = TextView(this)
+                        val buttonCalificar = Button(this)
                         buttonCalificar.text = "Rate this location!"
-                        buttonCalificar.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F) // Set text size to 20sp
-                        buttonCalificar.setTextColor(Color.parseColor("#ddf5b8"));
-                        buttonCalificar.setTypeface(Typeface.create("Lato-Light", Typeface.BOLD))
+                        button.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#363c45"))
 
                         val infoView = TextView(this)
                         infoView.visibility = View.GONE
-                        infoView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                        infoView.setTextColor(ContextCompat.getColor(this, android.R.color.black))
                         infoView.setTypeface(Typeface.create("Lato-Light", Typeface.NORMAL))
 
                         val isRecommended = recommendations.contains(spaceKey)
                         val isBestRated = mejorEdificio.contains(spaceKey)
 
                         if (isRecommended) {
-                            val recommendedMessage = TextView(this)
-                            recommendedMessage.text = "Recommended location!"
-                            recommendedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
-                            recommendedMessage.setTypeface(Typeface.DEFAULT_BOLD)
+                            val recommendedMessage = ImageView(this)
+                            recommendedMessage.setBackgroundResource(R.drawable.gps_glass)
+
+                            // Crear LayoutParams para el ImageView con ancho y altura de 16dp
+                            val layoutParams = LinearLayout.LayoutParams(
+                                dpToPx(20), // Convertir 16dp a píxeles
+                                dpToPx(23)
+                            )
+
+                            // Aplicar LayoutParams al ImageView
+                            recommendedMessage.layoutParams = layoutParams
+
+                            recommendedMessage.setOnClickListener {
+                                // Aquí colocas el código para mostrar un mensaje emergente (popup) cuando se hace clic en la imagen
+                                val toast = Toast.makeText(this, "¡Recommended place for you!", Toast.LENGTH_SHORT)
+                                toast.setGravity(Gravity.CENTER, 0, 0)
+                                toast.show()
+                            }
+
                             textLayout.addView(recommendedMessage) // Add recommended message here
                         }
 
@@ -268,11 +286,29 @@ class MapsActivity : AppCompatActivity() {
                         */
 
                         if (isBestRated) {
-                            val rateddedMessage = TextView(this)
-                            rateddedMessage.text = "Best Rated location!"
-                            rateddedMessage.setTextColor(0xE3B77800.toInt()) // Set text color to red
-                            rateddedMessage.setTypeface(Typeface.DEFAULT_BOLD)
+                            val rateddedMessage = ImageView(this)
+                            rateddedMessage.setBackgroundResource(R.drawable.best_rated)
+
+                            // Crear LayoutParams para el ImageView con ancho y altura de 16dp
+                            val layoutParams = LinearLayout.LayoutParams(
+                                dpToPx(18), // Convertir 16dp a píxeles
+                                dpToPx(25)
+                            )
+
+                            textLayout.setBackgroundResource(R.drawable.university_button2)
+
+
+                            // Aplicar LayoutParams al ImageView
+                            rateddedMessage.layoutParams = layoutParams
+
                             textLayout.addView(rateddedMessage) // Add recommended message here
+
+                            rateddedMessage.setOnClickListener {
+                                // Aquí colocas el código para mostrar un mensaje emergente (popup) cuando se hace clic en la imagen
+                                val toast = Toast.makeText(this, "¡Best rated place!", Toast.LENGTH_SHORT)
+                                toast.setGravity(Gravity.CENTER, 0, 0)
+                                toast.show()
+                            }
                         }
 
                         textLayout.addView(textView)
@@ -418,6 +454,11 @@ class MapsActivity : AppCompatActivity() {
         }
     }
 
+    fun Context.dpToPx(dp: Int): Int {
+        val scale = resources.displayMetrics.density
+        return (dp * scale + 0.5f).toInt()
+    }
+
     private fun obtenerInformacionAdicional(spaceObject: JSONObject, distanceInMeters: Float?, distanceInKilometers: Float?, timeWak: Float?, timeCar: Float?, timeBike: Float?): String {
         val cantidadPisos = spaceObject.getInt("cantidad_pisos")
         val obstrucciones = spaceObject.getBoolean("obstrucciones")
@@ -469,6 +510,8 @@ class MapsActivity : AppCompatActivity() {
            * to the corresponding firebase storage
            *
          */
+
+        comentarioEditText.filters = arrayOf(InputFilter.LengthFilter(150))
 
         btnEnviar.setOnClickListener {
             // Obtener la calificación y el comentario del usuario
