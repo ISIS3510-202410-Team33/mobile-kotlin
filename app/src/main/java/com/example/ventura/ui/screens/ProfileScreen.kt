@@ -97,12 +97,18 @@ private fun ProfileTopAppBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
+                IconButton(
                     modifier = modifier
                         .padding(smallPadding),
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back to main menu"
-                )
+                    onClick = { }
+                ) {
+                    Icon(
+                        modifier = modifier
+                            .size(mediumIcon),
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back to main menu"
+                    )
+                }
                 Text(
                     modifier = modifier
                         .padding(smallPadding),
@@ -184,11 +190,12 @@ private fun ProfileItem(
         )
         IconButton(
             modifier = modifier
-                .padding(smallPadding)
-                .size(mediumIcon),
+                .padding(smallPadding),
             onClick = { }
         ) {
             Icon(
+                modifier = modifier
+                    .size(mediumIcon),
                 imageVector = Icons.Default.Edit,
                 contentDescription = "Edit $itemText"
             )
@@ -199,8 +206,17 @@ private fun ProfileItem(
 
 @Preview(showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
-    VenturaTheme {
+fun ProfileScreenPreviewLight() {
+    VenturaTheme(darkTheme=false) {
+        ProfileScreen()
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileScreenPreviewDark() {
+    VenturaTheme(darkTheme = true) {
         ProfileScreen()
     }
 }
