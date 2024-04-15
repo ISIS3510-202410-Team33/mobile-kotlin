@@ -21,7 +21,10 @@
 
         <activity
             android:name=".view.ProfileActivity"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:theme="@style/Theme.AppCompat.Light" />
+        <activity
+            android:name=".view.NewProfileActivity"
+            android:exported="true" >
 
         </activity>
         <!-- Add any other attributes as needed -->
