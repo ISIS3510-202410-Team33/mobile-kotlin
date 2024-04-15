@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import android.widget.Toast
 
 class MainMenuActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
@@ -135,6 +136,27 @@ class MainMenuActivity : ComponentActivity() {
             val buttonProfile = findViewById<Button>(R.id.buttonProfile)
             val buttonMap = findViewById<Button>(R.id.buttonMap)
             val buttonSettings = findViewById<Button>(R.id.buttonSettings)
+            val logOutButton = findViewById<TextView>(R.id.log_out)
+
+            logOutButton.setOnClickListener {
+                // Eliminar las credenciales persistidas
+                clearCredentials()
+
+                // Mostrar un mensaje de éxito
+                Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
+
+                // Redirigir a la actividad de inicio de sesión
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                // Mostrar un mensaje de éxito
+                Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
+
+                finish() // Cierra la actividad actual para evitar que el usuario regrese presionando el botón "Atrás"
+
+                // Mostrar un mensaje de éxito
+                Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
+
+            }
 
 
         buttonProfile.setOnClickListener {
@@ -194,5 +216,13 @@ class MainMenuActivity : ComponentActivity() {
             }
         val alert = builder.create()
         alert.show()
+    }
+
+    private fun clearCredentials() {
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.remove("email") // Eliminar el correo electrónico guardado
+        // Si tienes más datos a eliminar, puedes agregar más líneas aquí
+        editor.apply()
     }
 }
