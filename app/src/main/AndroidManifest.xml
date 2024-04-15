@@ -13,22 +13,22 @@
         tools:targetApi="31">
         <activity
             android:name=".view.MainMenuActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".view.SignUpActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".view.ProfileActivity"
-            android:theme="@style/Theme.AppCompat.Light">
-
-        </activity>
-        <!-- Add any other attributes as needed -->
-        <!-- Actividad SplashActivity -->
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity
             android:name=".view.SplashActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat">
@@ -40,6 +40,7 @@
         </activity> <!-- Actividad MainActivity -->
         <activity
             android:name=".view.LoginActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat">
         </activity>
@@ -47,6 +48,7 @@
         <!-- Actividad com.example.ventura.view.MapActivity -->
         <activity
             android:name=".view.MapsActivity"
+            android:screenOrientation="portrait"
             android:label="Campus Sites"
             android:theme="@style/Theme.AppCompat">
         </activity>

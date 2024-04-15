@@ -62,7 +62,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
-            android:text="Campus Buildings"
+            android:text="Campus Locations"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />

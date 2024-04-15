@@ -56,7 +56,21 @@ class MainMenuActivity : ComponentActivity() {
             val userEmail = intent.getStringExtra("user_email")
 
 
-            Log.d("screen-flow", "¡Bienvenido, $userEmail!")
+            Log.d("screen-flow", "¡Welcome, $userEmail!")
+
+            // Populate the tag welcome with the username
+            val welcomeTextView = findViewById<TextView>(R.id.textView5)
+            welcomeTextView.text = "Hi, ${extractUsername(userEmail)}!"
+
+            // Populate todays date with the current date
+            val dateTextView = findViewById<TextView>(R.id.textView6)
+            val currentDate = java.util.Calendar.getInstance().time
+            
+            // get only the date, example: Sun Apr 14, get it split by space and get the first 3 elements
+            val date = currentDate.toString().split(" ").subList(0, 3).joinToString(" ")
+            dateTextView.text = date
+            
+            
 
             locationRequest = LocationRequest.create().apply {
                 interval =
@@ -224,5 +238,10 @@ class MainMenuActivity : ComponentActivity() {
         editor.remove("email") // Eliminar el correo electrónico guardado
         // Si tienes más datos a eliminar, puedes agregar más líneas aquí
         editor.apply()
+    }
+
+    // Extract username from email (part before the "@")
+    private fun extractUsername(email: String?): String {
+        return email?.substringBefore("@") ?: ""
     }
 }

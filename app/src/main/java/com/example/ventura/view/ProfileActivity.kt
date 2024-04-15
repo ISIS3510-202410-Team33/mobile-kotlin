@@ -1,5 +1,6 @@
 package com.example.ventura.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
@@ -14,6 +15,16 @@ class ProfileActivity : AppCompatActivity() {
 
         // Retrieve the user email from intent extras
         val userEmail = intent.getStringExtra("user_email")
+
+        val buttonBackToMenu = findViewById<ImageView>(R.id.buttonBackToMenu)
+        buttonBackToMenu.setOnClickListener {
+
+            // Intent to go back to the main menu activity
+            val intent = Intent(this, MainMenuActivity::class.java)
+            intent.putExtra("user_email", userEmail)
+            startActivity(intent)
+            finish() // Optional: finishes current activity to free resources
+        }
 
         // Find views by their IDs
         val emailTextView = findViewById<TextView>(R.id.emailTextView)

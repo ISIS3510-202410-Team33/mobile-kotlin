@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class JsonViewModel(private val context: Context) : ViewModel() {
     private val storage = Firebase.storage
@@ -22,25 +24,36 @@ class JsonViewModel(private val context: Context) : ViewModel() {
         return localFile.exists()
     }
 
-    suspend fun fetchJsonData(): JSONObject {
+    fun getFileLastModifiedDate(): String {
+        if (!localFile.exists()) return "N/A"
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        return sdf.format(Date(localFile.lastModified()))
+    }
+
+    suspend fun fetchJsonData(): Pair<JSONObject?, String> {
         return viewModelScope.async(Dispatchers.IO) {
-            try {
-                if (localFile.exists()) {
-                    val jsonString = localFile.readText()
-                    return@async JSONObject(jsonString)
-                }
+            if (localFile.exists()) {
+                var lastModifiedDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(localFile.lastModified()))
+                // makes the date more readable, removing ss and adding "at" before the time
+                lastModifiedDate = lastModifiedDate.substring(0, 10) + " at " + lastModifiedDate.substring(11, 16) + ". Swipe down to update."
 
-                val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
-                val jsonString = String(jsonBytes)
+
+                val jsonString = localFile.readText()
                 val json = JSONObject(jsonString)
+                Pair(json, "Showing location data from $lastModifiedDate")
+            } else {
+                try {
+                    val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
+                    val jsonString = String(jsonBytes)
+                    val json = JSONObject(jsonString)
 
-                FileOutputStream(localFile).use { output ->
-                    output.write(jsonBytes)
+                    FileOutputStream(localFile).use { output ->
+                        output.write(jsonBytes)
+                    }
+                    Pair(json, "Data downloaded and stored locally")
+                } catch (e: Exception) {
+                    Pair(null, "Error downloading data: ${e.localizedMessage}")
                 }
-
-                json
-            } catch (e: Exception) {
-                throw e
             }
         }.await()
     }
