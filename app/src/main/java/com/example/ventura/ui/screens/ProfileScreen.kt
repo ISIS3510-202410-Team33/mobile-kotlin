@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -22,21 +24,29 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
+import com.example.ventura.ui.theme.Shapes
+import com.example.ventura.ui.theme.VenturaTheme
 import com.example.ventura.viewmodel.ProfileViewModel
 
 
@@ -68,7 +78,9 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     modifier = Modifier,
                     itemTitle = "Name",
                     itemIcon = Icons.Filled.Person,
-                    itemText = profileUiState.profile.name
+                    itemText = profileUiState.profile.name,
+                    onBoxExit = { profileViewModel.updateProfileData() },
+                    onNewText = { profileViewModel.changeProfileUniversity(it) }
                 )
             }
             item {
@@ -76,7 +88,9 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     modifier = Modifier,
                     itemTitle = "Mail",
                     itemIcon = Icons.Default.Email,
-                    itemText = profileUiState.profile.email
+                    itemText = profileUiState.profile.email,
+                    onBoxExit = { profileViewModel.updateProfileData() },
+                    onNewText = { profileViewModel.changeProfileEmail(it) }
                 )
             }
 
@@ -85,7 +99,9 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     modifier = Modifier,
                     itemTitle = "University",
                     itemIcon = Icons.Default.Home,
-                    itemText = profileUiState.profile.universityName
+                    itemText = profileUiState.profile.universityName,
+                    onBoxExit = { profileViewModel.updateProfileData() },
+                    onNewText = { it -> profileViewModel.changeProfileUniversity(it) }
                 )
             }
         }
@@ -157,14 +173,17 @@ private fun ProfileImage(
 }
 
 
-
 @Composable
 private fun ProfileItem(
     modifier: Modifier = Modifier,
     itemTitle: String,
     itemIcon: ImageVector,
     itemText: String,
+    onNewText: (String) -> Unit,
+    onBoxExit: () -> Unit
 ) {
+    val isEditing = remember { mutableStateOf(false) }
+
     Row (
         modifier = modifier
             .padding(smallPadding),
@@ -186,12 +205,40 @@ private fun ProfileItem(
                 style = MaterialTheme.typography.labelLarge,
                 onTextLayout = { }
             )
-            Text(
-                modifier = modifier.padding(smallPadding),
-                text = itemText,
-                style = MaterialTheme.typography.bodyLarge,
-                onTextLayout = { }
-            )
+
+            if (isEditing.value) {
+                OutlinedTextField(
+                    value = itemText,
+                    singleLine = true,
+                    shape = Shapes.large,
+                    modifier = modifier
+                        .padding(smallPadding)
+                        .fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    onValueChange = onNewText,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            onBoxExit()
+                            isEditing.value = false
+                        }
+                    )
+                )
+            }
+            else {
+                Text(
+                    modifier = modifier.padding(smallPadding),
+                    text = itemText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    onTextLayout = { }
+                )
+            }
         }
         Spacer(
             modifier = modifier
@@ -201,7 +248,9 @@ private fun ProfileItem(
         IconButton(
             modifier = modifier
                 .padding(smallPadding),
-            onClick = { }
+            onClick = {
+                isEditing.value = true
+            }
         ) {
             Icon(
                 modifier = modifier
@@ -211,5 +260,23 @@ private fun ProfileItem(
                 contentDescription = "Edit $itemText"
             )
         }
+    }
+}
+
+
+@Preview
+@Composable
+fun ProfileScreenPreviewLight() {
+    VenturaTheme(darkTheme = false) {
+        ProfileScreen()
+    }
+}
+
+
+@Preview
+@Composable
+fun ProfileScreenPreviewDark() {
+    VenturaTheme(darkTheme = true) {
+        ProfileScreen()
     }
 }

@@ -21,6 +21,10 @@ data class Profile(
  * model aspects of Profile and fetches from back
  */
 class ProfileRepository {
+
+    /**
+     * Returns current profile data
+     */
     fun getProfileData(): Profile {
         // TODO: fetch profile data
         return Profile(
@@ -28,5 +32,15 @@ class ProfileRepository {
             email = "john.doe@university.com",
             universityName = "Monsters University"
         )
+    }
+
+
+    /**
+     * Updates profile data with the
+     * current profile set
+     */
+    fun updateProfileData(newProfile: Profile): Unit {
+        // TODO: update profile data in the back
+        return
     }
 }
