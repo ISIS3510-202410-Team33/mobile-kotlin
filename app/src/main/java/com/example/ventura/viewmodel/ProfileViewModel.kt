@@ -1,10 +1,19 @@
 package com.example.ventura.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.ventura.model.data.Profile
 import com.example.ventura.model.data.ProfileRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+
+/**
+ * Data class for the profile
+ */
+data class ProfileUiState(
+    val profile: Profile = Profile("","","")
+)
 
 
 /**
@@ -15,12 +24,16 @@ class ProfileViewModel : ViewModel() {
     private val profileRepository = ProfileRepository()
 
     // inner object, modifiable by the ViewModel
-    private val _profileData = MutableLiveData<Profile>()
+    private val _uiState = MutableStateFlow(ProfileUiState())
     // returned, only viewable object for the View
-    val profileData: LiveData<Profile> = _profileData
+    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+    init {
+        refreshProfileData()
+    }
+
 
     fun refreshProfileData() {
-        val profile = profileRepository.getProfileData()
-        _profileData.value = profile
+        _uiState.value = ProfileUiState(profile = profileRepository.getProfileData())
     }
 }

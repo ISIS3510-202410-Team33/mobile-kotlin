@@ -46,3 +46,5 @@ class ProfileActivity : AppCompatActivity() {
         val email: String
     )
 }
+
+

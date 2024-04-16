@@ -7,33 +7,32 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
-import com.example.ventura.R
-import com.example.ventura.view.ProfileActivity
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
-import android.widget.TextView
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
+import com.example.ventura.R
+import com.example.ventura.model.analytics.FeatureCrashHandler
 import com.example.ventura.viewmodel.WeatherViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.bumptech.glide.Glide
-import com.example.ventura.model.analytics.FeatureCrashHandler
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import android.provider.Settings
-import android.widget.Toast
+import com.google.android.gms.location.LocationServices
 
 class MainMenuActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
-    private val featureCrashHandler = FeatureCrashHandler("main_menu");
+    private val featureCrashHandler = FeatureCrashHandler("main_menu")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

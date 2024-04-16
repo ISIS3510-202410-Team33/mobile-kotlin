@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ventura"
-        minSdk = 24
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.perf)
     implementation(libs.firebase.analytics)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 //    implementation(libs.androidx.material3.android)
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

@@ -21,20 +21,23 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
-import com.example.ventura.ui.theme.VenturaTheme
+import com.example.ventura.viewmodel.ProfileViewModel
 
 
 val smallPadding = 8.dp
@@ -43,7 +46,9 @@ val largePadding = 24.dp
 val mediumIcon = 64.dp
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
+    val profileUiState by profileViewModel.uiState.collectAsState()
+
     Scaffold (
         topBar = {
             ProfileTopAppBar()
@@ -63,7 +68,7 @@ fun ProfileScreen() {
                     modifier = Modifier,
                     itemTitle = "Name",
                     itemIcon = Icons.Filled.Person,
-                    itemText = "John Doe"
+                    itemText = profileUiState.profile.name
                 )
             }
             item {
@@ -71,7 +76,7 @@ fun ProfileScreen() {
                     modifier = Modifier,
                     itemTitle = "Mail",
                     itemIcon = Icons.Default.Email,
-                    itemText = "john.doe@mail.com"
+                    itemText = profileUiState.profile.email
                 )
             }
 
@@ -80,7 +85,7 @@ fun ProfileScreen() {
                     modifier = Modifier,
                     itemTitle = "University",
                     itemIcon = Icons.Default.Home,
-                    itemText = "Monsters University"
+                    itemText = profileUiState.profile.universityName
                 )
             }
         }
@@ -106,13 +111,15 @@ private fun ProfileTopAppBar(
                         modifier = modifier
                             .size(mediumIcon),
                         imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back to main menu"
+                        contentDescription = "Back to main menu",
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
                 Text(
                     modifier = modifier
                         .padding(smallPadding),
                     text = "Profile",
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         },
@@ -168,6 +175,7 @@ private fun ProfileItem(
                 .padding(smallPadding)
                 .size(mediumIcon),
             imageVector = itemIcon,
+            tint = MaterialTheme.colorScheme.secondary,
             contentDescription = null
         )
         Column {
@@ -175,11 +183,13 @@ private fun ProfileItem(
                 modifier = modifier
                     .padding(start = smallPadding),
                 text = itemTitle,
+                style = MaterialTheme.typography.labelLarge,
                 onTextLayout = { }
             )
             Text(
                 modifier = modifier.padding(smallPadding),
                 text = itemText,
+                style = MaterialTheme.typography.bodyLarge,
                 onTextLayout = { }
             )
         }
@@ -197,26 +207,9 @@ private fun ProfileItem(
                 modifier = modifier
                     .size(mediumIcon),
                 imageVector = Icons.Default.Edit,
+                tint = MaterialTheme.colorScheme.secondary,
                 contentDescription = "Edit $itemText"
             )
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreviewLight() {
-    VenturaTheme(darkTheme=false) {
-        ProfileScreen()
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun ProfileScreenPreviewDark() {
-    VenturaTheme(darkTheme = true) {
-        ProfileScreen()
     }
 }
