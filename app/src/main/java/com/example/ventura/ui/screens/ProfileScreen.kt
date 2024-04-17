@@ -80,7 +80,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     itemIcon = Icons.Filled.Person,
                     itemText = profileUiState.profile.name,
                     onBoxExit = { profileViewModel.updateProfileData() },
-                    onNewText = { profileViewModel.changeProfileUniversity(it) }
+                    onNewText = { profileViewModel.changeProfileName(it) }
                 )
             }
             item {
@@ -101,7 +101,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     itemIcon = Icons.Default.Home,
                     itemText = profileUiState.profile.universityName,
                     onBoxExit = { profileViewModel.updateProfileData() },
-                    onNewText = { it -> profileViewModel.changeProfileUniversity(it) }
+                    onNewText = { profileViewModel.changeProfileUniversity(it) }
                 )
             }
         }
