@@ -7,6 +7,7 @@ import com.example.ventura.model.data.ProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 
 /**
@@ -50,15 +51,13 @@ class ProfileViewModel : ViewModel() {
      */
     fun changeProfileName(newName: String) {
         Log.d("change-profile", "Changing to $newName")
-        val currentProfile: Profile = _uiState.value.profile
-        _uiState.value = ProfileUiState(
-            profile = Profile(
-                name = newName,
-                email = currentProfile.email,
-                universityName = currentProfile.universityName
+        _uiState.update { currentState ->
+            currentState.copy(
+                profile = currentState.profile.copy(name = newName)
             )
-        )
+        }
     }
+
 
 
     /**
@@ -67,14 +66,11 @@ class ProfileViewModel : ViewModel() {
      */
     fun changeProfileEmail(newEmail: String) {
         Log.d("change-profile", "Changing to $newEmail")
-        val currentProfile: Profile = _uiState.value.profile
-        _uiState.value = ProfileUiState(
-            profile = Profile(
-                name = currentProfile.name,
-                email = newEmail,
-                universityName = currentProfile.universityName
+        _uiState.update { currentState ->
+            currentState.copy(
+                profile = currentState.profile.copy(email = newEmail)
             )
-        )
+        }
     }
 
 
@@ -84,14 +80,11 @@ class ProfileViewModel : ViewModel() {
      */
     fun changeProfileUniversity(newUniversity: String) {
         Log.d("change-profile", "Changing to $newUniversity")
-        val currentProfile: Profile = _uiState.value.profile
-        _uiState.value = ProfileUiState(
-            profile = Profile(
-                name = currentProfile.name,
-                email = currentProfile.email,
-                universityName = newUniversity
+        _uiState.update { currentState ->
+            currentState.copy(
+                profile = currentState.profile.copy(name = newUniversity)
             )
-        )
+        }
     }
 
 
