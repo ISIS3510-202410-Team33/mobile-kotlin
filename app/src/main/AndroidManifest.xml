@@ -27,6 +27,15 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity
+            android:name=".view.NewProfileActivity"
+            android:screenOrientation="portrait"
+            android:exported="true" >
+
+        </activity>
+        <!-- Add any other attributes as needed -->
+        <!-- Actividad SplashActivity -->
+
+        <activity
             android:name=".view.SplashActivity"
             android:screenOrientation="portrait"
             android:exported="true"
