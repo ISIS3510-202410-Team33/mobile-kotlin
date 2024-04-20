@@ -46,6 +46,12 @@ class MainMenuActivity : ComponentActivity() {
                 mostrarDialogoGPS()
             }
 
+            val notificationButton = findViewById<ImageView>(R.id.notification_icon)
+            notificationButton.setOnClickListener{
+                val intent = Intent(this, NotificationsActivity::class.java )
+                startActivity(intent)
+                }
+
 
             // Recuperar el correo del usuario de los extras del intent
             val userEmail = intent.getStringExtra("user_email")
@@ -152,7 +158,6 @@ class MainMenuActivity : ComponentActivity() {
                 Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
 
             }
-
 
         buttonProfile.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)
