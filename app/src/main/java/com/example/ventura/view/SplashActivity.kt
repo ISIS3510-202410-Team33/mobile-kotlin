@@ -2,8 +2,11 @@ package com.example.ventura.view
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.ventura.R
 import com.example.ventura.model.analytics.FeatureCrashHandler
@@ -32,22 +35,49 @@ class SplashActivity : AppCompatActivity() {
 
                 val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
 
-                // Verificar si las credenciales existen en el almacenamiento local
-                if (sharedPreferences.contains("email")) {
-                    val email = sharedPreferences.getString("email", "")
-                    Log.d("Cred Juan", "Las credenciales existen en el local storage," +
-                            "se procede con la actualizacion del Json de firebase" +
-                            "y se persiste en el local storage ya actualizado ")
-                    fetchDataAndSaveToLocal(email)
+                // Verificar conectividad a Internet
+                if (isConnectedToNetwork()) {
+                    // Verificar si las credenciales existen en el almacenamiento local
+                    if (sharedPreferences.contains("email")) {
+                        val email = sharedPreferences.getString("email", "")
+                        Log.d("Cred Juan", "Las credenciales existen en el local storage," +
+                                "se procede con la actualizacion del Json de firebase" +
+                                "y se persiste en el local storage ya actualizado ")
+                        fetchDataAndSaveToLocal(email)
+
+                    }
+                    val intent = Intent(this@SplashActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish()
+
+                } else {
+                    // Mostrar notificación emergente sobre la falta de conexión a Internet
+                    Toast.makeText(
+                        this@SplashActivity,
+                        "No internet connection, preferences may not be up to date.",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    val intent = Intent(this@SplashActivity, NoInternetLogin::class.java)
+                    startActivity(intent)
+                    finish()
+
                 }
 
-                val intent = Intent(this@SplashActivity, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
             }
         } catch (e: Exception) {
             featureCrashHandler.logCrash("display", e)
         }
+    }
+
+    private fun isConnectedToNetwork(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+        return networkCapabilities != null &&
+                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 
     private fun fetchDataAndSaveToLocal(userEmail: String?, overwrite: Boolean = true) {
@@ -57,7 +87,7 @@ class SplashActivity : AppCompatActivity() {
         userRef.getBytes(1024 * 1024)
             .addOnSuccessListener { bytes ->
                 val jsonString = String(bytes, Charset.defaultCharset())
-                
+
                 // Escribir en el almacenamiento local
                 val localStorageFile = File(filesDir, "$userEmail.json")
                 if (overwrite || !localStorageFile.exists()) {

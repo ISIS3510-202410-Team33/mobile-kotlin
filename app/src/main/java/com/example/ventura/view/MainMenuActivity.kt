@@ -163,6 +163,7 @@ class MainMenuActivity : ComponentActivity() {
             val intent = Intent(this, ProfileActivity::class.java)
             intent.putExtra("user_email", userEmail)
             startActivity(intent)
+
         }
 
         
@@ -171,7 +172,6 @@ class MainMenuActivity : ComponentActivity() {
                 val intent = Intent(this, MapsActivity::class.java)
                 intent.putExtra("user_email", userEmail) // Aquí pasamos el correo como un extra
                 startActivity(intent)
-                finish()
             }
 
 

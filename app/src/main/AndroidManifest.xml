@@ -20,6 +20,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".view.NoInternetLogin"
+            android:exported="false" />
+
+        <activity
             android:name=".view.NotificationsActivity"
             android:exported="false" />
 

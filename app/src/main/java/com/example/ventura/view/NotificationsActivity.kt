@@ -46,7 +46,7 @@ class NotificationsActivity: ComponentActivity() {
             backButton.setOnClickListener{
                 val intent = Intent(this, MainMenuActivity::class.java)
                 startActivity(intent)
-
+                finish()
             }
 
             // Inflar el layout que contiene el botón
