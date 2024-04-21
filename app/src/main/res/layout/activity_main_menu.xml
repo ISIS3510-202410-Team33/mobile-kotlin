@@ -68,6 +68,7 @@
 
 
     <RelativeLayout
+        android:id="@+id/weatherInfoRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -125,8 +126,12 @@
             android:layout_alignTop="@id/weatherTextView"
             android:layout_alignBottom="@id/cityTextView"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="18dp"
 
+            android:layout_marginLeft="18dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="29dp"
+            android:layout_marginBottom="0dp"
             android:layout_toEndOf="@id/weatherTextView"
             android:layout_toRightOf="@id/weatherTextView"
             android:scaleType="fitEnd" />

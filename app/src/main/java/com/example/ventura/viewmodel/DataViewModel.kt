@@ -30,6 +30,21 @@ class JsonViewModel(private val context: Context) : ViewModel() {
         return sdf.format(Date(localFile.lastModified()))
     }
 
+    suspend fun updateJsonData() {
+        try {
+            val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
+            val jsonString = String(jsonBytes)
+            val json = JSONObject(jsonString)
+
+            FileOutputStream(localFile).use { output ->
+                output.write(jsonBytes)
+            }
+            Pair(json, "Data downloaded and stored locally")
+        } catch (e: Exception) {
+            Pair(null, "Error downloading data: ${e.localizedMessage}")
+        }
+    }
+
     suspend fun fetchJsonData(): Pair<JSONObject?, String> {
         return viewModelScope.async(Dispatchers.IO) {
             if (localFile.exists()) {
@@ -42,18 +57,8 @@ class JsonViewModel(private val context: Context) : ViewModel() {
                 val json = JSONObject(jsonString)
                 Pair(json, "Showing location data from $lastModifiedDate")
             } else {
-                try {
-                    val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
-                    val jsonString = String(jsonBytes)
-                    val json = JSONObject(jsonString)
-
-                    FileOutputStream(localFile).use { output ->
-                        output.write(jsonBytes)
-                    }
-                    Pair(json, "Data downloaded and stored locally")
-                } catch (e: Exception) {
-                    Pair(null, "Error downloading data: ${e.localizedMessage}")
-                }
+                Pair(null, "No data available locally. Swipe down to update.")
+                
             }
         }.await()
     }
