@@ -639,6 +639,15 @@ class MapsActivity : AppCompatActivity() {
                                             carTimeMinWal,
                                             bikeTimeMinWal
                                         )
+                                        // Define the margins
+                                        val params = LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT
+                                        ).apply {
+                                            setMargins(100, 10, 100, 10) // left, top, right, bottom
+                                        }
+
+                                        infoView.layoutParams = params
                                         linearLayout.addView(infoView)
                                     }
                                 })

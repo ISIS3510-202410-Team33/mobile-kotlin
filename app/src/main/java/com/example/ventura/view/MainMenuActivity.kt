@@ -55,6 +55,11 @@ class MainMenuActivity : ComponentActivity() {
             }
 
             // requestStoragePermission()
+            val notificationButton = findViewById<ImageView>(R.id.notification_icon)
+            notificationButton.setOnClickListener{
+                val intent = Intent(this, NotificationsActivity::class.java )
+                startActivity(intent)
+                }
 
 
             // Recuperar el correo del usuario de los extras del intent
@@ -192,11 +197,11 @@ class MainMenuActivity : ComponentActivity() {
 
             }
 
-
         buttonProfile.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)
             intent.putExtra("user_email", userEmail)
             startActivity(intent)
+
         }
 
         
@@ -205,7 +210,6 @@ class MainMenuActivity : ComponentActivity() {
                 val intent = Intent(this, MapsActivity::class.java)
                 intent.putExtra("user_email", userEmail) // Aquí pasamos el correo como un extra
                 startActivity(intent)
-                finish()
             }
 
 
