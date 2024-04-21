@@ -12,13 +12,41 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 
 class JsonViewModel(private val context: Context) : ViewModel() {
     private val storage = Firebase.storage
     private val jsonRef = storage.reference.child("edificios.json")
-    private val localFile = File(ContextCompat.getExternalFilesDirs(context, null)[0], "edificios.json")
+
+    // localfiles are stored in the app's internal storage
+    // where it can be accessed only by the app
+    private val localFile = File(context.filesDir, "edificios.json")
+
+    // if the file doesn't exist, it means the app is running for the first time
+    // or the user has never updated the data
+    init {
+        if (!localFile.exists()) {
+            copyJsonFromAssets()
+        }
+    }
+
+    // copies the json file from the assets folder to the app's internal storage
+    // as a fallback in case the user doesn't have internet connection
+    // and the data hasn't been updated
+    private fun copyJsonFromAssets() {
+        try {
+            context.assets.open("edificios.json").use { input ->
+                FileOutputStream(localFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
 
     fun isDataAvailableLocally(): Boolean {
         return localFile.exists()
