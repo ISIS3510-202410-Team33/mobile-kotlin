@@ -55,7 +55,7 @@ android {
 }
 
 dependencies {
-    // TODO: implement Firebase BoM
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
     implementation("com.google.firebase:firebase-crashlytics:18.6.2")
     implementation("com.google.firebase:firebase-analytics:21.5.1")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
