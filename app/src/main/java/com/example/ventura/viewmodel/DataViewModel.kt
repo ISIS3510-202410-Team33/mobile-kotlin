@@ -76,14 +76,14 @@ class JsonViewModel(private val context: Context) : ViewModel() {
     suspend fun fetchJsonData(): Pair<JSONObject?, String> {
         return viewModelScope.async(Dispatchers.IO) {
             if (localFile.exists()) {
-                var lastModifiedDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(localFile.lastModified()))
+                var lastModifiedDate = SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(Date(localFile.lastModified()))
                 // makes the date more readable, removing ss and adding "at" before the time
                 lastModifiedDate = lastModifiedDate.substring(0, 10) + " at " + lastModifiedDate.substring(11, 16) + ". Swipe down to update."
 
 
                 val jsonString = localFile.readText()
                 val json = JSONObject(jsonString)
-                Pair(json, "Showing location data from $lastModifiedDate")
+                Pair(json, "Showing data from $lastModifiedDate")
             } else {
                 Pair(null, "No data available locally. Swipe down to update.")
                 
