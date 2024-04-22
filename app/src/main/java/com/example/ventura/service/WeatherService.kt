@@ -1,6 +1,6 @@
 package com.example.ventura.service
 
-import com.example.ventura.model.WeatherResponse
+import com.example.ventura.repository.WeatherResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

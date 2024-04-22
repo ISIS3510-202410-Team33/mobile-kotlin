@@ -1,4 +1,4 @@
-package com.example.ventura.model
+package com.example.ventura.repository
 data class Building(
     val name: String,
     val coordinates: Pair<Double, Double>,

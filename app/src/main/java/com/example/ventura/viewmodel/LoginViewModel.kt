@@ -2,21 +2,14 @@ package com.example.ventura.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
+import com.example.ventura.model.LoginModel
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
-    private var auth: FirebaseAuth = FirebaseAuth.getInstance()
+class LoginViewModel(private val model: LoginModel) : ViewModel() {
 
     fun signIn(email: String, password: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
         viewModelScope.launch {
-            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    onSuccess()
-                } else {
-                    onFailure()
-                }
-            }
+            model.signIn(email, password, onSuccess, onFailure)
         }
     }
 }
