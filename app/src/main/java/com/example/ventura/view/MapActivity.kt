@@ -100,8 +100,7 @@ class MapsActivity : AppCompatActivity() {
 
         val buttonBackToMenu = findViewById<ImageView>(R.id.buttonBackToMenu)
         buttonBackToMenu.setOnClickListener {
-
-            finish() // Optional: finishes current activity to free resources
+            onBackPressedDispatcher.onBackPressed() // Optional: finishes current activity to free resources
         }
 
         locationRequest = LocationRequest.create().apply {

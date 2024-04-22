@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -13,8 +14,10 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.VideoView
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
@@ -27,24 +30,31 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 
-class MainMenuActivity : ComponentActivity() {
+class MainMenuActivity : AppCompatActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
-
+    private lateinit var videoView: VideoView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_main_menu)
+            setContentView(R.layout.new_main_menu)
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 // Mostrar un diálogo de alerta al usuario
                 mostrarDialogoGPS()
             }
+
+            videoView = findViewById(R.id.videoView)
+            videoView.setVideoURI(Uri.parse("android.resource://" + packageName + "/" + R.raw.video2))
+            videoView.setOnPreparedListener { mp ->
+                mp.isLooping = true
+            }
+            videoView.start()
 
             val notificationButton = findViewById<ImageView>(R.id.notification_icon)
             notificationButton.setOnClickListener{
@@ -67,6 +77,8 @@ class MainMenuActivity : ComponentActivity() {
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY // Set the priority of the request.
             }
 
+
+
             locationCallback = object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult?) {
                     locationResult ?: return
@@ -81,7 +93,6 @@ class MainMenuActivity : ComponentActivity() {
 
         val weatherTextView = findViewById<TextView>(R.id.weatherTextView)
         val cityTextView = findViewById<TextView>(R.id.cityTextView)
-        val weatherIconImageView = findViewById<ImageView>(R.id.weatherIconImageView)
         val humidityTextView = findViewById<TextView>(R.id.humidityTextView)
         val temperatureTextView = findViewById<TextView>(R.id.temperatureTextView)
         val weatherMessageTextView = findViewById<TextView>(R.id.weatherMessageTextView)
@@ -104,7 +115,7 @@ class MainMenuActivity : ComponentActivity() {
                     "https://emojiapi.dev/api/v1/sun_behind_cloud/512.png"
                 else -> "https://emojiapi.dev/api/v1/cloud/512.png"
             }
-            Glide.with(this).load(weatherIconUrl).into(weatherIconImageView)
+            //TODO: Glide.with(this).load(weatherIconUrl).into(weatherIconImageView)
 
             humidityTextView.text = "Humidity: $humidity%"
 
@@ -182,6 +193,12 @@ class MainMenuActivity : ComponentActivity() {
         } catch (e: Exception) { featureCrashHandler.logCrash("display", e); }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Iniciar la reproducción del video
+        videoView.start()
+    }
+
 
     override fun onPause() {
         try {
@@ -219,4 +236,6 @@ class MainMenuActivity : ComponentActivity() {
         // Si tienes más datos a eliminar, puedes agregar más líneas aquí
         editor.apply()
     }
+
+
 }
