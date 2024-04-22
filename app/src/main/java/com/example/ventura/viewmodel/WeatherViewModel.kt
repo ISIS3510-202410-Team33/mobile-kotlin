@@ -3,6 +3,7 @@ package com.example.ventura.viewmodel
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.NetworkInfo
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,20 +23,28 @@ class WeatherViewModel : ViewModel() {
     private val API_ENDPOINT = "https://api.openweathermap.org/data/2.5/"
     private val API_KEY = "668c50fd98cdfe606ab0440ee65979c3"
 
-    fun getWeather(lat: Double, lon: Double) {
-        viewModelScope.launch {
-            val retrofit = Retrofit.Builder()
-                .baseUrl(API_ENDPOINT)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
+    fun getWeather(context: Context, lat: Double, lon: Double) {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = connectivityManager.activeNetworkInfo
+        val isConnected: Boolean = activeNetwork?.isConnectedOrConnecting == true
 
-            val service = retrofit.create(WeatherService::class.java)
-            val weatherResponse = service.getWeather(lat, lon, API_KEY)
+        if (isConnected) {
+            viewModelScope.launch {
+                val retrofit = Retrofit.Builder()
+                    .baseUrl(API_ENDPOINT)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
 
-            //prints the response
-            Log.d("WeatherViewModel", weatherResponse.toString())
+                val service = retrofit.create(WeatherService::class.java)
+                val weatherResponse = service.getWeather(lat, lon, API_KEY)
 
-            weatherLiveData.postValue(weatherResponse)
+                //prints the response
+                Log.d("WeatherViewModel", weatherResponse.toString())
+
+                weatherLiveData.postValue(weatherResponse)
+            }
+        } else {
+            Log.d("WeatherViewModel", "No internet connection")
         }
     }
 

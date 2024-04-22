@@ -25,7 +25,6 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
-import com.bumptech.glide.Glide
 import com.example.ventura.R
 import com.example.ventura.model.analytics.FeatureCrashHandler
 import com.example.ventura.viewmodel.WeatherViewModel
@@ -33,7 +32,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import androidx.core.content.ContextCompat
+import java.util.concurrent.atomic.AtomicBoolean
 import com.google.android.gms.location.LocationServices
 
 class MainMenuActivity : ComponentActivity() {
@@ -43,11 +42,14 @@ class MainMenuActivity : ComponentActivity() {
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
     private val isRunningThread = AtomicBoolean(true)
+    var currentConnection = "ok"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main_menu)
+            
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -73,6 +75,8 @@ class MainMenuActivity : ComponentActivity() {
             dateTextView.text = date
 
             locationRequest = LocationRequest.create().apply {
+                interval = 20000
+                fastestInterval = 10000
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
 
@@ -81,7 +85,7 @@ class MainMenuActivity : ComponentActivity() {
                     locationResult ?: return
                     for (location in locationResult.locations) {
                         Log.d("Location", "$location")
-                        weatherViewModel.getWeather(location.latitude, location.longitude)
+                        weatherViewModel.getWeather(this@MainMenuActivity, location.latitude, location.longitude)
                     }
                 }
             }
@@ -141,6 +145,10 @@ class MainMenuActivity : ComponentActivity() {
                         Log.d("Internet", "Internet connection: $isConnected")
 
                         if (isConnected) {
+                            if (currentConnection == "offline") {
+                                Toast.makeText(this, "Connection restored, weather info will show up shortly", Toast.LENGTH_SHORT).show()
+                                currentConnection = "ok"
+                            }
                             if (ActivityCompat.checkSelfPermission(
                                     this, Manifest.permission.ACCESS_FINE_LOCATION
                                 ) != PackageManager.PERMISSION_GRANTED
@@ -157,6 +165,11 @@ class MainMenuActivity : ComponentActivity() {
                                 fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
                             }
                         } else {
+                            if (currentConnection == "ok") {
+                                Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()
+                                sendOfflineNotification()
+                                currentConnection = "offline"
+                            }
                             weatherTextView.text = "No internet connection"
                             temperatureTextView.text = "Cannot fetch weather info"
                             humidityTextView.text = "Please try again later"
@@ -170,11 +183,12 @@ class MainMenuActivity : ComponentActivity() {
                             relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
                             weatherIconImageView.setImageResource(weatherIconResource)
 
-                            
-                            sendOfflineNotification()
+
                         }
                     }
-                    Thread.sleep(5000) // Check every 5 seconds
+
+                    Thread.sleep(5000)
+
                 }
             }.start()
 
