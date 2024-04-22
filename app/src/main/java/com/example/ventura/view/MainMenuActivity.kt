@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -20,8 +21,10 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.VideoView
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
@@ -35,20 +38,28 @@ import com.google.android.gms.location.LocationResult
 import java.util.concurrent.atomic.AtomicBoolean
 import com.google.android.gms.location.LocationServices
 
-class MainMenuActivity : ComponentActivity() {
+class MainMenuActivity : AppCompatActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
     private val isRunningThread = AtomicBoolean(true)
+    private lateinit var videoView: VideoView
     var currentConnection = "ok"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_main_menu)
+            setContentView(R.layout.new_main_menu)
+
+            videoView = findViewById(R.id.videoView)
+            videoView.setVideoURI(Uri.parse("android.resource://" + packageName + "/" + R.raw.video))
+            videoView.setOnPreparedListener { mp ->
+                mp.isLooping = true
+            }
+            videoView.start()
             
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -92,7 +103,7 @@ class MainMenuActivity : ComponentActivity() {
 
             val weatherTextView = findViewById<TextView>(R.id.weatherTextView)
             val cityTextView = findViewById<TextView>(R.id.cityTextView)
-            val weatherIconImageView = findViewById<ImageView>(R.id.weatherIconImageView)
+            //val weatherIconImageView = findViewById<ImageView>(R.id.weatherIconImageView)
             val humidityTextView = findViewById<TextView>(R.id.humidityTextView)
             val temperatureTextView = findViewById<TextView>(R.id.temperatureTextView)
             val weatherMessageTextView = findViewById<TextView>(R.id.weatherMessageTextView)
@@ -111,20 +122,20 @@ class MainMenuActivity : ComponentActivity() {
 
                 val weatherIconResource = when {
                     weatherDescription.contains("rain") || weatherDescription.contains("drizzle") -> {
-                        relativeLayout.setBackgroundResource(R.drawable.rounded_corners_rain)
+                        //relativeLayout.setBackgroundResource(R.drawable.rounded_corners_rain)
                         R.drawable.cloud_with_rain
                     }
                     weatherDescription.contains("cloud") -> {
-                        relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
+                        //relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
                         R.drawable.cloud
                     }
                     weatherDescription.contains("clear") -> {
-                        relativeLayout.setBackgroundResource(R.drawable.rounded_corners_sun)
+                        //relativeLayout.setBackgroundResource(R.drawable.rounded_corners_sun)
                         R.drawable.sun_behind_cloud
                     }
                     else -> R.drawable.cloud
                 }
-                weatherIconImageView.setImageResource(weatherIconResource)
+                //weatherIconImageView.setImageResource(weatherIconResource)
                 humidityTextView.text = "Humidity: $humidity%"
 
                 if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
@@ -179,9 +190,9 @@ class MainMenuActivity : ComponentActivity() {
 
                             // change the icon and background to indicate offline status
                             val weatherIconResource = R.drawable.error
-                            val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
-                            relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                            weatherIconImageView.setImageResource(weatherIconResource)
+                            //val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                            //relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
+                            //weatherIconImageView.setImageResource(weatherIconResource)
 
 
                         }
@@ -265,6 +276,7 @@ class MainMenuActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        videoView.start()
         weatherViewModel.checkInternetConnection(this)
     }
 
