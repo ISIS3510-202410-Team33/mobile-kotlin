@@ -14,7 +14,7 @@
         android:layout_marginTop="380dp"
         android:background="@drawable/edittext_background"
         android:fontFamily="@font/lato_light"
-        android:hint="email/user"
+        android:hint="Email address"
         android:inputType="textEmailAddress"
         android:letterSpacing="0.1"
         android:textAlignment="center"
@@ -34,7 +34,7 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/edittext_background"
         android:fontFamily="@font/lato_light"
-        android:hint="password"
+        android:hint="Password"
         android:inputType="textPassword"
         android:letterSpacing="0.1"
         android:textAlignment="center"
@@ -55,7 +55,7 @@
         app:layout_constraintEnd_toEndOf="@+id/editTextPassword"
         app:layout_constraintStart_toStartOf="@+id/editTextPassword"
         app:layout_constraintTop_toBottomOf="@+id/editTextPassword"
-        app:layout_constraintVertical_bias="0.169" />
+        app:layout_constraintVertical_bias="0.081" />
 
     <TextView
         android:id="@+id/textView"

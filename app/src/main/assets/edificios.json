@@ -1,0 +1,138 @@
+{
+    "spaces": {
+        "ML Building": {
+            "coordenadas": [
+                4.602645428131801,
+                -74.06487758466257
+            ],
+            "cantidad_pisos": 10,
+            "cantidad_restaurantes": 6,
+            "cantidad_zonas_verdes": 1,
+            "obstrucciones": false
+        },
+        "ML Building - gratto café": {
+            "coordenadas": [
+                4.602645428131801,
+                -74.06487758466257
+            ],
+            "cantidad_pisos": 1,
+            "cantidad_restaurantes": 1,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        },
+        
+        "W Building": {
+            "coordenadas": [
+                4.602322724127535,
+                -74.06502244862835
+            ],
+            "cantidad_pisos": 7,
+            "cantidad_restaurantes": 3,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": true
+        },
+
+        "Japan Center Building": {
+            "coordenadas": [
+                4.60106570194588,
+                -74.06644974069125
+            ],
+            "cantidad_pisos": 3,
+            "cantidad_restaurantes": 5,
+            "cantidad_zonas_verdes": 2,
+            "obstrucciones": false
+        },
+        "Japan Center Building - café": {
+            "coordenadas": [
+                4.60106570194588,
+                -74.06644974069125
+            ],
+            "cantidad_pisos": 1,
+            "cantidad_restaurantes": 0,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        },
+        "W building - cafeteria": {
+            "coordenadas": [
+                4.602322724127535,
+                -74.06502244862835
+            ],
+            "cantidad_pisos": 1,
+            "cantidad_restaurantes": 0,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        },
+        "Japan Center Building - green zone": {
+            "coordenadas": [
+                4.60106570194588,
+                -74.06644974069125
+            ],
+            "cantidad_pisos": 1,
+            "cantidad_restaurantes": 0,
+            "cantidad_zonas_verdes": 1,
+            "obstrucciones": false
+        },
+        "ML Building - Ramón de Zubiria Central library": {
+            "coordenadas": [
+                4.603233645308469,
+                -74.06487107368757
+            ],
+            "cantidad_pisos": 5,
+            "cantidad_restaurantes": 0,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": true
+        },
+        "ML Building - Waira": {
+            "coordenadas": [
+                4.601533887071907,
+                -74.06545282209643
+            ],
+            "cantidad_pisos": 1,
+            "cantidad_restaurantes": 0,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        },
+        "RGD Building": {
+            "coordenadas": [
+                4.602294, 
+                -74.066058
+            ],
+            "cantidad_pisos": 5,
+            "cantidad_restaurantes": 2,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        },
+        "RGD Building - Store": {
+            "coordenadas": [
+                4.602294, 
+                -74.066058
+            ],
+            "cantidad_pisos": 1,
+            "cantidad_restaurantes": 0,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        },
+
+        "SD Building": {
+            "coordenadas": [
+                4.604299469724717, 
+                -74.06582923604356
+            ],
+            "cantidad_pisos": 10,
+            "cantidad_restaurantes": 7,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        },
+
+        "SD Building - food court": {
+            "coordenadas": [
+                4.604299469724717, 
+                -74.06582923604356
+            ],
+            "cantidad_pisos": 10,
+            "cantidad_restaurantes": 5,
+            "cantidad_zonas_verdes": 0,
+            "obstrucciones": false
+        }
+    }
+}

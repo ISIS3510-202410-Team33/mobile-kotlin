@@ -2,16 +2,21 @@ package com.example.ventura.view
 
 import android.Manifest
 import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Html
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.VideoView
@@ -19,6 +24,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.example.ventura.R
@@ -28,6 +34,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 
 class MainMenuActivity : AppCompatActivity() {
@@ -40,6 +47,7 @@ class MainMenuActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
+
             super.onCreate(savedInstanceState)
             setContentView(R.layout.new_main_menu)
 
@@ -56,6 +64,7 @@ class MainMenuActivity : AppCompatActivity() {
             }
             videoView.start()
 
+
             val notificationButton = findViewById<ImageView>(R.id.notification_icon)
             notificationButton.setOnClickListener{
                 val intent = Intent(this, NotificationsActivity::class.java )
@@ -67,7 +76,21 @@ class MainMenuActivity : AppCompatActivity() {
             val userEmail = intent.getStringExtra("user_email")
 
 
-            Log.d("screen-flow", "¡Bienvenido, $userEmail!")
+            Log.d("screen-flow", "¡Welcome, $userEmail!")
+
+            // Populate the tag welcome with the username
+            val welcomeTextView = findViewById<TextView>(R.id.textView5)
+            welcomeTextView.text = "Hi, ${extractUsername(userEmail)}!"
+
+            // Populate todays date with the current date
+            val dateTextView = findViewById<TextView>(R.id.textView6)
+            val currentDate = java.util.Calendar.getInstance().time
+            
+            // get only the date, example: Sun Apr 14, get it split by space and get the first 3 elements
+            val date = currentDate.toString().split(" ").subList(0, 3).joinToString(" ")
+            dateTextView.text = date
+            
+            
 
             locationRequest = LocationRequest.create().apply {
                 interval =
@@ -117,14 +140,33 @@ class MainMenuActivity : AppCompatActivity() {
             }
             //TODO: Glide.with(this).load(weatherIconUrl).into(weatherIconImageView)
 
+            val weatherIconResource = when {
+                weatherDescription.contains("rain") || weatherDescription.contains("drizzle") -> {
+                    // change the background of the RelativeLayout from round_corners  to round_corners_rain
+                    relativeLayout.setBackgroundResource(R.drawable.rounded_corners_rain)
+                    R.drawable.cloud_with_rain
+                }
+                weatherDescription.contains("cloud") -> {
+                    R.drawable.cloud
+                }
+                weatherDescription.contains("clear") -> {
+                    // change the background of the RelativeLayout from round_corners  to round_corners_sun
+                    relativeLayout.setBackgroundResource(R.drawable.rounded_corners_sun)
+                    R.drawable.sun_behind_cloud
+                }
+                else -> R.drawable.cloud
+            }
+            weatherIconImageView.setImageResource(weatherIconResource)
             humidityTextView.text = "Humidity: $humidity%"
 
             // Set the weather message based on weather description
-            weatherMessageTextView.text = if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
-                "Watch out! It's raining heavily."
+            if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
+                weatherMessageTextView.text = "<b>Watch out! It's raining heavily</b>"
+                sendRainNotification()
             } else {
-                "Weather seems fine today!"
+                weatherMessageTextView.text = "Weather seems fine today!"
             }
+            weatherMessageTextView.setText(Html.fromHtml(weatherMessageTextView.text.toString()), TextView.BufferType.SPANNABLE)
         })
 
             if (ActivityCompat.checkSelfPermission(
@@ -199,6 +241,26 @@ class MainMenuActivity : AppCompatActivity() {
         videoView.start()
     }
 
+    private fun sendRainNotification() {
+        Log.d("Notification", "Sending rain notification")
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationChannelId = "RAIN_NOTIFICATION_CHANNEL"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel = NotificationChannel(notificationChannelId, "Rain Notifications", NotificationManager.IMPORTANCE_HIGH)
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+
+        val notificationBuilder = NotificationCompat.Builder(this, notificationChannelId)
+            .setSmallIcon(R.drawable.cloud_with_rain)
+            .setContentTitle("Weather Alert")
+            .setContentText("Watch out! It's raining heavily")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        notificationManager.notify(0, notificationBuilder.build())
+    }
+
 
     override fun onPause() {
         try {
@@ -209,6 +271,12 @@ class MainMenuActivity : AppCompatActivity() {
 
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun requestStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+        }
     }
 
     private fun mostrarDialogoGPS() {
@@ -237,5 +305,9 @@ class MainMenuActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    // Extract username from email (part before the "@")
+    private fun extractUsername(email: String?): String {
+        return email?.substringBefore("@") ?: ""
+    }
 
 }

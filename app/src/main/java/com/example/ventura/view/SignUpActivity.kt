@@ -13,7 +13,7 @@ import com.example.ventura.viewmodel.SignUpViewModel
 
 class SignUpActivity : ComponentActivity() {
     private lateinit var viewModel: SignUpViewModel
-    private val featureCrashHandler = FeatureCrashHandler("sign_up");
+    private val featureCrashHandler = FeatureCrashHandler("sign_up")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
@@ -29,32 +29,35 @@ class SignUpActivity : ComponentActivity() {
             buttonSignUp.setOnClickListener {
                 val email = editTextEmail.text.toString()
                 val password = editTextPassword.text.toString()
+                val validationResult = validateInput(email, password)
 
-                if (email.isNotEmpty() && password.isNotEmpty()) {
+                if (validationResult == "Valid") {
                     viewModel.signUp(email, password,
                         onSuccess = {
-                            val intent = Intent(this, LoginActivity::class.java)
-                            startActivity(intent)
+                            startActivity(Intent(this, LoginActivity::class.java))
                             finish()
-                            Toast.makeText(
-                                baseContext, "Successfully registered. Please log in.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(baseContext, "Successfully registered. Please log in.", Toast.LENGTH_SHORT).show()
                         },
                         onFailure = {
-                            Toast.makeText(
-                                baseContext, "Authentication failed.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
                         }
                     )
                 } else {
-                    Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this, validationResult, Toast.LENGTH_LONG).show()
                 }
             }
         } catch (e: Exception) {
-            featureCrashHandler.logCrash("display", e);
+            featureCrashHandler.logCrash("display", e)
         }
+    }
+
+    private fun validateInput(email: String, password: String): String {
+        if (email.isEmpty() || password.isEmpty()) return "Email and password must not be empty"
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) return "Enter a valid email address"
+        if (password.length < 7) return "Password must have at least 7 characters"
+        if (!password.any { it.isDigit() }) return "Password must contain at least 1 number"
+        if (!password.any { it.isUpperCase() }) return "Password must contain at least 1 uppercase letter"
+        if (!password.any { it.isLetter() }) return "Password must contain at least 1 letter"
+        return "Valid"
     }
 }
