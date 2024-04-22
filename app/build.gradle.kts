@@ -55,7 +55,7 @@ android {
 }
 
 dependencies {
-    // TODO: implement Firebase BoM
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
     implementation("com.google.firebase:firebase-crashlytics:18.6.2")
     implementation("com.google.firebase:firebase-analytics:21.5.1")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.datastore.core.android)
 //    implementation(libs.androidx.material3.android)
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
