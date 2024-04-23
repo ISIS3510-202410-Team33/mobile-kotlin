@@ -25,6 +25,16 @@ class LoginActivity : ComponentActivity() {
         try {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main)
+
+            // for the android:id="@+id/textViewSignUp", replaces the
+            // text from "First time using Ventura? Sign up here" to
+            // the same thing but "Sign up here" is in bold
+            // this is done by using the HTML <b> tag
+            val textViewSignUp = findViewById<TextView>(R.id.textViewSignUp)
+            textViewSignUp.text = android.text.Html.fromHtml(
+                "First time using Ventura? <b>Sign up here</b>"
+            )
+            
     
             val factory = LoginViewModelFactory(this)
             viewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
@@ -40,7 +50,7 @@ class LoginActivity : ComponentActivity() {
             val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
             val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
             val buttonLogin = findViewById<Button>(R.id.buttonLogin)
-            val textViewSignUp = findViewById<TextView>(R.id.textViewSignUp)
+            val buttonSignUp = findViewById<Button>(R.id.buttonSignUp)
 
             buttonLogin.setOnClickListener {
                 val email = editTextEmail.text.toString()
@@ -64,6 +74,12 @@ class LoginActivity : ComponentActivity() {
                     Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_SHORT)
                         .show()
                 }
+            }
+
+            // adds an onClickListener to the buttonSignUp
+            buttonSignUp.setOnClickListener {
+                val intent = Intent(this, SignUpActivity::class.java)
+                startActivity(intent)
             }
 
             textViewSignUp.setOnClickListener {
