@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.R
 import com.example.ventura.model.analytics.FeatureCrashHandler
 import com.example.ventura.viewmodel.LoginViewModel
+import com.example.ventura.viewmodel.LoginViewModelFactory
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class LoginActivity : ComponentActivity() {
@@ -24,8 +25,9 @@ class LoginActivity : ComponentActivity() {
         try {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main)
-
-            viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+    
+            val factory = LoginViewModelFactory(this)
+            viewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
             sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
 
             if (isLoggedIn()) {

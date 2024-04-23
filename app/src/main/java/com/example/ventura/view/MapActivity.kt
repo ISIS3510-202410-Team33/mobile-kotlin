@@ -36,8 +36,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ventura.R
-import com.example.ventura.viewmodel.JsonViewModel
-import com.example.ventura.viewmodel.JsonViewModelFactory
+import com.example.ventura.viewmodel.CampusLocationsViewModelFactory
+import com.example.ventura.viewmodel.CampusLocationsViewModel
 import com.example.ventura.viewmodel.RatingViewModel
 import com.example.ventura.viewmodel.UserPreferencesViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -76,7 +76,7 @@ class MapsActivity : AppCompatActivity() {
     private var averageCarDelay: Float = 2F
 
     // Lateinit vars to use the corresponding ViewModels
-    private lateinit var jsonViewModel: JsonViewModel
+    private lateinit var jsonViewModel: CampusLocationsViewModel
     private lateinit var userPrefViewModel: UserPreferencesViewModel
     private lateinit var ratingViewModel: RatingViewModel
 
@@ -89,7 +89,7 @@ class MapsActivity : AppCompatActivity() {
         // Retrieve the email from the extras of the intent
         val userEmail = intent.getStringExtra("user_email")
 
-        jsonViewModel = ViewModelProvider(this, JsonViewModelFactory(this)).get(JsonViewModel::class.java)
+        jsonViewModel = ViewModelProvider(this, CampusLocationsViewModelFactory(this)).get(CampusLocationsViewModel::class.java)
         userPrefViewModel = ViewModelProvider(this).get(UserPreferencesViewModel::class.java)
         ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
 
