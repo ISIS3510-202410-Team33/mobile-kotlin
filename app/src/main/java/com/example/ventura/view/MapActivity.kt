@@ -226,10 +226,6 @@ class MapsActivity : AppCompatActivity() {
                 val buttonBackToMenu = findViewById<ImageView>(R.id.buttonBackToMenu)
                 buttonBackToMenu.setOnClickListener {
 
-                    // Intent to go back to the main menu activity
-                    val intent = Intent(this@MapsActivity, MainMenuActivity::class.java)
-                    intent.putExtra("user_email", userEmail)
-                    startActivity(intent)
                     finish() // Optional: finishes current activity to free resources
                 }
 

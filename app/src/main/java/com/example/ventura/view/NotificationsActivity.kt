@@ -44,8 +44,6 @@ class NotificationsActivity: ComponentActivity() {
 
             val backButton = findViewById<ImageView>(R.id.buttonBackToMenu2)
             backButton.setOnClickListener{
-                val intent = Intent(this, MainMenuActivity::class.java)
-                startActivity(intent)
                 finish()
             }
 
