@@ -10,6 +10,7 @@ import com.example.ventura.R
 import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.model.analytics.FeatureCrashHandler
 import com.example.ventura.viewmodel.SignUpViewModel
+import com.example.ventura.viewmodel.SignUpViewModelFactory
 
 class SignUpActivity : ComponentActivity() {
     private lateinit var viewModel: SignUpViewModel
@@ -20,7 +21,8 @@ class SignUpActivity : ComponentActivity() {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_signup)
 
-            viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
+            val factory = SignUpViewModelFactory(this)
+            viewModel = ViewModelProvider(this, factory)[SignUpViewModel::class.java]
 
             val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
             val editTextPassword = findViewById<EditText>(R.id.editTextPassword)

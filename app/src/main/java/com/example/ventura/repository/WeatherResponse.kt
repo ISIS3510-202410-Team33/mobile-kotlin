@@ -1,4 +1,4 @@
-package com.example.ventura.model
+package com.example.ventura.repository
 
 data class WeatherResponse(
     val weather: List<Weather>,

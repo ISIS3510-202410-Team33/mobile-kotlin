@@ -282,14 +282,14 @@ class MainMenuActivity : ComponentActivity() {
 
     private fun mostrarDialogoGPS() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("GPS Desactivado")
-            .setMessage("Para usar esta aplicación, debes activar el GPS.")
+        builder.setTitle("GPS Disabled")
+            .setMessage("Please enable GPS to get weather information")
             .setCancelable(false)
-            .setPositiveButton("Activar GPS") { dialog, _ ->
+            .setPositiveButton("Enable GPS") { dialog, _ ->
                 startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                 dialog.dismiss()
             }
-            .setNegativeButton("Salir") { dialog, _ ->
+            .setNegativeButton("Exit") { dialog, _ ->
                 dialog.dismiss()
                 finish()
             }

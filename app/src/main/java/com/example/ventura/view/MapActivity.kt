@@ -36,8 +36,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.ventura.R
-import com.example.ventura.viewmodel.JsonViewModel
-import com.example.ventura.viewmodel.JsonViewModelFactory
+import com.example.ventura.viewmodel.CampusLocationsViewModelFactory
+import com.example.ventura.viewmodel.CampusLocationsViewModel
 import com.example.ventura.viewmodel.RatingViewModel
 import com.example.ventura.viewmodel.UserPreferencesViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -76,7 +76,7 @@ class MapsActivity : AppCompatActivity() {
     private var averageCarDelay: Float = 2F
 
     // Lateinit vars to use the corresponding ViewModels
-    private lateinit var jsonViewModel: JsonViewModel
+    private lateinit var jsonViewModel: CampusLocationsViewModel
     private lateinit var userPrefViewModel: UserPreferencesViewModel
     private lateinit var ratingViewModel: RatingViewModel
 
@@ -89,7 +89,7 @@ class MapsActivity : AppCompatActivity() {
         // Retrieve the email from the extras of the intent
         val userEmail = intent.getStringExtra("user_email")
 
-        jsonViewModel = ViewModelProvider(this, JsonViewModelFactory(this)).get(JsonViewModel::class.java)
+        jsonViewModel = ViewModelProvider(this, CampusLocationsViewModelFactory(this)).get(CampusLocationsViewModel::class.java)
         userPrefViewModel = ViewModelProvider(this).get(UserPreferencesViewModel::class.java)
         ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
 
@@ -426,31 +426,47 @@ class MapsActivity : AppCompatActivity() {
                                         val isBestRated = mejorEdificio.contains(spaceKey)
 
                                         if (isRecommended) {
-                                            val recommendedMessage =
-                                                ImageView(this@MapsActivity)
+                                            val recommendedLayout = LinearLayout(this@MapsActivity)
+                                            recommendedLayout.orientation = LinearLayout.HORIZONTAL
+
+                                            val recommendedMessage = ImageView(this@MapsActivity)
                                             recommendedMessage.setBackgroundResource(R.drawable.gps_glass)
 
-                                            // Crear LayoutParams para el ImageView con ancho y altura de 16dp
-                                            val layoutParams = LinearLayout.LayoutParams(
-                                                dpToPx(20), // Convertir 16dp a píxeles
+                                            // Create LayoutParams for the ImageView with width and height of 16dp
+                                            val imageLayoutParams = LinearLayout.LayoutParams(
+                                                dpToPx(20), // Convert 16dp to pixels
                                                 dpToPx(23)
                                             )
 
-                                            // Aplicar LayoutParams al ImageView
-                                            recommendedMessage.layoutParams = layoutParams
+                                            // Apply LayoutParams to the ImageView
+                                            recommendedMessage.layoutParams = imageLayoutParams
 
                                             recommendedMessage.setOnClickListener {
-                                                // Aquí colocas el código para mostrar un mensaje emergente (popup) cuando se hace clic en la imagen
+                                                // Here you put the code to display a popup message when the image is clicked
                                                 val toast = Toast.makeText(
                                                     this@MapsActivity,
-                                                    "¡Recommended place for you!",
+                                                    "¡Recommended location for you!",
                                                     Toast.LENGTH_SHORT
                                                 )
+
+
                                                 toast.setGravity(Gravity.CENTER, 0, 0)
                                                 toast.show()
                                             }
 
-                                            textLayout.addView(recommendedMessage) // Add recommended message here
+                                            val recommendedText = TextView(this@MapsActivity)
+                                            recommendedText.text = "  Recommended location!"
+                                            recommendedText.setTextColor(Color.BLACK) // Change text color to black
+                                            recommendedText.layoutParams = LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                LinearLayout.LayoutParams.WRAP_CONTENT
+                                            )
+
+
+                                            recommendedLayout.addView(recommendedMessage) // Add recommended message here
+                                            recommendedLayout.addView(recommendedText) // Add recommended text here
+
+                                            textLayout.addView(recommendedLayout) // Add the layout to the parent layout
                                         }
 
                                         /*
@@ -462,25 +478,23 @@ class MapsActivity : AppCompatActivity() {
                                 */
 
                                         if (isBestRated) {
-                                            val rateddedMessage = ImageView(this@MapsActivity)
-                                            rateddedMessage.setBackgroundResource(R.drawable.best_rated)
+                                            val ratedLayout = LinearLayout(this@MapsActivity)
+                                            ratedLayout.orientation = LinearLayout.HORIZONTAL
 
-                                            // Crear LayoutParams para el ImageView con ancho y altura de 16dp
-                                            val layoutParams = LinearLayout.LayoutParams(
-                                                dpToPx(18), // Convertir 16dp a píxeles
+                                            val ratedMessage = ImageView(this@MapsActivity)
+                                            ratedMessage.setBackgroundResource(R.drawable.best_rated)
+
+                                            // Create LayoutParams for the ImageView with width and height of 18dp
+                                            val imageLayoutParams = LinearLayout.LayoutParams(
+                                                dpToPx(18), // Convert 18dp to pixels
                                                 dpToPx(25)
                                             )
 
-                                            textLayout.setBackgroundResource(R.drawable.university_button2)
+                                            // Apply LayoutParams to the ImageView
+                                            ratedMessage.layoutParams = imageLayoutParams
 
-
-                                            // Aplicar LayoutParams al ImageView
-                                            rateddedMessage.layoutParams = layoutParams
-
-                                            textLayout.addView(rateddedMessage) // Add recommended message here
-
-                                            rateddedMessage.setOnClickListener {
-                                                // Aquí colocas el código para mostrar un mensaje emergente (popup) cuando se hace clic en la imagen
+                                            ratedMessage.setOnClickListener {
+                                                // Here you put the code to display a popup message when the image is clicked
                                                 val toast = Toast.makeText(
                                                     this@MapsActivity,
                                                     "¡Best rated place!",
@@ -489,6 +503,20 @@ class MapsActivity : AppCompatActivity() {
                                                 toast.setGravity(Gravity.CENTER, 0, 0)
                                                 toast.show()
                                             }
+
+                                            val ratedText = TextView(this@MapsActivity)
+                                            ratedText.text = "  Best rated location!"
+                                            ratedText.setTextColor(Color.BLACK) // Set text color to black
+                                            ratedText.layoutParams = LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                LinearLayout.LayoutParams.WRAP_CONTENT
+                                            )
+
+                                            ratedLayout.addView(ratedMessage) // Add rated message here
+                                            ratedLayout.addView(ratedText) // Add rated text here
+                                            
+                                            textLayout.setBackgroundResource(R.drawable.university_button3)
+                                            textLayout.addView(ratedLayout) // Add the layout to the parent layout
                                         }
 
                                         textLayout.addView(textView)

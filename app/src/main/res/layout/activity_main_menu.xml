@@ -172,7 +172,7 @@
         android:layout_marginHorizontal="20dp"
         android:background="@drawable/university_button"
         android:paddingVertical="10dp"
-        android:text="Universidad de los Andes"
+        android:text="University of the Andes"
         android:textAlignment="center"
         android:textColor="#000000"
         android:textStyle="bold" />
