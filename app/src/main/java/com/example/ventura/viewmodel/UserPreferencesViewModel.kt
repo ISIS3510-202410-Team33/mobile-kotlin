@@ -21,7 +21,7 @@ class UserPreferencesViewModel(private val model: UserPreferencesModel) : ViewMo
     fun getData(context: Context, userEmail: String) {
         viewModelScope.launch {
             val jsonObject = model.getData(context, userEmail)
-            data.postValue(jsonObject)
+            data.postValue(jsonObject!!)
         }
     }
 }
