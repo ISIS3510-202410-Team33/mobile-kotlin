@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.ventura.R
 import com.example.ventura.viewmodel.RatingViewModel
 import kotlinx.coroutines.*
+import com.example.ventura.viewmodel.RatingViewModelFactory
 
 class NotificationsActivity : ComponentActivity() {
     private lateinit var ratingViewModel: RatingViewModel
@@ -39,11 +40,9 @@ class NotificationsActivity : ComponentActivity() {
             mejorEdificioAdapter = MejorEdificioAdapter(mutableListOf())
             recyclerView.adapter = mejorEdificioAdapter
             recyclerView.layoutManager = LinearLayoutManager(this)
-
             textViewNoConnection = findViewById(R.id.textViewNoConnection)
             imageViewNoNet = findViewById(R.id.imageView6)
-
-            ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
+            ratingViewModel = ViewModelProvider(this, RatingViewModelFactory()).get(RatingViewModel::class.java)
 
             ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
                 // Here we add the notifications to the user notifications

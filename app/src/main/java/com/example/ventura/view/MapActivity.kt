@@ -50,6 +50,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import android.app.AlertDialog
+import com.example.ventura.viewmodel.RatingViewModelFactory
+import com.example.ventura.viewmodel.UserPreferencesViewModelFactory
 
 class MapsActivity : AppCompatActivity() {
 
@@ -90,8 +92,8 @@ class MapsActivity : AppCompatActivity() {
         val userEmail = intent.getStringExtra("user_email")
 
         jsonViewModel = ViewModelProvider(this, CampusLocationsViewModelFactory(this)).get(CampusLocationsViewModel::class.java)
-        userPrefViewModel = ViewModelProvider(this).get(UserPreferencesViewModel::class.java)
-        ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
+        userPrefViewModel = ViewModelProvider(this, UserPreferencesViewModelFactory(this)).get(UserPreferencesViewModel::class.java)
+        ratingViewModel = ViewModelProvider(this, RatingViewModelFactory()).get(RatingViewModel::class.java)
 
         // allows the user to swipe down to update locations
         swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
@@ -299,7 +301,7 @@ class MapsActivity : AppCompatActivity() {
 
                     // create recomendations
                     userPrefViewModel.getData(this@MapsActivity, userEmail)
-                        .observe(this@MapsActivity, Observer { jsonObject: JSONObject ->
+                    userPrefViewModel.data.observe(this@MapsActivity, Observer { jsonObject: JSONObject ->
 
                             Log.d("recomendation", "started")
                             Log.d("Recomendation visited", jsonObject.toString())
