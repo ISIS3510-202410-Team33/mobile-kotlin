@@ -11,8 +11,9 @@ data class Theme(
 )
 
 
+// TODO: this should be renamed. It's more model, which includes repository
 class ThemeRepository {
-    private var currentTheme = Theme("system")
+    private var currentTheme = Theme("light_sensitive")
 
     fun getThemeData(): Theme {
         // TODO: fetch theme data

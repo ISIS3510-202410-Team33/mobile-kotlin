@@ -58,7 +58,7 @@ class ThemeViewModel : ViewModel() {
                 theme = currentState.theme.copy(setting = newSetting)
             )
         }
-
+        // actualiza las preferencias de usuario en persistencia
         themeRepository.updateThemeData(uiState.value.theme)
 //        brightnessManager.updateThemeSetting(uiState.value.theme)
         Log.d("change-theme", "Changed to ${_uiState.value.theme.setting}")
@@ -77,4 +77,5 @@ class ThemeViewModel : ViewModel() {
             Log.d("brightness-manager", "Is it too bright? - $newTooBright")
         }
     }
+
 }
