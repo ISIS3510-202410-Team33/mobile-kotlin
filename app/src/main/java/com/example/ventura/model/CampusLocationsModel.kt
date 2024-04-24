@@ -12,8 +12,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class CampusLocationsModel(private val context: Context) {
-    private val storage = Firebase.storage
-    private val jsonRef = storage.reference.child("edificios.json")
     private val localFile = File(context.filesDir, "edificios.json")
 
     init {
@@ -46,6 +44,8 @@ class CampusLocationsModel(private val context: Context) {
 
     suspend fun updateJsonData(): Pair<JSONObject?, String> {
         try {
+            val storage = Firebase.storage
+            val jsonRef = storage.reference.child("edificios.json")
             val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
             val jsonString = String(jsonBytes)
             val json = JSONObject(jsonString)
