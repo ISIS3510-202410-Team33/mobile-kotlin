@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -46,8 +49,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
 import com.example.ventura.ui.theme.Shapes
-import com.example.ventura.ui.theme.VenturaTheme
+import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.viewmodel.ProfileViewModel
+import com.example.ventura.viewmodel.ThemeViewModel
 
 
 val smallPadding = 8.dp
@@ -56,8 +60,12 @@ val largePadding = 24.dp
 val mediumIcon = 64.dp
 
 @Composable
-fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(
+    profileViewModel: ProfileViewModel = viewModel(),
+    themeViewModel: ThemeViewModel = viewModel()
+) {
     val profileUiState by profileViewModel.uiState.collectAsState()
+    val themeUiState by themeViewModel.uiState.collectAsState()
 
     Scaffold (
         topBar = {
@@ -102,6 +110,14 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     itemText = profileUiState.profile.universityName,
                     onBoxExit = { profileViewModel.updateProfileData() },
                     onNewText = { profileViewModel.changeProfileUniversity(it) }
+                )
+            }
+
+            item {
+                ThemeSettingSelection(
+                    modifier = Modifier,
+                    currentTheme = themeUiState.theme.setting,
+                    onThemeChange = { themeViewModel.changeThemeSetting(it) }
                 )
             }
         }
@@ -264,10 +280,111 @@ private fun ProfileItem(
 }
 
 
+@Composable
+private fun ThemeSettingButton(
+    modifier: Modifier = Modifier,
+    themeKey: String,
+    currentTheme: String,
+    onThemeChange: (String) -> Unit,
+    content: @Composable () -> Unit
+) {
+    // system theme
+    Button(
+        modifier = modifier
+            .padding(smallPadding),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (currentTheme == themeKey) {
+                // Highlight color for selected state
+                Color.DarkGray
+            } else {
+                // Default color for unselected state
+                Color.Gray
+            },
+            contentColor = if (currentTheme == themeKey) {
+                // Adjust content color for contrast
+                Color.White
+            } else {
+                Color.White
+            }
+        ),
+
+        onClick = { onThemeChange(themeKey) }
+    ) {
+        content()
+    }
+}
+
+
+@Composable
+private fun ThemeSettingSelection(
+    modifier: Modifier = Modifier,
+    currentTheme: String,
+    onThemeChange: (String) -> Unit
+) {
+    Column (
+        modifier = modifier
+            .padding(smallPadding)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ThemeSettingButton(
+                themeKey = "system",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("System")
+            }
+
+            ThemeSettingButton(
+                themeKey = "light_sensitive",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("Light sensitive")
+            }
+        }
+
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ThemeSettingButton(
+                themeKey = "light",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("Light")
+            }
+
+            ThemeSettingButton(
+                themeKey = "dark",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("Dark")
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ThemeSettingSelectionPreview() {
+    ThemeSettingSelection(
+        currentTheme = "dark",
+        onThemeChange = { }
+    )
+}
+
+
 @Preview
 @Composable
 fun ProfileScreenPreviewLight() {
-    VenturaTheme(darkTheme = false) {
+    ThemeScreen(darkTheme = false) {
         ProfileScreen()
     }
 }
@@ -276,7 +393,7 @@ fun ProfileScreenPreviewLight() {
 @Preview
 @Composable
 fun ProfileScreenPreviewDark() {
-    VenturaTheme(darkTheme = true) {
+    ThemeScreen(darkTheme = true) {
         ProfileScreen()
     }
 }

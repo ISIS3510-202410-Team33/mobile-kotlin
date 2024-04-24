@@ -11,21 +11,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.ventura.ui.screens.ProfileScreen
-import com.example.ventura.ui.theme.VenturaTheme
+import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.viewmodel.ProfileViewModel
+import com.example.ventura.viewmodel.ThemeViewModel
 
 class NewProfileActivity : ComponentActivity() {
-    private val viewModel: ProfileViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
+    private val themeViewModel : ThemeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            VenturaTheme {
+            ThemeScreen(themeViewModel = themeViewModel) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    ProfileScreen()
+                    ProfileScreen(profileViewModel, themeViewModel = themeViewModel)
                 }
             }
         }
@@ -37,7 +39,7 @@ class NewProfileActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreviewLight() {
-    VenturaTheme(darkTheme=false) {
+    ThemeScreen(darkTheme=false) {
         ProfileScreen()
     }
 }
@@ -46,7 +48,7 @@ fun ProfileScreenPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreviewDark() {
-    VenturaTheme(darkTheme = true) {
+    ThemeScreen(darkTheme = true) {
         ProfileScreen()
     }
 }
