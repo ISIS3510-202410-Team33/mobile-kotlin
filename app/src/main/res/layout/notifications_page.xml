@@ -49,10 +49,33 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/notification_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/textViewNoConnection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="No connection found, unable to track notifications. Please turn on your internet."
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:visibility="gone"
+                android:padding="16dp"/>
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:background="@drawable/no_net"
+                android:visibility="gone"/>
+
+
         </LinearLayout>
     </ScrollView>
 

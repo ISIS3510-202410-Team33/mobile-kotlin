@@ -1,7 +1,10 @@
 package com.example.ventura.view
 
+import android.content.Context
 import android.content.Intent
 import android.media.Image
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -17,11 +20,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ventura.R
 import com.example.ventura.viewmodel.RatingViewModel
+import kotlinx.coroutines.*
 
-class NotificationsActivity: ComponentActivity() {
+class NotificationsActivity : ComponentActivity() {
     private lateinit var ratingViewModel: RatingViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var mejorEdificioAdapter: MejorEdificioAdapter
+    private lateinit var textViewNoConnection: TextView
+    private lateinit var imageViewNoNet: ImageView
+    private var connectivityJob: Job? = null // Corutina para verificar la conectividad
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
@@ -33,50 +40,58 @@ class NotificationsActivity: ComponentActivity() {
             recyclerView.adapter = mejorEdificioAdapter
             recyclerView.layoutManager = LinearLayoutManager(this)
 
+            textViewNoConnection = findViewById(R.id.textViewNoConnection)
+            imageViewNoNet = findViewById(R.id.imageView6)
+
             ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
 
             ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
-
                 // Here we add the notifications to the user notifications
                 mejorEdificioAdapter.addMejorEdificio(mejorEdificio)
-
             })
 
             val backButton = findViewById<ImageView>(R.id.buttonBackToMenu2)
-            backButton.setOnClickListener{
+            backButton.setOnClickListener {
                 finish()
             }
 
-            // Inflar el layout que contiene el botón
-            val mejorEdificioLayout = layoutInflater.inflate(R.layout.item_mejor_edificio, null)
-
-            // Encontrar el botón dentro del layout inflado
-            val visitButton = mejorEdificioLayout.findViewById<Button>(R.id.visitButton)
-
-            visitButton.setOnClickListener{
-                // Definir el enlace que deseas abrir en Google
-                val url = "https://uniandes.edu.co/es/noticias-uniandes"
-
-                // Crear un intent con la acción ACTION_VIEW y la URL del enlace
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-
-                // Verificar que haya una aplicación que pueda manejar este intent
-                if (intent.resolveActivity(packageManager) != null) {
-                    // Si hay una aplicación que puede manejar el intent, iniciarla
-                    startActivity(intent)
-                } else {
-                    // Si no hay ninguna aplicación que pueda manejar el intent, mostrar un mensaje de error o alternativa
-
-                    Toast.makeText(this, "No se puede abrir el enlace", Toast.LENGTH_SHORT).show()
+            // Iniciar la corutina para verificar la conectividad a Internet
+            connectivityJob = CoroutineScope(Dispatchers.IO).launch {
+                while (true) {
+                    delay(1000) // Verificar cada segundo
+                    val isConnected = isConnectedToNetwork()
+                    withContext(Dispatchers.Main) {
+                        if (!isConnected) {
+                            // No hay conexión a Internet
+                            textViewNoConnection.visibility = TextView.VISIBLE
+                            imageViewNoNet.visibility = ImageView.VISIBLE
+                        } else {
+                            // Hay conexión a Internet
+                            textViewNoConnection.visibility = TextView.GONE
+                            imageViewNoNet.visibility = ImageView.GONE
+                        }
+                    }
                 }
             }
 
         } catch (e: Exception) {
             Log.d("display", e.toString())
         }
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancelar la corutina cuando se destruye la actividad para evitar memory leaks
+        connectivityJob?.cancel()
+    }
 
-
-
+    private fun isConnectedToNetwork(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
+        return networkCapabilities != null &&
+                (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
     }
 }
