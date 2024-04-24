@@ -28,6 +28,7 @@ import androidx.lifecycle.Observer
 import com.example.ventura.R
 import com.example.ventura.model.analytics.FeatureCrashHandler
 import com.example.ventura.viewmodel.WeatherViewModel
+import com.example.ventura.viewmodel.WeatherViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -36,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.google.android.gms.location.LocationServices
 
 class MainMenuActivity : ComponentActivity() {
-    private val weatherViewModel: WeatherViewModel by viewModels()
+    private val weatherViewModel: WeatherViewModel by viewModels { WeatherViewModelFactory(this) }
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
@@ -100,7 +101,7 @@ class MainMenuActivity : ComponentActivity() {
 
             weatherViewModel.weatherLiveData.observe(this, Observer { weatherResponse ->
                 cityTextView.text = "City: Bogotá"
-                val tempInCelsius = weatherResponse.main.temp - 273.15
+                val tempInCelsius = weatherResponse!!.main.temp - 273.15
                 val humidity = weatherResponse.main.humidity
                 val formattedTemp = String.format("%.1f", tempInCelsius)
                 weatherTextView.text = "Weather: ${weatherResponse.weather[0].description}"

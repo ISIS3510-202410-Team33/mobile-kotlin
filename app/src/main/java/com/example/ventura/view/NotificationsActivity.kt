@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ventura.R
 import com.example.ventura.viewmodel.RatingViewModel
+import com.example.ventura.viewmodel.RatingViewModelFactory
 
 class NotificationsActivity: ComponentActivity() {
     private lateinit var ratingViewModel: RatingViewModel
@@ -33,7 +34,7 @@ class NotificationsActivity: ComponentActivity() {
             recyclerView.adapter = mejorEdificioAdapter
             recyclerView.layoutManager = LinearLayoutManager(this)
 
-            ratingViewModel = ViewModelProvider(this).get(RatingViewModel::class.java)
+            ratingViewModel = ViewModelProvider(this, RatingViewModelFactory()).get(RatingViewModel::class.java)
 
             ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
 
