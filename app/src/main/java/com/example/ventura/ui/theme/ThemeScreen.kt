@@ -278,19 +278,33 @@ fun ThemeScreen (
     val themeUiState by themeViewModel.uiState.collectAsState()
 
     Log.d("theme", "Theme set to ${themeUiState.theme.setting}")
+
+    val currentSetting = themeUiState.theme.setting
     val colorScheme = when {
-        // TODO: sensores
+        // sensible a la luz
+        currentSetting == "light_sensitive" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (themeUiState.brightness.tooBright) dynamicLightColorScheme(context)
+            else dynamicDarkColorScheme(context)
+        }
+
         // mismo del sistema - dinámico
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        currentSetting == "system" && dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             Log.d("theme", "Dynamic")
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         // oscuro
-        darkTheme -> darkScheme
+        currentSetting == "dark" -> darkScheme
         // claro
+        currentSetting == "light" -> lightScheme
+        // otros
+        // TODO: FIX se podría hacer más elegante llevando variable para darkTheme.
+        darkTheme -> darkScheme
         else -> lightScheme
     }
+
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

@@ -2,6 +2,7 @@ package com.example.ventura.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.ventura.model.data.Brightness
 import com.example.ventura.model.data.Theme
 import com.example.ventura.model.data.ThemeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,14 +11,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-enum class ThemeClarity
-
-
 /**
  * Data class for the theme
  */
 data class ThemeUiState(
-    val theme: Theme = Theme("system")
+    val theme: Theme = Theme("system"),
+    val brightness: Brightness = Brightness(tooBright = true)
 )
 
 
@@ -30,10 +29,14 @@ class ThemeViewModel : ViewModel() {
     // returned, only viewable object for the view
     val uiState: StateFlow<ThemeUiState> = _uiState.asStateFlow()
 
+//    // brightness manager
+//    private lateinit var brightnessManager: BrightnessManager
+
     /**
      * At start it refreshes data
      */
     init {
+        Log.d("theme-vm", "ThemeViewModel init")
         refreshThemeData()
     }
 
@@ -57,6 +60,21 @@ class ThemeViewModel : ViewModel() {
         }
 
         themeRepository.updateThemeData(uiState.value.theme)
+//        brightnessManager.updateThemeSetting(uiState.value.theme)
         Log.d("change-theme", "Changed to ${_uiState.value.theme.setting}")
+    }
+
+
+    fun onNewBrightness(newTooBright: Boolean) {
+        Log.d("brightness-manager", "Entered with $newTooBright")
+        // light state changed or not?
+        if (_uiState.value.brightness.tooBright != newTooBright) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    brightness = currentState.brightness.copy(tooBright = newTooBright)
+                )
+            }
+            Log.d("brightness-manager", "Is it too bright? - $newTooBright")
+        }
     }
 }
