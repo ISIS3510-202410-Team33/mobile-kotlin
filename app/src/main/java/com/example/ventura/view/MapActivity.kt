@@ -50,6 +50,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import android.app.AlertDialog
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import com.example.ventura.viewmodel.RatingViewModelFactory
 import com.example.ventura.viewmodel.UserPreferencesViewModelFactory
 
@@ -93,33 +95,43 @@ class MapsActivity : AppCompatActivity() {
 
         jsonViewModel = ViewModelProvider(this, CampusLocationsViewModelFactory(this)).get(CampusLocationsViewModel::class.java)
         userPrefViewModel = ViewModelProvider(this, UserPreferencesViewModelFactory(this)).get(UserPreferencesViewModel::class.java)
-        ratingViewModel = ViewModelProvider(this, RatingViewModelFactory()).get(RatingViewModel::class.java)
+        ratingViewModel = ViewModelProvider(this, RatingViewModelFactory(this)).get(RatingViewModel::class.java)
 
         // allows the user to swipe down to update locations
         swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener {
             AlertDialog.Builder(this)
                 .setTitle("Update Maps")
-                .setMessage("Do you want to update the maps?")
+                .setMessage("Do you want to update the campus location list?")
                 .setPositiveButton("Yes") { _, _ ->
-                    Toast.makeText(this, "Wait a moment...", Toast.LENGTH_SHORT).show()
-                    lifecycleScope.launch {
-                        try {
-                            jsonViewModel.updateJsonData()
-                            swipeRefreshLayout.isRefreshing = false
+                    if (!isNetworkAvailable()) {
+                        AlertDialog.Builder(this)
+                            .setTitle("No Internet Connection")
+                            .setMessage("Cannot update campus locations without an internet connection.")
+                            .setPositiveButton("OK") { _, _ ->
+                                swipeRefreshLayout.isRefreshing = false
+                            }
+                            .show()
+                    } else {
+                        Toast.makeText(this, "Wait a moment...", Toast.LENGTH_SHORT).show()
+                        lifecycleScope.launch {
+                            try {
+                                jsonViewModel.updateJsonData()
+                                swipeRefreshLayout.isRefreshing = false
 
-                            // Display a Toast message
-                            Toast.makeText(this@MapsActivity, "Campus locations updated successfully", Toast.LENGTH_LONG).show()
-                            
-                            // refresh the activity
-                            removeAllLocations()
-                            showLocations(userEmail!!)
+                                // Display a Toast message
+                                Toast.makeText(this@MapsActivity, "Campus locations updated successfully", Toast.LENGTH_LONG).show()
+                                
+                                // refresh the activity
+                                removeAllLocations()
+                                showLocations(userEmail!!)
 
 
-                        } catch (e: Exception) {
-                            swipeRefreshLayout.isRefreshing = false
-                            // Display a Toast message
-                            Toast.makeText(this@MapsActivity, "Couldn't update the maps: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                            } catch (e: Exception) {
+                                swipeRefreshLayout.isRefreshing = false
+                                // Display a Toast message
+                                Toast.makeText(this@MapsActivity, "Couldn't update the maps: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }
@@ -154,6 +166,18 @@ class MapsActivity : AppCompatActivity() {
             }
         }
         return recommendations
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+    val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    } else {
+        val networkInfo = connectivityManager.activeNetworkInfo ?: return false
+        return networkInfo.isConnected
+    }
     }
 
     private fun abrirGoogleMaps(latitud: Double, longitud: Double) {

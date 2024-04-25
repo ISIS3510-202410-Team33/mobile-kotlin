@@ -42,8 +42,8 @@ class MainMenuActivity : ComponentActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
-    private val isRunningThread = AtomicBoolean(true)
     var currentConnection = "ok"
+    var sentWeatherNotification = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +76,7 @@ class MainMenuActivity : ComponentActivity() {
             dateTextView.text = date
 
             locationRequest = LocationRequest.create().apply {
-                interval = 20000
+                interval = 10000
                 fastestInterval = 10000
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
@@ -100,45 +100,81 @@ class MainMenuActivity : ComponentActivity() {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
             weatherViewModel.weatherLiveData.observe(this, Observer { weatherResponse ->
-                cityTextView.text = "City: Bogotá"
-                val tempInCelsius = weatherResponse!!.main.temp - 273.15
-                val humidity = weatherResponse.main.humidity
-                val formattedTemp = String.format("%.1f", tempInCelsius)
-                weatherTextView.text = "Weather: ${weatherResponse.weather[0].description}"
-                temperatureTextView.text = "Temperature: ${formattedTemp}°C"
-                var weatherDescription = weatherResponse.weather[0].description.toLowerCase()
 
-                val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                if (weatherResponse != null) {
+                    cityTextView.text = "City: Bogotá"
+                    val tempInCelsius = weatherResponse!!.main.temp - 273.15
+                    val humidity = weatherResponse.main.humidity
+                    val formattedTemp = String.format("%.1f", tempInCelsius)
+                    weatherTextView.text = "Weather: ${weatherResponse.weather[0].description}"
+                    temperatureTextView.text = "Temperature: ${formattedTemp}°C"
+                    var weatherDescription = weatherResponse.weather[0].description.toLowerCase()
 
-                val weatherIconResource = when {
-                    weatherDescription.contains("rain") || weatherDescription.contains("drizzle") -> {
-                        relativeLayout.setBackgroundResource(R.drawable.rounded_corners_rain)
-                        R.drawable.cloud_with_rain
-                    }
-                    weatherDescription.contains("cloud") -> {
-                        relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                        R.drawable.cloud
-                    }
-                    weatherDescription.contains("clear") -> {
-                        relativeLayout.setBackgroundResource(R.drawable.rounded_corners_sun)
-                        R.drawable.sun_behind_cloud
-                    }
-                    else -> R.drawable.cloud
-                }
-                weatherIconImageView.setImageResource(weatherIconResource)
-                humidityTextView.text = "Humidity: $humidity%"
+                    val relativeLayout =
+                        findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
 
-                if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
-                    weatherMessageTextView.text = "<b>Watch out! It's raining heavily</b>"
-                    sendRainNotification()
+                    val weatherIconResource = when {
+                        weatherDescription.contains("rain") || weatherDescription.contains("drizzle") -> {
+                            relativeLayout.setBackgroundResource(R.drawable.rounded_corners_rain)
+                            R.drawable.cloud_with_rain
+                        }
+
+                        weatherDescription.contains("cloud") -> {
+                            relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
+                            R.drawable.cloud
+                        }
+
+                        weatherDescription.contains("clear") -> {
+                            relativeLayout.setBackgroundResource(R.drawable.rounded_corners_sun)
+                            R.drawable.sun_behind_cloud
+                        }
+
+                        else -> R.drawable.cloud
+                    }
+                    weatherIconImageView.setImageResource(weatherIconResource)
+                    humidityTextView.text = "Humidity: $humidity%"
+
+                    if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
+                        weatherMessageTextView.text = "<b>Watch out! It's raining heavily</b>"
+                        if (!sentWeatherNotification){
+                            sendRainNotification()
+                            sentWeatherNotification = true
+                        }
+                    } else {
+                        weatherMessageTextView.text = "Weather seems fine today!"
+                    }
+                    weatherMessageTextView.setText(
+                        Html.fromHtml(weatherMessageTextView.text.toString()),
+                        TextView.BufferType.SPANNABLE
+                    )
+
                 } else {
-                    weatherMessageTextView.text = "Weather seems fine today!"
+
+                    if (currentConnection == "ok") {
+                        Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()
+                        // sendOfflineNotification()
+                        currentConnection = "offline"
+                    }
+                    weatherTextView.text = "You're offline"
+                    temperatureTextView.text = "No weather info available"
+                    humidityTextView.text = "Please try again later"
+                    cityTextView.text = ""
+                    weatherMessageTextView.text = ""
+
+
+                    // change the icon and background to indicate offline status
+                    val weatherIconResource = R.drawable.error
+                    val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                    relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
+                    weatherIconImageView.setImageResource(weatherIconResource)
+
                 }
-                weatherMessageTextView.setText(Html.fromHtml(weatherMessageTextView.text.toString()), TextView.BufferType.SPANNABLE)
+
+
             })
 
             Thread {
-                while (isRunningThread.get()) {
+                while (true) {
                     val isConnected = isInternetAvailable(this)
                     runOnUiThread {
                         
@@ -168,11 +204,11 @@ class MainMenuActivity : ComponentActivity() {
                         } else {
                             if (currentConnection == "ok") {
                                 Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()
-                                sendOfflineNotification()
+                                // sendOfflineNotification()
                                 currentConnection = "offline"
                             }
-                            weatherTextView.text = "No internet connection"
-                            temperatureTextView.text = "Cannot fetch weather info"
+                            weatherTextView.text = "You're offline"
+                            temperatureTextView.text = "No weather info available"
                             humidityTextView.text = "Please try again later"
                             cityTextView.text = ""
                             weatherMessageTextView.text = ""
@@ -201,11 +237,13 @@ class MainMenuActivity : ComponentActivity() {
             logOutButton.setOnClickListener {
                 clearCredentials()
                 Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, LoginActivity::class.java)
+                val intent = if (isInternetAvailable(this)) {
+                    Intent(this, LoginActivity::class.java)
+                } else {
+                    Intent(this, NoInternetLogin::class.java)
+                }
                 startActivity(intent)
-                Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
                 finish()
-                Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
             }
 
             buttonProfile.setOnClickListener {
@@ -272,7 +310,6 @@ class MainMenuActivity : ComponentActivity() {
     override fun onPause() {
         try {
             super.onPause()
-            isRunningThread.set(false)
             stopLocationUpdates()
         } catch (e: Exception) { featureCrashHandler.logCrash("pause", e); }
     }

@@ -42,7 +42,7 @@ class NotificationsActivity : ComponentActivity() {
             recyclerView.layoutManager = LinearLayoutManager(this)
             textViewNoConnection = findViewById(R.id.textViewNoConnection)
             imageViewNoNet = findViewById(R.id.imageView6)
-            ratingViewModel = ViewModelProvider(this, RatingViewModelFactory()).get(RatingViewModel::class.java)
+            ratingViewModel = ViewModelProvider(this, RatingViewModelFactory(this)).get(RatingViewModel::class.java)
 
             ratingViewModel.obtenerEdificioConMejorPuntaje().observe(this, Observer { mejorEdificio ->
                 // Here we add the notifications to the user notifications

@@ -1,6 +1,7 @@
 package com.example.ventura.model
 
 import android.content.Context
+import android.util.Log
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
@@ -27,6 +28,7 @@ class CampusLocationsModel(private val context: Context) {
                     input.copyTo(output)
                 }
             }
+            Log.d("CampusLocationsModel", "used assets fallback for edificios.json")
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -66,6 +68,8 @@ class CampusLocationsModel(private val context: Context) {
 
             val jsonString = localFile.readText()
             val json = JSONObject(jsonString)
+            Log.d("CampusLocationsModel", "used local file for edificios.json")
+
             return Pair(json, "Showing data from $lastModifiedDate")
         } else {
             return Pair(null, "No data available locally. Swipe down to update.")
