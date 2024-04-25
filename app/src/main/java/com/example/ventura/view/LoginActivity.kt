@@ -26,6 +26,7 @@ class LoginActivity : ComponentActivity() {
     private val featureCrashHandler = FeatureCrashHandler("login")
     private lateinit var textViewOffline: TextView
     private lateinit var textViewSignUp: TextView
+    private lateinit var buttonSignUp: Button
     private var isConnected = false
     private var job: Job? = null
 
@@ -55,9 +56,9 @@ class LoginActivity : ComponentActivity() {
             val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
             val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
             val buttonLogin = findViewById<Button>(R.id.buttonLogin)
-            val buttonSignUp = findViewById<Button>(R.id.buttonSignUp)
+            buttonSignUp = findViewById<Button>(R.id.buttonSignUp)
 
-            // Inicia la corutina para escuchar cambios de red
+            // Iniciamos la corutina para escuchar cambios de red
             job = CoroutineScope(Dispatchers.Main).launch {
                 listenToNetworkChanges()
             }
@@ -91,13 +92,21 @@ class LoginActivity : ComponentActivity() {
             }
 
             buttonSignUp.setOnClickListener {
-                val intent = Intent(this, SignUpActivity::class.java)
-                startActivity(intent)
+                if (isConnected) {
+                    val intent = Intent(this, SignUpActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "No internet connection available", Toast.LENGTH_SHORT).show()
+                }
             }
 
             textViewSignUp.setOnClickListener {
-                val intent = Intent(this, SignUpActivity::class.java)
-                startActivity(intent)
+                if (isConnected) {
+                    val intent = Intent(this, SignUpActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "No internet connection available", Toast.LENGTH_SHORT).show()
+                }
             }
         } catch (e: Exception) {
             featureCrashHandler.logCrash("display", e)
@@ -124,6 +133,7 @@ class LoginActivity : ComponentActivity() {
                 CoroutineScope(Dispatchers.Main).launch {
                     textViewOffline.visibility = TextView.GONE
                     textViewSignUp.visibility = TextView.VISIBLE
+                    buttonSignUp.isEnabled = true // Habilitar el botón de SignUp
                 }
             }
 
@@ -133,6 +143,7 @@ class LoginActivity : ComponentActivity() {
                 CoroutineScope(Dispatchers.Main).launch {
                     textViewOffline.visibility = TextView.VISIBLE
                     textViewSignUp.visibility = TextView.GONE
+                    buttonSignUp.isEnabled = false // Deshabilitar el botón de SignUp
                 }
             }
         }
