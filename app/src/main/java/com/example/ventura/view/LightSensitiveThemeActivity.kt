@@ -13,7 +13,7 @@ import com.example.ventura.viewmodel.ThemeViewModel
 
 
 // TODO: open es demasiado abierto?
-open class AdaptiveThemeActivity : ComponentActivity(), SensorEventListener {
+open class LightSensitiveThemeActivity : ComponentActivity(), SensorEventListener {
     val themeViewModel: ThemeViewModel by viewModels()
 
     private val DARKUPPERBOUND = 500

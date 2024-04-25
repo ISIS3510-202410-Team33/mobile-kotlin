@@ -13,7 +13,7 @@ import com.example.ventura.ui.screens.ProfileScreen
 import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.viewmodel.ProfileViewModel
 
-class NewProfileActivity : AdaptiveThemeActivity() {
+class NewProfileActivity : LightSensitiveThemeActivity() {
     private val profileViewModel: ProfileViewModel by viewModels()
 
 
