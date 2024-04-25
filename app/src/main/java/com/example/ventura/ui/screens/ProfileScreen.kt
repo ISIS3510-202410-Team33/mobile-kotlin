@@ -3,6 +3,7 @@
 package com.example.ventura.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -87,6 +88,7 @@ fun ProfileScreen(
                     itemTitle = "Name",
                     itemIcon = Icons.Filled.Person,
                     itemText = profileUiState.profile.name,
+                    canEdit = true,
                     onBoxExit = { profileViewModel.updateProfileData() },
                     onNewText = { profileViewModel.changeProfileName(it) }
                 )
@@ -94,9 +96,10 @@ fun ProfileScreen(
             item {
                 ProfileItem(
                     modifier = Modifier,
-                    itemTitle = "Mail",
+                    itemTitle = "Email",
                     itemIcon = Icons.Default.Email,
                     itemText = profileUiState.profile.email,
+                    canEdit = false,
                     onBoxExit = { profileViewModel.updateProfileData() },
                     onNewText = { profileViewModel.changeProfileEmail(it) }
                 )
@@ -108,6 +111,7 @@ fun ProfileScreen(
                     itemTitle = "University",
                     itemIcon = Icons.Default.Home,
                     itemText = profileUiState.profile.universityName,
+                    canEdit = false,
                     onBoxExit = { profileViewModel.updateProfileData() },
                     onNewText = { profileViewModel.changeProfileUniversity(it) }
                 )
@@ -195,6 +199,7 @@ private fun ProfileItem(
     itemTitle: String,
     itemIcon: ImageVector,
     itemText: String,
+    canEdit: Boolean,
     onNewText: (String) -> Unit,
     onBoxExit: () -> Unit
 ) {
@@ -202,7 +207,8 @@ private fun ProfileItem(
 
     Row (
         modifier = modifier
-            .padding(smallPadding),
+            .padding(smallPadding)
+            .background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -266,7 +272,8 @@ private fun ProfileItem(
                 .padding(smallPadding),
             onClick = {
                 isEditing.value = true
-            }
+            },
+            enabled = canEdit
         ) {
             Icon(
                 modifier = modifier

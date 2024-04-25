@@ -1,13 +1,18 @@
 package com.example.ventura.viewmodel
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.ventura.model.ProfileModel
 import com.example.ventura.model.data.Profile
-import com.example.ventura.model.data.ProfileRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 /**
@@ -17,13 +22,24 @@ data class ProfileUiState(
     val profile: Profile = Profile("","","")
 )
 
+class ProfileViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ProfileViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+
 
 /**
  * ViewModel for the Profile info. Contains all important
  * user info displayed on the ProfileScreen
  */
-class ProfileViewModel : ViewModel() {
-    private val profileRepository = ProfileRepository()
+class ProfileViewModel(application: Application) : ViewModel() {
+    private val profileModel = ProfileModel(application)
 
     // inner object, modifiable by the ViewModel
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -41,7 +57,10 @@ class ProfileViewModel : ViewModel() {
 
 
     fun refreshProfileData() {
-        _uiState.value = ProfileUiState(profile = profileRepository.getProfileData())
+        Log.d("profile-vm", "Refreshing profile data")
+        viewModelScope.launch(Dispatchers.Default) {
+            _uiState.value = ProfileUiState(profile = profileModel.getProfileData())
+        }
     }
 
 
@@ -50,7 +69,7 @@ class ProfileViewModel : ViewModel() {
      * @param newName the new name of the profile
      */
     fun changeProfileName(newName: String) {
-        Log.d("change-profile", "Changing to $newName")
+        Log.d("profile-vm", "Changing name to $newName")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(name = newName)
@@ -65,7 +84,7 @@ class ProfileViewModel : ViewModel() {
      * @param newEmail the new email of the profile
      */
     fun changeProfileEmail(newEmail: String) {
-        Log.d("change-profile", "Changing to $newEmail")
+        Log.d("profile-vm", "Changing email to $newEmail")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(email = newEmail)
@@ -79,7 +98,7 @@ class ProfileViewModel : ViewModel() {
      * @param newUniversity the new universiy's name of the profile
      */
     fun changeProfileUniversity(newUniversity: String) {
-        Log.d("change-profile", "Changing to $newUniversity")
+        Log.d("profile-vm", "Changing universityName to $newUniversity")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(name = newUniversity)
@@ -90,6 +109,6 @@ class ProfileViewModel : ViewModel() {
 
     fun updateProfileData() {
         Log.d("profile-vm", "Profile data updated")
-        profileRepository.updateProfileData(uiState.value.profile)
+        profileModel.updateProfileData(uiState.value.profile)
     }
 }
