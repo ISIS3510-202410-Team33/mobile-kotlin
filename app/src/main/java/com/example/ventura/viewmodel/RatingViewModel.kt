@@ -1,5 +1,6 @@
 package com.example.ventura.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,12 +17,11 @@ class RatingViewModel(private val model: RatingModel) : ViewModel() {
     }
 }
 
-class RatingViewModelFactory : ViewModelProvider.Factory {
+class RatingViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RatingViewModel::class.java)) {
-            val model = RatingModel()
             @Suppress("UNCHECKED_CAST")
-            return RatingViewModel(model) as T
+            return RatingViewModel(RatingModel(context)) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -65,6 +65,7 @@
         android:id="@+id/buttonSignUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="45dp"
         android:clickable="true"
         android:focusable="true"
         android:text="Sign Up"
