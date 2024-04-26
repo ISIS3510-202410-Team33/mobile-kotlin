@@ -135,7 +135,7 @@ class MainMenuActivity : ComponentActivity() {
                     humidityTextView.text = "Humidity: $humidity%"
 
                     if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
-                        weatherMessageTextView.text = "<b>Watch out! It's raining heavily</b>"
+                        weatherMessageTextView.text = "<b>Watch out! It's raining heavily in your area</b>"
                         if (!sentWeatherNotification){
                             sendRainNotification()
                             sentWeatherNotification = true

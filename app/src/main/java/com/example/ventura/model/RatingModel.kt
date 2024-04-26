@@ -131,6 +131,7 @@ class RatingModel(private val context: Context) {
                 Log.d("RatingModel", "Data fetched from Firebase and stored in local storage.")
             }.addOnFailureListener { e ->
                 Log.e("RatingModel", "Error al obtener el archivo JSON de Firebase: ${e.message}", e)
+                processJson(JSONObject(), mejorPuntaje, mejorEdificioLiveData)
             }
         } else {
             Log.d("RatingModel", "User is offline. Fetching data from local storage.")
@@ -146,6 +147,9 @@ class RatingModel(private val context: Context) {
 
     // This function processes the JSON object to calculate the best rating
     private fun processJson(json: JSONObject, mejorPuntaje: Float, mejorEdificioLiveData: MutableLiveData<String>) {
+        
+        
+        
         if (json.has("spaces")) {
             val spaces = json.getJSONObject("spaces")
             val iterator = spaces.keys()
@@ -165,6 +169,9 @@ class RatingModel(private val context: Context) {
                     mejorEdificioLiveData.postValue(spaceKey)
                 }
             }
+        } else {
+            mejorEdificioLiveData.postValue("")
+            Log.d("RatingModel", "No spaces found in JSON, data hasnt been downloaded yet.")
         }
     }
 }

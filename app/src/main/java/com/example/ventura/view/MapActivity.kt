@@ -158,6 +158,12 @@ class MapsActivity : AppCompatActivity() {
     }
 
     private fun generateRecommendations(mostVisited: String, spaces: JSONObject): List<String> {
+
+        if (mostVisited.isEmpty() || mostVisited.isBlank()) {
+            Toast.makeText(this, "Go explore the campus to get recommendations!", Toast.LENGTH_SHORT).show()
+            return emptyList()
+        }
+
         val recommendations = mutableListOf<String>()
         for (spaceKey in spaces.keys()) {
             if (spaceKey.contains(mostVisited)) {
@@ -662,7 +668,15 @@ class MapsActivity : AppCompatActivity() {
                                 */
 
                                         buttonCalificar.setOnClickListener {
-                                            mostrarFormularioCalificacion(spaceKey)
+                                            if (isNetworkAvailable()) {
+                                                mostrarFormularioCalificacion(spaceKey)
+                                            } else {
+                                                AlertDialog.Builder(this@MapsActivity)
+                                                    .setTitle("No Internet Connection")
+                                                    .setMessage("You can only provide ratings while online.")
+                                                    .setPositiveButton("OK") { _, _ -> }
+                                                    .show()
+                                            }
                                         }
 
 
