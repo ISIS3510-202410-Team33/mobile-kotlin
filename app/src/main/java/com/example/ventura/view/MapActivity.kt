@@ -67,6 +67,8 @@ class MapsActivity : AppCompatActivity() {
     // Variable to support swipe down
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
+    // List of strings of added locations
+    private val addedLocations = mutableListOf<String>()
     
 
     // Variables to storage coordinates and distances
@@ -113,7 +115,6 @@ class MapsActivity : AppCompatActivity() {
                             }
                             .show()
                     } else {
-                        Toast.makeText(this, "Wait a moment...", Toast.LENGTH_SHORT).show()
                         lifecycleScope.launch {
                             try {
                                 jsonViewModel.updateJsonData()
@@ -124,6 +125,11 @@ class MapsActivity : AppCompatActivity() {
                                 
                                 // refresh the activity
                                 removeAllLocations()
+
+                                // discard the previous data
+                                jsonOb = null
+                                
+
                                 showLocations(userEmail!!)
 
 
@@ -244,6 +250,8 @@ class MapsActivity : AppCompatActivity() {
 
     suspend fun showLocations(userEmail: String) {
         try {
+
+
             val (jsonObject, message) = jsonViewModel.fetchJsonData()
             // Handle the obtained JSONObject here, update your UI accordingly
             // Displaying a Toast message
@@ -253,7 +261,7 @@ class MapsActivity : AppCompatActivity() {
             jsonObject?.let {
                 // Update UI or process data
 
-                jsonOb = jsonObject
+                //jsonOb = jsonObject
 
                 val buttonBackToMenu = findViewById<ImageView>(R.id.buttonBackToMenu)
                 buttonBackToMenu.setOnClickListener {
@@ -312,9 +320,13 @@ class MapsActivity : AppCompatActivity() {
 
                 val linearLayout = findViewById<LinearLayout>(R.id.linear_layout_locations)
 
-                val spaces = jsonOb?.getJSONObject("spaces")
+
+
+
+                val spaces = jsonObject.getJSONObject("spaces")
 
                 if (spaces != null) {
+
 
                     /*
                      * <-- BQ 1 -->
@@ -371,7 +383,19 @@ class MapsActivity : AppCompatActivity() {
                                 Observer { recommendations ->
 
                                     for (spaceKey in spaces.keys()) {
-                                        val textLayout = LinearLayout(this@MapsActivity)
+
+                                        // if the name of the location is already in the list, we skip it
+                                        if (addedLocations.contains(spaceKey)) {
+                                            continue
+                                        }
+
+                                        // add the location to the list of added locations
+                                        addedLocations.add(spaceKey)
+
+
+                                        
+
+                                            val textLayout = LinearLayout(this@MapsActivity)
                                         textLayout.orientation = LinearLayout.VERTICAL
                                         // Change orientation to
                                         // Establece los parámetros de diseño del LinearLayout
@@ -730,7 +754,9 @@ class MapsActivity : AppCompatActivity() {
 
     fun removeAllLocations() {
         val linearLayout = findViewById<LinearLayout>(R.id.linear_layout_locations)
-        linearLayout.removeAllViews()
+        
+        // deletes the layout and then creates a new one
+
     }
 
 

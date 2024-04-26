@@ -51,7 +51,6 @@ class CampusLocationsModel(private val context: Context) {
             val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
             val jsonString = String(jsonBytes)
             val json = JSONObject(jsonString)
-
             FileOutputStream(localFile).use { output ->
                 output.write(jsonBytes)
             }
