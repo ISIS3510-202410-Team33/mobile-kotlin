@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -47,6 +50,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
 import com.example.ventura.ui.theme.Shapes
@@ -58,7 +62,10 @@ import com.example.ventura.viewmodel.ThemeViewModel
 val smallPadding = 8.dp
 val mediumPadding = 16.dp
 val largePadding = 24.dp
+val extraLargePadding = 36.dp
+val smallIcon = 56.dp
 val mediumIcon = 64.dp
+val maxTextBoxWidth = 200.dp
 
 @Composable
 fun ProfileScreen(
@@ -141,7 +148,12 @@ private fun ProfileTopAppBar(
     TopAppBar(
         title = {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(mediumPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Absolute.Right
+
             ) {
                 IconButton(
                     modifier = modifier
@@ -150,19 +162,22 @@ private fun ProfileTopAppBar(
                 ) {
                     Icon(
                         modifier = modifier
-                            .size(mediumIcon),
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .padding(smallPadding)
+                            .size(mediumIcon)
+                        ,
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back to main menu",
-                        tint = MaterialTheme.colorScheme.secondary
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                Text(
-                    modifier = modifier
-                        .padding(smallPadding),
-                    text = "Profile",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.secondary
-                )
+//                Text(
+//                    modifier = modifier
+//                        .padding(smallPadding),
+//                    text = "Profile",
+//                    style = MaterialTheme.typography.displayLarge,
+//                    color = MaterialTheme.colorScheme.secondary
+//                )
             }
         },
         modifier = modifier.background(Color.Transparent)
@@ -199,6 +214,34 @@ private fun ProfileImage(
 }
 
 
+@Preview
+@Composable
+private fun TestRow() {
+    Row(
+        modifier = Modifier
+            .padding(
+                start = mediumPadding,
+                end = mediumPadding,
+                top = smallPadding,
+                bottom = smallPadding
+            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.primary)
+            .fillMaxWidth()
+            .height(30.dp),
+
+    ) {
+        Icon(
+            modifier = Modifier
+                .size(mediumIcon),
+            imageVector = Icons.Default.Email,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            contentDescription = null
+        )
+    }
+}
+
+
 @Composable
 private fun ProfileItem(
     modifier: Modifier = Modifier,
@@ -213,25 +256,38 @@ private fun ProfileItem(
 
     Row (
         modifier = modifier
-            .padding(smallPadding)
-            .background(Color.Transparent),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(
+                start = largePadding,
+                end = largePadding,
+                top = smallPadding,
+                bottom = smallPadding
+            )
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(MaterialTheme.colorScheme.primaryContainer)
+
+            .zIndex(1f)
+        ,
+        verticalAlignment = Alignment.CenterVertically,
+
+
     ) {
         Icon(
             modifier = modifier
-                .padding(smallPadding)
-                .size(mediumIcon),
+                .size(mediumIcon)
+                .padding(start = mediumPadding),
             imageVector = itemIcon,
-            tint = MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
             contentDescription = null
         )
-        Column {
+        Column(
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(
                 modifier = modifier
-                    .padding(start = smallPadding),
+                    .padding(start = mediumPadding),
                 text = itemTitle,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 onTextLayout = { }
             )
 
@@ -242,7 +298,7 @@ private fun ProfileItem(
                     shape = Shapes.large,
                     modifier = modifier
                         .padding(smallPadding)
-                        .fillMaxWidth(),
+                        .width(maxTextBoxWidth),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -262,18 +318,25 @@ private fun ProfileItem(
             }
             else {
                 Text(
-                    modifier = modifier.padding(smallPadding),
+                    modifier = modifier
+                        .padding(start=mediumPadding)
+                        .width(maxTextBoxWidth),
                     text = itemText,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     onTextLayout = { }
                 )
             }
         }
         Spacer(
             modifier = modifier
-                .weight(1f)
-                .padding(smallPadding)
+                .weight(2f)
+                .padding(
+                    start = smallPadding,
+                    top = smallPadding,
+                    bottom = smallPadding,
+                    end = largePadding
+                )
         )
         IconButton(
             modifier = modifier
@@ -287,7 +350,7 @@ private fun ProfileItem(
                 modifier = modifier
                     .size(mediumIcon),
                 imageVector = Icons.Default.Edit,
-                tint = if (canEdit) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                tint = if (canEdit) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.error,
                 contentDescription = "Edit $itemText"
             )
         }
@@ -310,16 +373,16 @@ private fun ThemeSettingButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (currentTheme == themeKey) {
                 // Highlight color for selected state
-                MaterialTheme.colorScheme.primary
+                MaterialTheme.colorScheme.primaryContainer
             } else {
                 // Default color for unselected state
-                MaterialTheme.colorScheme.secondary
+                MaterialTheme.colorScheme.secondaryContainer
             },
             contentColor = if (currentTheme == themeKey) {
                 // Adjust content color for contrast
-                MaterialTheme.colorScheme.onPrimary
+                MaterialTheme.colorScheme.onPrimaryContainer
             } else {
-                MaterialTheme.colorScheme.onSecondary
+                MaterialTheme.colorScheme.onSecondaryContainer
             }
         ),
 
@@ -402,7 +465,7 @@ fun ProfileItemPreview() {
     ProfileItem(
         itemTitle = "Name",
         itemIcon = Icons.Default.Email,
-        itemText = "John Doe",
+        itemText = "john.doe@university.com",
         canEdit = false,
         onNewText = {}
     ) {
@@ -415,7 +478,7 @@ fun ProfileItemPreview() {
 @Composable
 fun ProfileScreenPreviewLight() {
     ThemeScreen(darkTheme = false) {
-        ProfileScreen { }
+        ProfileScreen() { }
     }
 }
 
@@ -424,6 +487,6 @@ fun ProfileScreenPreviewLight() {
 @Composable
 fun ProfileScreenPreviewDark() {
     ThemeScreen(darkTheme = true) {
-        ProfileScreen { }
+        ProfileScreen() { }
     }
 }
