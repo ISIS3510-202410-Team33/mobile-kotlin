@@ -120,7 +120,7 @@ class MainMenuActivity : ComponentActivity() {
                         }
 
                         weatherDescription.contains("cloud") -> {
-                            relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
+                            relativeLayout.setBackgroundResource(R.drawable.rounded_corners_cloud)
                             R.drawable.cloud
                         }
 
