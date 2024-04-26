@@ -34,7 +34,7 @@ class MejorEdificioAdapter(private val mejorEdificioList: MutableList<String>) :
 
         holder.visitButton.setOnClickListener {
             val context = holder.itemView.context
-            val url = "https://uniandes.edu.co/es/noticias-uniandes"
+            val url = "https://campusinfo.uniandes.edu.co/es/recursos/edificios/bloquew"
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
             if (intent.resolveActivity(context.packageManager) == null) {

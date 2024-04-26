@@ -133,7 +133,7 @@ class LoginActivity : ComponentActivity() {
                 CoroutineScope(Dispatchers.Main).launch {
                     textViewOffline.visibility = TextView.GONE
                     textViewSignUp.visibility = TextView.VISIBLE
-                    buttonSignUp.isEnabled = true // Habilitar el botón de SignUp
+
                 }
             }
 
@@ -143,7 +143,8 @@ class LoginActivity : ComponentActivity() {
                 CoroutineScope(Dispatchers.Main).launch {
                     textViewOffline.visibility = TextView.VISIBLE
                     textViewSignUp.visibility = TextView.GONE
-                    buttonSignUp.isEnabled = false // Deshabilitar el botón de SignUp
+                    // Deshabilitar el botón de SignUp
+
                 }
             }
         }

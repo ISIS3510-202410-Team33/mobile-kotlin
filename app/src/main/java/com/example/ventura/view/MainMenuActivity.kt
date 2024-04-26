@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -50,6 +51,16 @@ class MainMenuActivity : ComponentActivity() {
         try {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_main_menu)
+
+            val bannerUniandes = findViewById<TextView>(R.id.textView3)
+
+            bannerUniandes.setOnClickListener{
+
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("https://uniandes.edu.co/")
+                startActivity(intent)
+
+            }
             
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager

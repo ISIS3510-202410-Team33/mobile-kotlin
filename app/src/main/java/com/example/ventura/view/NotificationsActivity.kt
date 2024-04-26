@@ -23,7 +23,7 @@ import com.example.ventura.viewmodel.RatingViewModel
 import kotlinx.coroutines.*
 import com.example.ventura.viewmodel.RatingViewModelFactory
 
-class NotificationsActivity : ComponentActivity() {
+class NotificationsActivity : AppCompatActivity() {
     private lateinit var ratingViewModel: RatingViewModel
     private lateinit var recyclerView: RecyclerView
     private lateinit var mejorEdificioAdapter: MejorEdificioAdapter
@@ -35,6 +35,7 @@ class NotificationsActivity : ComponentActivity() {
         try {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.notifications_page)
+
 
             recyclerView = findViewById(R.id.notification_recycler)
             mejorEdificioAdapter = MejorEdificioAdapter(mutableListOf())
