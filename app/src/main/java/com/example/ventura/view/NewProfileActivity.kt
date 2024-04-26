@@ -1,31 +1,45 @@
 package com.example.ventura.view
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.ui.screens.ProfileScreen
-import com.example.ventura.ui.theme.VenturaTheme
+import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.viewmodel.ProfileViewModel
+import com.example.ventura.viewmodel.ProfileViewModelFactory
 
-class NewProfileActivity : ComponentActivity() {
-    private val viewModel: ProfileViewModel by viewModels()
+class NewProfileActivity : LightSensitiveThemeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        val profileViewModel: ProfileViewModel = ViewModelProvider(
+            this,
+            ProfileViewModelFactory(application)
+        )[ProfileViewModel::class.java]
+
         setContent {
-            VenturaTheme {
+            ThemeScreen(themeViewModel = themeViewModel) {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent),
+                    color = Color.Transparent
                 ) {
-                    ProfileScreen()
+                    ProfileScreen(
+                        profileViewModel = profileViewModel,
+                        themeViewModel = themeViewModel,
+                        backToMainMenu = { finish() }
+                    )
                 }
             }
         }
@@ -37,8 +51,8 @@ class NewProfileActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreviewLight() {
-    VenturaTheme(darkTheme=false) {
-        ProfileScreen()
+    ThemeScreen(darkTheme=false) {
+        ProfileScreen { }
     }
 }
 
@@ -46,7 +60,7 @@ fun ProfileScreenPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreviewDark() {
-    VenturaTheme(darkTheme = true) {
-        ProfileScreen()
+    ThemeScreen(darkTheme = true) {
+        ProfileScreen { }
     }
 }

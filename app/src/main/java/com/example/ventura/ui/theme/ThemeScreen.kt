@@ -1,6 +1,7 @@
 package com.example.ventura.ui.theme
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -10,11 +11,15 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ventura.viewmodel.ThemeViewModel
 
 
 private val lightScheme = lightColorScheme(
@@ -245,7 +250,6 @@ private val highContrastDarkColorScheme = darkColorScheme(
 //    surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
 )
 
-
 @Immutable
 data class ColorFamily(
     val color: Color,
@@ -258,36 +262,64 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
+
+/**
+ * Representación cruda del tema de la aplicación
+ * Interactua
+ */
 @Composable
-fun VenturaTheme(
+fun ThemeScreen (
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    content: @Composable() () -> Unit
+    themeViewModel: ThemeViewModel = viewModel(),
+    content: @Composable () -> Unit,
 ) {
+    val themeUiState by themeViewModel.uiState.collectAsState()
+
+    Log.d("theme", "Theme set to ${themeUiState.theme.setting}")
+
+    val currentSetting = themeUiState.theme.setting
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        // sensible a la luz
+        currentSetting == "light_sensitive" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (themeUiState.brightness.tooBright) dynamicLightColorScheme(context)
+            else dynamicDarkColorScheme(context)
+        }
+
+        // mismo del sistema - dinámico
+        currentSetting == "system" && dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            Log.d("theme", "Dynamic")
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
+        // oscuro
+        currentSetting == "dark" -> darkScheme
+        // claro
+        currentSetting == "light" -> lightScheme
+        // otros
+        // TODO: FIX se podría hacer más elegante llevando variable para darkTheme.
         darkTheme -> darkScheme
         else -> lightScheme
     }
+
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = Color.Transparent.toArgb()
+            window.setDecorFitsSystemWindows(false)
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
+        shapes = Shapes,
         typography = Typography,
-        content = content,
-        shapes = Shapes
+        content = content
     )
 }
 

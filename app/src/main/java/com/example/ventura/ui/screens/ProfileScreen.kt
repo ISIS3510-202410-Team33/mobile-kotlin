@@ -3,15 +3,19 @@
 package com.example.ventura.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -20,6 +24,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,31 +43,45 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
 import com.example.ventura.ui.theme.Shapes
-import com.example.ventura.ui.theme.VenturaTheme
+import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.viewmodel.ProfileViewModel
+import com.example.ventura.viewmodel.ThemeViewModel
 
 
 val smallPadding = 8.dp
 val mediumPadding = 16.dp
 val largePadding = 24.dp
+val extraLargePadding = 36.dp
+val smallIcon = 56.dp
 val mediumIcon = 64.dp
+val maxTextBoxWidth = 200.dp
 
 @Composable
-fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(
+    profileViewModel: ProfileViewModel = viewModel(),
+    themeViewModel: ThemeViewModel = viewModel(),
+    backToMainMenu: () -> Unit = { },
+) {
     val profileUiState by profileViewModel.uiState.collectAsState()
+    val themeUiState by themeViewModel.uiState.collectAsState()
 
     Scaffold (
         topBar = {
-            ProfileTopAppBar()
+            ProfileTopAppBar(
+                modifier = Modifier,
+                backToMainMenu = backToMainMenu
+            )
         }
     ) { it ->
         LazyColumn(
@@ -79,17 +99,19 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     itemTitle = "Name",
                     itemIcon = Icons.Filled.Person,
                     itemText = profileUiState.profile.name,
-                    onBoxExit = { profileViewModel.updateProfileData() },
+                    canEdit = true,
+                    onBoxExit = { profileViewModel.updateProfileCache() },
                     onNewText = { profileViewModel.changeProfileName(it) }
                 )
             }
             item {
                 ProfileItem(
                     modifier = Modifier,
-                    itemTitle = "Mail",
+                    itemTitle = "Email",
                     itemIcon = Icons.Default.Email,
                     itemText = profileUiState.profile.email,
-                    onBoxExit = { profileViewModel.updateProfileData() },
+                    canEdit = false,
+                    onBoxExit = { profileViewModel.updateProfileCache() },
                     onNewText = { profileViewModel.changeProfileEmail(it) }
                 )
             }
@@ -100,8 +122,17 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
                     itemTitle = "University",
                     itemIcon = Icons.Default.Home,
                     itemText = profileUiState.profile.universityName,
-                    onBoxExit = { profileViewModel.updateProfileData() },
+                    canEdit = false,
+                    onBoxExit = { profileViewModel.updateProfileCache() },
                     onNewText = { profileViewModel.changeProfileUniversity(it) }
+                )
+            }
+
+            item {
+                ThemeSettingSelection(
+                    modifier = Modifier,
+                    currentTheme = themeUiState.theme.setting,
+                    onThemeChange = { themeViewModel.changeThemeSetting(it) }
                 )
             }
         }
@@ -111,35 +142,45 @@ fun ProfileScreen(profileViewModel: ProfileViewModel = viewModel()) {
 
 @Composable
 private fun ProfileTopAppBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backToMainMenu: () -> Unit
 ) {
     TopAppBar(
         title = {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(mediumPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Absolute.Right
+
             ) {
                 IconButton(
                     modifier = modifier
                         .padding(smallPadding),
-                    onClick = { }
+                    onClick = backToMainMenu
                 ) {
                     Icon(
                         modifier = modifier
-                            .size(mediumIcon),
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .padding(smallPadding)
+                            .size(mediumIcon)
+                        ,
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back to main menu",
-                        tint = MaterialTheme.colorScheme.secondary
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                Text(
-                    modifier = modifier
-                        .padding(smallPadding),
-                    text = "Profile",
-                    style = MaterialTheme.typography.titleLarge
-                )
+//                Text(
+//                    modifier = modifier
+//                        .padding(smallPadding),
+//                    text = "Profile",
+//                    style = MaterialTheme.typography.displayLarge,
+//                    color = MaterialTheme.colorScheme.secondary
+//                )
             }
         },
-        modifier = modifier
+        modifier = modifier.background(Color.Transparent)
     )
 }
 
@@ -173,12 +214,41 @@ private fun ProfileImage(
 }
 
 
+@Preview
+@Composable
+private fun TestRow() {
+    Row(
+        modifier = Modifier
+            .padding(
+                start = mediumPadding,
+                end = mediumPadding,
+                top = smallPadding,
+                bottom = smallPadding
+            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.primary)
+            .fillMaxWidth()
+            .height(30.dp),
+
+    ) {
+        Icon(
+            modifier = Modifier
+                .size(mediumIcon),
+            imageVector = Icons.Default.Email,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            contentDescription = null
+        )
+    }
+}
+
+
 @Composable
 private fun ProfileItem(
     modifier: Modifier = Modifier,
     itemTitle: String,
     itemIcon: ImageVector,
     itemText: String,
+    canEdit: Boolean,
     onNewText: (String) -> Unit,
     onBoxExit: () -> Unit
 ) {
@@ -186,23 +256,38 @@ private fun ProfileItem(
 
     Row (
         modifier = modifier
-            .padding(smallPadding),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(
+                start = largePadding,
+                end = largePadding,
+                top = smallPadding,
+                bottom = smallPadding
+            )
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(MaterialTheme.colorScheme.primaryContainer)
+
+            .zIndex(1f)
+        ,
+        verticalAlignment = Alignment.CenterVertically,
+
+
     ) {
         Icon(
             modifier = modifier
-                .padding(smallPadding)
-                .size(mediumIcon),
+                .size(mediumIcon)
+                .padding(start = mediumPadding),
             imageVector = itemIcon,
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
             contentDescription = null
         )
-        Column {
+        Column(
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(
                 modifier = modifier
-                    .padding(start = smallPadding),
+                    .padding(start = mediumPadding),
                 text = itemTitle,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 onTextLayout = { }
             )
 
@@ -213,11 +298,11 @@ private fun ProfileItem(
                     shape = Shapes.large,
                     modifier = modifier
                         .padding(smallPadding)
-                        .fillMaxWidth(),
+                        .width(maxTextBoxWidth),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        disabledContainerColor = MaterialTheme.colorScheme.surface
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
                     onValueChange = onNewText,
                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -233,30 +318,39 @@ private fun ProfileItem(
             }
             else {
                 Text(
-                    modifier = modifier.padding(smallPadding),
+                    modifier = modifier
+                        .padding(start=mediumPadding)
+                        .width(maxTextBoxWidth),
                     text = itemText,
                     style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     onTextLayout = { }
                 )
             }
         }
         Spacer(
             modifier = modifier
-                .weight(1f)
-                .padding(smallPadding)
+                .weight(2f)
+                .padding(
+                    start = smallPadding,
+                    top = smallPadding,
+                    bottom = smallPadding,
+                    end = largePadding
+                )
         )
         IconButton(
             modifier = modifier
                 .padding(smallPadding),
             onClick = {
                 isEditing.value = true
-            }
+            },
+            enabled = canEdit
         ) {
             Icon(
                 modifier = modifier
                     .size(mediumIcon),
                 imageVector = Icons.Default.Edit,
-                tint = MaterialTheme.colorScheme.secondary,
+                tint = if (canEdit) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.error,
                 contentDescription = "Edit $itemText"
             )
         }
@@ -264,11 +358,127 @@ private fun ProfileItem(
 }
 
 
+@Composable
+private fun ThemeSettingButton(
+    modifier: Modifier = Modifier,
+    themeKey: String,
+    currentTheme: String,
+    onThemeChange: (String) -> Unit,
+    content: @Composable () -> Unit
+) {
+    // system theme
+    Button(
+        modifier = modifier
+            .padding(smallPadding),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (currentTheme == themeKey) {
+                // Highlight color for selected state
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                // Default color for unselected state
+                MaterialTheme.colorScheme.secondaryContainer
+            },
+            contentColor = if (currentTheme == themeKey) {
+                // Adjust content color for contrast
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSecondaryContainer
+            }
+        ),
+
+        onClick = { onThemeChange(themeKey) }
+    ) {
+        content()
+    }
+}
+
+
+@Composable
+private fun ThemeSettingSelection(
+    modifier: Modifier = Modifier,
+    currentTheme: String,
+    onThemeChange: (String) -> Unit
+) {
+    Column (
+        modifier = modifier
+            .padding(smallPadding)
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ThemeSettingButton(
+                themeKey = "system",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("System")
+            }
+
+            ThemeSettingButton(
+                themeKey = "light_sensitive",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("Light sensitive")
+            }
+        }
+
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ThemeSettingButton(
+                themeKey = "light",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("Light")
+            }
+
+            ThemeSettingButton(
+                themeKey = "dark",
+                currentTheme = currentTheme,
+                onThemeChange = onThemeChange
+            ) {
+                Text("Dark")
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ThemeSettingSelectionPreview() {
+    ThemeSettingSelection(
+        currentTheme = "dark",
+        onThemeChange = { }
+    )
+}
+
+
+@Preview
+@Composable
+fun ProfileItemPreview() {
+    ProfileItem(
+        itemTitle = "Name",
+        itemIcon = Icons.Default.Email,
+        itemText = "john.doe@university.com",
+        canEdit = false,
+        onNewText = {}
+    ) {
+
+    }
+}
+
+
 @Preview
 @Composable
 fun ProfileScreenPreviewLight() {
-    VenturaTheme(darkTheme = false) {
-        ProfileScreen()
+    ThemeScreen(darkTheme = false) {
+        ProfileScreen() { }
     }
 }
 
@@ -276,7 +486,7 @@ fun ProfileScreenPreviewLight() {
 @Preview
 @Composable
 fun ProfileScreenPreviewDark() {
-    VenturaTheme(darkTheme = true) {
-        ProfileScreen()
+    ThemeScreen(darkTheme = true) {
+        ProfileScreen() { }
     }
 }
