@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.ventura.model.ProfileModel
 import com.example.ventura.model.data.Profile
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,9 +57,13 @@ class ProfileViewModel(application: Application) : ViewModel() {
 
     fun refreshProfileData() {
         Log.d("profile-vm", "Refreshing profile data")
-        viewModelScope.launch(Dispatchers.Default) {
-            _uiState.value = ProfileUiState(profile = profileModel.getProfileData())
-        }
+        _uiState.value = ProfileUiState(profile = profileModel.getProfileDataFromCache())
+
+//        viewModelScope.launch(Dispatchers.Default) {
+//            Log.d("profile-vm", "Retrieved remote profile is ")
+//            val remoteFetchedProfile = profileModel.getProfileDataFromRemote()
+//            _uiState.value = ProfileUiState(profile = remoteFetchedProfile)
+//        }
     }
 
 
@@ -69,7 +72,7 @@ class ProfileViewModel(application: Application) : ViewModel() {
      * @param newName the new name of the profile
      */
     fun changeProfileName(newName: String) {
-        Log.d("profile-vm", "Changing name to $newName")
+        Log.d("profile-vm", "Changing display name to $newName")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(name = newName)
@@ -78,13 +81,12 @@ class ProfileViewModel(application: Application) : ViewModel() {
     }
 
 
-
     /**
      * Updates the visual profile's email
      * @param newEmail the new email of the profile
      */
     fun changeProfileEmail(newEmail: String) {
-        Log.d("profile-vm", "Changing email to $newEmail")
+        Log.d("profile-vm", "Changing display email to $newEmail")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(email = newEmail)
@@ -107,8 +109,16 @@ class ProfileViewModel(application: Application) : ViewModel() {
     }
 
 
-    fun updateProfileData() {
+    fun updateProfileCache() {
         Log.d("profile-vm", "Profile data updated")
-        profileModel.updateProfileData(uiState.value.profile)
+        profileModel.updateProfileDataToCache(uiState.value.profile)
+    }
+
+
+    fun updateProfileRemote() {
+        Log.d("profile-vm", "Profile data updated remotely")
+        viewModelScope.launch {
+            profileModel.updateProfileDataToRemote()
+        }
     }
 }

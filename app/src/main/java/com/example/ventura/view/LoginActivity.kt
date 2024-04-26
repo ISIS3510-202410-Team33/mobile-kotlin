@@ -98,6 +98,8 @@ class LoginActivity : ComponentActivity() {
     private fun saveCredentials(email: String) {
         val editor = sharedPreferences.edit()
         editor.putString("email", email)
+        // TODO: THIS MUST BE CHANGED
+        editor.putString("loginId", 1.toString())
         editor.apply()
     }
 

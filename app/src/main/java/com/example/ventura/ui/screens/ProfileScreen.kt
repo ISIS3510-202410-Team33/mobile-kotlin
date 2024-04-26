@@ -63,14 +63,18 @@ val mediumIcon = 64.dp
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(),
-    themeViewModel: ThemeViewModel = viewModel()
+    themeViewModel: ThemeViewModel = viewModel(),
+    backToMainMenu: () -> Unit = { },
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
 
     Scaffold (
         topBar = {
-            ProfileTopAppBar()
+            ProfileTopAppBar(
+                modifier = Modifier,
+                backToMainMenu = backToMainMenu
+            )
         }
     ) { it ->
         LazyColumn(
@@ -89,7 +93,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Filled.Person,
                     itemText = profileUiState.profile.name,
                     canEdit = true,
-                    onBoxExit = { profileViewModel.updateProfileData() },
+                    onBoxExit = { profileViewModel.updateProfileCache() },
                     onNewText = { profileViewModel.changeProfileName(it) }
                 )
             }
@@ -100,7 +104,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Default.Email,
                     itemText = profileUiState.profile.email,
                     canEdit = false,
-                    onBoxExit = { profileViewModel.updateProfileData() },
+                    onBoxExit = { profileViewModel.updateProfileCache() },
                     onNewText = { profileViewModel.changeProfileEmail(it) }
                 )
             }
@@ -112,7 +116,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Default.Home,
                     itemText = profileUiState.profile.universityName,
                     canEdit = false,
-                    onBoxExit = { profileViewModel.updateProfileData() },
+                    onBoxExit = { profileViewModel.updateProfileCache() },
                     onNewText = { profileViewModel.changeProfileUniversity(it) }
                 )
             }
@@ -131,7 +135,8 @@ fun ProfileScreen(
 
 @Composable
 private fun ProfileTopAppBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backToMainMenu: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -141,7 +146,7 @@ private fun ProfileTopAppBar(
                 IconButton(
                     modifier = modifier
                         .padding(smallPadding),
-                    onClick = { }
+                    onClick = backToMainMenu
                 ) {
                     Icon(
                         modifier = modifier
@@ -155,11 +160,12 @@ private fun ProfileTopAppBar(
                     modifier = modifier
                         .padding(smallPadding),
                     text = "Profile",
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
         },
-        modifier = modifier
+        modifier = modifier.background(Color.Transparent)
     )
 }
 
@@ -216,7 +222,7 @@ private fun ProfileItem(
                 .padding(smallPadding)
                 .size(mediumIcon),
             imageVector = itemIcon,
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = MaterialTheme.colorScheme.primary,
             contentDescription = null
         )
         Column {
@@ -225,6 +231,7 @@ private fun ProfileItem(
                     .padding(start = smallPadding),
                 text = itemTitle,
                 style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
                 onTextLayout = { }
             )
 
@@ -239,7 +246,7 @@ private fun ProfileItem(
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        disabledContainerColor = MaterialTheme.colorScheme.surface
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
                     onValueChange = onNewText,
                     keyboardOptions = KeyboardOptions.Default.copy(
@@ -258,6 +265,7 @@ private fun ProfileItem(
                     modifier = modifier.padding(smallPadding),
                     text = itemText,
                     style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary,
                     onTextLayout = { }
                 )
             }
@@ -279,7 +287,7 @@ private fun ProfileItem(
                 modifier = modifier
                     .size(mediumIcon),
                 imageVector = Icons.Default.Edit,
-                tint = MaterialTheme.colorScheme.secondary,
+                tint = if (canEdit) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                 contentDescription = "Edit $itemText"
             )
         }
@@ -302,16 +310,16 @@ private fun ThemeSettingButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (currentTheme == themeKey) {
                 // Highlight color for selected state
-                Color.DarkGray
+                MaterialTheme.colorScheme.primary
             } else {
                 // Default color for unselected state
-                Color.Gray
+                MaterialTheme.colorScheme.secondary
             },
             contentColor = if (currentTheme == themeKey) {
                 // Adjust content color for contrast
-                Color.White
+                MaterialTheme.colorScheme.onPrimary
             } else {
-                Color.White
+                MaterialTheme.colorScheme.onSecondary
             }
         ),
 
@@ -390,9 +398,24 @@ fun ThemeSettingSelectionPreview() {
 
 @Preview
 @Composable
+fun ProfileItemPreview() {
+    ProfileItem(
+        itemTitle = "Name",
+        itemIcon = Icons.Default.Email,
+        itemText = "John Doe",
+        canEdit = false,
+        onNewText = {}
+    ) {
+
+    }
+}
+
+
+@Preview
+@Composable
 fun ProfileScreenPreviewLight() {
     ThemeScreen(darkTheme = false) {
-        ProfileScreen()
+        ProfileScreen { }
     }
 }
 
@@ -401,6 +424,6 @@ fun ProfileScreenPreviewLight() {
 @Composable
 fun ProfileScreenPreviewDark() {
     ThemeScreen(darkTheme = true) {
-        ProfileScreen()
+        ProfileScreen { }
     }
 }

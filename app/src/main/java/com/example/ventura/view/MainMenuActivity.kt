@@ -32,8 +32,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
-import java.util.concurrent.atomic.AtomicBoolean
 import com.google.android.gms.location.LocationServices
+import java.util.concurrent.atomic.AtomicBoolean
 
 class MainMenuActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels()
@@ -208,7 +208,7 @@ class MainMenuActivity : ComponentActivity() {
             }
 
             buttonProfile.setOnClickListener {
-                val intent = Intent(this, ProfileActivity::class.java)
+                val intent = Intent(this, NewProfileActivity::class.java)
                 intent.putExtra("user_email", userEmail)
                 startActivity(intent)
             }

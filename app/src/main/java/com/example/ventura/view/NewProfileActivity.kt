@@ -3,10 +3,12 @@ package com.example.ventura.view
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.ui.screens.ProfileScreen
@@ -28,11 +30,15 @@ class NewProfileActivity : LightSensitiveThemeActivity() {
         setContent {
             ThemeScreen(themeViewModel = themeViewModel) {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent),
+                    color = Color.Transparent
                 ) {
                     ProfileScreen(
                         profileViewModel = profileViewModel,
-                        themeViewModel = themeViewModel
+                        themeViewModel = themeViewModel,
+                        backToMainMenu = { finish() }
                     )
                 }
             }
@@ -46,7 +52,7 @@ class NewProfileActivity : LightSensitiveThemeActivity() {
 @Composable
 fun ProfileScreenPreviewLight() {
     ThemeScreen(darkTheme=false) {
-        ProfileScreen()
+        ProfileScreen { }
     }
 }
 
@@ -55,6 +61,6 @@ fun ProfileScreenPreviewLight() {
 @Composable
 fun ProfileScreenPreviewDark() {
     ThemeScreen(darkTheme = true) {
-        ProfileScreen()
+        ProfileScreen { }
     }
 }

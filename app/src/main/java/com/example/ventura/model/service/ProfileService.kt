@@ -5,11 +5,15 @@ import retrofit2.http.GET
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
+
+
 data class UserResponse(
     val id: Int,
     val name: String,
     val email: String,
-    val college: Int
+    val college: Int,
+    // awful correction to improper database construction in the model
+    val detail: String
 )
 
 data class CollegeResponse(
@@ -21,21 +25,21 @@ data class CollegeResponse(
 
 interface ProfileService {
 
-    @GET("api/users/?email={email}")
-    suspend fun getUserByEmail(
-        @Path("email") email: String
+    @GET("api/users/{id}")
+    suspend fun getUserById(
+        @Path("id") id: String
     ): UserResponse
 
 
     @GET("api/colleges/{id}")
     suspend fun getUniversityById(
-        @Path("id") id: Int
+        @Path("id") id: String
     ): CollegeResponse
 
 
-    @PUT("api/users/?email={email}")
+    @PUT("api/users/{id}")
     suspend fun updateUser(
-        @Path("email") email: String,
+        @Path("id") id: String,
         @Field("name") newName: String
-    )
+    ): UserResponse
 }
