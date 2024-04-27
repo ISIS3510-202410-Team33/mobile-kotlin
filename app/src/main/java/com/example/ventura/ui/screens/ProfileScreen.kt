@@ -2,6 +2,10 @@
 
 package com.example.ventura.ui.screens
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,12 +55,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
+import com.example.ventura.model.data.StepCount
 import com.example.ventura.ui.theme.Shapes
-import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.viewmodel.ProfileViewModel
 import com.example.ventura.viewmodel.ThemeViewModel
+import kotlin.math.max
+import kotlin.math.min
 
 
 val smallPadding = 8.dp
@@ -67,11 +74,18 @@ val smallIcon = 56.dp
 val mediumIcon = 64.dp
 val maxTextBoxWidth = 200.dp
 
+private val TAG = "PROFILE_SCREEN"
+
+
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(),
     themeViewModel: ThemeViewModel = viewModel(),
+    stepCount: StepCount?,
+    dailyStepsObjective: Int,
+    dailyCaloriesObjective: Int,
     backToMainMenu: () -> Unit = { },
+    context: Context
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
@@ -134,6 +148,70 @@ fun ProfileScreen(
                     currentTheme = themeUiState.theme.setting,
                     onThemeChange = { themeViewModel.changeThemeSetting(it) }
                 )
+            }
+
+            // Step counting
+            item {
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACTIVITY_RECOGNITION) !=
+                        PackageManager.PERMISSION_GRANTED) {
+                    WalkObjectiveBar(
+                        title = "We don't have your permission for this functionality.",
+                        leftBound = 0,
+                        rightBound = 100,
+                        currentValue = 0
+                    )
+                } else if (stepCount == null) {
+                    WalkObjectiveBar(
+                        title = "We are fetching your daily steps...",
+                        leftBound = 0,
+                        rightBound = dailyStepsObjective,
+                        currentValue = 0
+                    )
+                } else {
+                    Log.d(TAG, "Day, Now, Obj : ${stepCount.stepsAtDayStart}, ${stepCount.stepsAtNow}, ${stepCount.stepsAtDayStart + dailyStepsObjective}")
+                    WalkObjectiveBar(
+                        title = "Steps taken today: ${
+                            stepCount.stepsAtNow - 
+                                    stepCount.stepsAtDayStart}",
+                        leftBound = stepCount.stepsAtDayStart,
+                        rightBound = stepCount.stepsAtDayStart + dailyStepsObjective,
+                        currentValue = stepCount.stepsAtNow
+                    )
+                }
+            }
+
+            // Calorie counting
+            item {
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACTIVITY_RECOGNITION) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                    WalkObjectiveBar(
+                        title = "We don't have your permission for this functionality.",
+                        leftBound = 0,
+                        rightBound = 100,
+                        currentValue = 0
+                    )
+                } else if (stepCount == null) {
+                    WalkObjectiveBar(
+                        title = "We are fetching your burned calories ...",
+                        leftBound = 0,
+                        rightBound = dailyCaloriesObjective,
+                        currentValue = 0
+                    )
+                } else {
+
+                    val burnedCalories = ((stepCount.stepsAtNow - stepCount.stepsAtDayStart)*0.045f).toInt()
+
+                    WalkObjectiveBar(
+                        title = "Calories burned today: $burnedCalories",
+                        leftBound = 0,
+                        rightBound = dailyCaloriesObjective,
+                        currentValue = burnedCalories
+                    )
+                }
             }
         }
     }
@@ -319,7 +397,7 @@ private fun ProfileItem(
             else {
                 Text(
                     modifier = modifier
-                        .padding(start=mediumPadding)
+                        .padding(start = mediumPadding)
                         .width(maxTextBoxWidth),
                     text = itemText,
                     style = MaterialTheme.typography.bodyLarge,
@@ -449,6 +527,71 @@ private fun ThemeSettingSelection(
     }
 }
 
+
+@Composable
+private fun WalkObjectiveBar(
+    modifier: Modifier = Modifier,
+    title: String,
+    leftBound: Int,
+    rightBound: Int,
+    currentValue: Int
+) {
+    Column(
+        modifier = Modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            style = MaterialTheme.typography.labelSmall
+        )
+
+        Row (
+            modifier = Modifier
+                .padding(
+                    start = largePadding,
+                    end = largePadding,
+                    top = smallPadding,
+                    bottom = smallPadding
+                )
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxWidth()
+                .height(30.dp),
+        ) {
+
+            val percentFilled = min(
+                0.9999f,
+                (currentValue.toFloat() - leftBound.toFloat())
+                        /(rightBound.toFloat()-leftBound.toFloat())
+            )
+
+            Row (
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.onPrimaryContainer)
+                    .weight(max(0.0001f, percentFilled))
+                    .height(30.dp),
+            ) {}
+            Spacer(
+                modifier = Modifier
+                    .weight(max(0.0001f, 1f - percentFilled))
+            )
+        }
+    }
+}
+
+
+
+@Preview
+@Composable
+fun WalkObjectiveBarPreview() {
+    WalkObjectiveBar(title="Pasos caminados", leftBound = 0, rightBound = 1000, currentValue = 8000)
+}
+
+
+
 @Preview
 @Composable
 fun ThemeSettingSelectionPreview() {
@@ -474,19 +617,19 @@ fun ProfileItemPreview() {
 }
 
 
-@Preview
-@Composable
-fun ProfileScreenPreviewLight() {
-    ThemeScreen(darkTheme = false) {
-        ProfileScreen() { }
-    }
-}
-
-
-@Preview
-@Composable
-fun ProfileScreenPreviewDark() {
-    ThemeScreen(darkTheme = true) {
-        ProfileScreen() { }
-    }
-}
+//@Preview
+//@Composable
+//fun ProfileScreenPreviewLight() {
+//    ThemeScreen(darkTheme = false) {
+//        ProfileScreen() { }
+//    }
+//}
+//
+//
+//@Preview
+//@Composable
+//fun ProfileScreenPreviewDark() {
+//    ThemeScreen(darkTheme = true) {
+//        ProfileScreen() { }
+//    }
+//}

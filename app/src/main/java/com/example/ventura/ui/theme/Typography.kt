@@ -40,6 +40,11 @@ val Typography = Typography(
         fontWeight = FontWeight.Medium,
         fontSize = 20.sp
     ),
+    displaySmall = TextStyle(
+        fontFamily = Abeezee,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
+    ),
     labelSmall = TextStyle(
         fontFamily = Abeezee,
         fontWeight = FontWeight.Normal,
