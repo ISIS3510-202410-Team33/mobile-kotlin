@@ -77,7 +77,7 @@ private val TAG = "PROFILE_SCREEN"
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(),
     themeViewModel: ThemeViewModel = viewModel(),
-    stepCount: StepCount,
+    stepCount: StepCount?,
     dailyStepsObjective: Int,
     dailyCaloriesObjective: Int,
     backToMainMenu: () -> Unit = { },
