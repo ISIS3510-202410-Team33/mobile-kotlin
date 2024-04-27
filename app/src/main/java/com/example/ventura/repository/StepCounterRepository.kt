@@ -23,7 +23,10 @@ class StepCounterRepository(
     private val stepCountDao: StepCountDao
 ) {
     // daily step objective
-    val dailyObjective = 2000
+    val dailyStepsObjective = 500
+    // daily calories objective
+    val dailyCaloriesObjective = 2300
+
     val stepCount: Flow<StepCount> = stepCountDao.findByDateOfMeasurement(
         LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
     )

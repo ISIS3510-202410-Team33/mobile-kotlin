@@ -78,7 +78,8 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(),
     themeViewModel: ThemeViewModel = viewModel(),
     stepCount: StepCount,
-    dailyObjective: Int,
+    dailyStepsObjective: Int,
+    dailyCaloriesObjective: Int,
     backToMainMenu: () -> Unit = { },
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
@@ -144,23 +145,46 @@ fun ProfileScreen(
                 )
             }
 
+            // Step counting
             item {
                 if (stepCount == null) {
                     WalkObjectiveBar(
                         title = "We are fetching your daily steps...",
                         leftBound = 0,
-                        rightBound = dailyObjective,
+                        rightBound = dailyStepsObjective,
                         currentValue = 0
                     )
                 } else {
-                    Log.d(TAG, "Day, Now, Obj : ${stepCount.stepsAtDayStart}, ${stepCount.stepsAtNow}, ${stepCount.stepsAtDayStart + dailyObjective}")
+                    Log.d(TAG, "Day, Now, Obj : ${stepCount.stepsAtDayStart}, ${stepCount.stepsAtNow}, ${stepCount.stepsAtDayStart + dailyStepsObjective}")
                     WalkObjectiveBar(
                         title = "Steps taken today: ${
                             stepCount.stepsAtNow - 
                                     stepCount.stepsAtDayStart}",
                         leftBound = stepCount.stepsAtDayStart,
-                        rightBound = stepCount.stepsAtDayStart + dailyObjective,
+                        rightBound = stepCount.stepsAtDayStart + dailyStepsObjective,
                         currentValue = stepCount.stepsAtNow
+                    )
+                }
+            }
+
+            // Calorie counting
+            item {
+                if (stepCount == null) {
+                    WalkObjectiveBar(
+                        title = "We are fetching your burned calories ...",
+                        leftBound = 0,
+                        rightBound = dailyCaloriesObjective,
+                        currentValue = 0
+                    )
+                } else {
+
+                    val burnedCalories = ((stepCount.stepsAtNow - stepCount.stepsAtDayStart)*0.045f).toInt()
+
+                    WalkObjectiveBar(
+                        title = "Calories burned today: $burnedCalories",
+                        leftBound = 0,
+                        rightBound = dailyCaloriesObjective,
+                        currentValue = burnedCalories
                     )
                 }
             }
@@ -501,8 +525,8 @@ private fun WalkObjectiveBar(
         Row (
             modifier = Modifier
                 .padding(
-                    start = mediumPadding,
-                    end = mediumPadding,
+                    start = largePadding,
+                    end = largePadding,
                     top = smallPadding,
                     bottom = smallPadding
                 )
