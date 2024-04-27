@@ -22,7 +22,8 @@ class StepCounterRepository(
 //    private val application: Application,
     private val stepCountDao: StepCountDao
 ) {
-
+    // daily step objective
+    val dailyObjective = 2000
     val stepCount: Flow<StepCount> = stepCountDao.findByDateOfMeasurement(
         LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
     )

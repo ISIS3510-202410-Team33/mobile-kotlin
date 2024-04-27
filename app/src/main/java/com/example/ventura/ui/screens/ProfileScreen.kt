@@ -2,6 +2,7 @@
 
 package com.example.ventura.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -53,10 +54,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
+import com.example.ventura.model.data.StepCount
 import com.example.ventura.ui.theme.Shapes
-import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.viewmodel.ProfileViewModel
 import com.example.ventura.viewmodel.ThemeViewModel
+import kotlin.math.max
+import kotlin.math.min
 
 
 val smallPadding = 8.dp
@@ -67,10 +70,15 @@ val smallIcon = 56.dp
 val mediumIcon = 64.dp
 val maxTextBoxWidth = 200.dp
 
+private val TAG = "PROFILE_SCREEN"
+
+
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(),
     themeViewModel: ThemeViewModel = viewModel(),
+    stepCount: StepCount,
+    dailyObjective: Int,
     backToMainMenu: () -> Unit = { },
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
@@ -134,6 +142,27 @@ fun ProfileScreen(
                     currentTheme = themeUiState.theme.setting,
                     onThemeChange = { themeViewModel.changeThemeSetting(it) }
                 )
+            }
+
+            item {
+                if (stepCount == null) {
+                    WalkObjectiveBar(
+                        title = "We are fetching your daily steps...",
+                        leftBound = 0,
+                        rightBound = dailyObjective,
+                        currentValue = 0
+                    )
+                } else {
+                    Log.d(TAG, "Day, Now, Obj : ${stepCount.stepsAtDayStart}, ${stepCount.stepsAtNow}, ${stepCount.stepsAtDayStart + dailyObjective}")
+                    WalkObjectiveBar(
+                        title = "Steps taken today: ${
+                            stepCount.stepsAtNow - 
+                                    stepCount.stepsAtDayStart}",
+                        leftBound = stepCount.stepsAtDayStart,
+                        rightBound = stepCount.stepsAtDayStart + dailyObjective,
+                        currentValue = stepCount.stepsAtNow
+                    )
+                }
             }
         }
     }
@@ -319,7 +348,7 @@ private fun ProfileItem(
             else {
                 Text(
                     modifier = modifier
-                        .padding(start=mediumPadding)
+                        .padding(start = mediumPadding)
                         .width(maxTextBoxWidth),
                     text = itemText,
                     style = MaterialTheme.typography.bodyLarge,
@@ -449,6 +478,71 @@ private fun ThemeSettingSelection(
     }
 }
 
+
+@Composable
+private fun WalkObjectiveBar(
+    modifier: Modifier = Modifier,
+    title: String,
+    leftBound: Int,
+    rightBound: Int,
+    currentValue: Int
+) {
+    Column(
+        modifier = Modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            style = MaterialTheme.typography.labelSmall
+        )
+
+        Row (
+            modifier = Modifier
+                .padding(
+                    start = mediumPadding,
+                    end = mediumPadding,
+                    top = smallPadding,
+                    bottom = smallPadding
+                )
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxWidth()
+                .height(30.dp),
+        ) {
+
+            val percentFilled = min(
+                0.9999f,
+                (currentValue.toFloat() - leftBound.toFloat())
+                        /(rightBound.toFloat()-leftBound.toFloat())
+            )
+
+            Row (
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.onPrimaryContainer)
+                    .weight(max(0.0001f, percentFilled))
+                    .height(30.dp),
+            ) {}
+            Spacer(
+                modifier = Modifier
+                    .weight(max(0.0001f, 1f - percentFilled))
+            )
+        }
+    }
+}
+
+
+
+@Preview
+@Composable
+fun WalkObjectiveBarPreview() {
+    WalkObjectiveBar(title="Pasos caminados", leftBound = 0, rightBound = 1000, currentValue = 8000)
+}
+
+
+
 @Preview
 @Composable
 fun ThemeSettingSelectionPreview() {
@@ -474,19 +568,19 @@ fun ProfileItemPreview() {
 }
 
 
-@Preview
-@Composable
-fun ProfileScreenPreviewLight() {
-    ThemeScreen(darkTheme = false) {
-        ProfileScreen() { }
-    }
-}
-
-
-@Preview
-@Composable
-fun ProfileScreenPreviewDark() {
-    ThemeScreen(darkTheme = true) {
-        ProfileScreen() { }
-    }
-}
+//@Preview
+//@Composable
+//fun ProfileScreenPreviewLight() {
+//    ThemeScreen(darkTheme = false) {
+//        ProfileScreen() { }
+//    }
+//}
+//
+//
+//@Preview
+//@Composable
+//fun ProfileScreenPreviewDark() {
+//    ThemeScreen(darkTheme = true) {
+//        ProfileScreen() { }
+//    }
+//}

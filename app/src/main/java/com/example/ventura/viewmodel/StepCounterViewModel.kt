@@ -47,6 +47,10 @@ class StepCounterViewModel(
     val stepCount: LiveData<StepCount> = stepCounterRepository.stepCount.asLiveData()
 
 
+    fun getDailyObjective(): Int {
+        return stepCounterRepository.dailyObjective
+    }
+
     fun updateSteps(event: SensorEvent?) = viewModelScope.launch {
         stepCounterRepository.updateSteps(event)
 
