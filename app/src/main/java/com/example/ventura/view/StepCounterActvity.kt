@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.ventura.StepCounterApplication
 import com.example.ventura.viewmodel.StepCounterViewModel
 import com.example.ventura.viewmodel.StepCounterViewModelFactory
 
@@ -36,10 +37,9 @@ class StepCounterActivity : ComponentActivity(), SensorEventListener {
 
         stepCounterViewModel = ViewModelProvider(
             this,
-            StepCounterViewModelFactory(application)
+            StepCounterViewModelFactory((application as StepCounterApplication).repository)
         )[StepCounterViewModel::class.java]
 
-        // TODO: load data if available
         setupStepSensor()
     }
 
@@ -63,7 +63,7 @@ class StepCounterActivity : ComponentActivity(), SensorEventListener {
         if (event?.sensor?.type == Sensor.TYPE_STEP_COUNTER) {
             stepCounterViewModel.updateSteps(event)
         }
-        Log.d(TAG, "Steps: ${stepCounterViewModel.uiState.value.stepCount.steps}")
+//        Log.d(TAG, "Steps: ${stepCounterViewModel.stepCount.value?.stepsAtNow}")
     }
 
 

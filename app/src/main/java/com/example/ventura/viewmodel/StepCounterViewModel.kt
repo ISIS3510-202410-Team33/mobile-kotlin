@@ -1,29 +1,31 @@
 package com.example.ventura.viewmodel
 
-import android.app.Application
 import android.hardware.SensorEvent
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.ventura.model.data.StepCount
+import com.example.ventura.model.data.StepCountUi
 import com.example.ventura.repository.StepCounterRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 private val TAG = "STEP_COUNTER_VIEWMODEL"
 
 data class StepCounterUiState(
-    val stepCount: StepCount = StepCount()
+    val stepCountUi: StepCountUi = StepCountUi()
 )
 
 
-class StepCounterViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+class StepCounterViewModelFactory(private val repository: StepCounterRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(StepCounterViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            val repository = StepCounterRepository(application)
             return StepCounterViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
@@ -41,19 +43,22 @@ class StepCounterViewModel(
     // returned, only viewable object for the view
     val uiState: StateFlow<StepCounterUiState> = _uiState.asStateFlow()
 
+    // better uiState ?
+    val stepCount: LiveData<StepCount> = stepCounterRepository.stepCount.asLiveData()
 
-    fun updateSteps(event: SensorEvent?) {
+
+    fun updateSteps(event: SensorEvent?) = viewModelScope.launch {
         stepCounterRepository.updateSteps(event)
-        val sc = stepCounterRepository.getStepCount()
 
-        _uiState.update { currentState ->
-            currentState.copy(
-                stepCount = currentState.stepCount.copy(
-                    steps = sc.steps,
-                    dateOfMeasurement = sc.dateOfMeasurement
-                )
-            )
-        }
+        // TODO: _uiState should be eliminated as it breaks the observer flow
+//        _uiState.update { currentState ->
+//            currentState.copy(
+//                stepCountUi = currentState.stepCountUi.copy(
+//                    steps = stepCounterRepository.getDailySteps(),
+//                    dateOfMeasurement = stepCount.value?.dateOfMeasurement!!
+//                )
+//            )
+//        }
     }
 
 }

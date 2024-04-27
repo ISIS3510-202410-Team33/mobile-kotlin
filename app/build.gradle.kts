@@ -4,7 +4,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     id("com.google.firebase.firebase-perf")
-
+    id("kotlin-kapt")
 }
 
 android {
@@ -50,6 +50,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/atomicfu.kotlin_module"
         }
     }
 }
@@ -89,6 +90,13 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation(libs.material)
     implementation(libs.androidx.activity)
+
+    // Room components
+
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

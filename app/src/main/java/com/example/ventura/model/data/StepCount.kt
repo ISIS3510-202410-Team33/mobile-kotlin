@@ -1,8 +1,13 @@
 package com.example.ventura.model.data
 
-import java.time.LocalDate
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+
+@Entity(tableName = "step_count_table")
 data class StepCount (
-    val steps: Int = 0,
-    val dateOfMeasurement: LocalDate = LocalDate.now()
+    @PrimaryKey @ColumnInfo(name = "dateOfMeasurement") val dateOfMeasurement: String,
+    @ColumnInfo(name = "stepsAtDayStart") val stepsAtDayStart: Int,
+    @ColumnInfo(name = "stepsAtNow") val stepsAtNow: Int
 )
