@@ -34,7 +34,6 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import java.util.concurrent.atomic.AtomicBoolean
 
 class MainMenuActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels { WeatherViewModelFactory(this) }
@@ -201,6 +200,30 @@ class MainMenuActivity : ComponentActivity() {
                             } else {
                                 fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
                             }
+
+                            // checks permission for physical activity / step sensor
+                            if (ActivityCompat.checkSelfPermission(
+                                this, Manifest.permission.ACTIVITY_RECOGNITION
+                            ) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(
+                                    this,
+                                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                                    1
+                                )
+                            }
+
+                            // checks permission for camera / light sensor
+                            if (ActivityCompat.checkSelfPermission(
+                                    this, Manifest.permission.CAMERA
+                                ) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(
+                                    this,
+                                    arrayOf(Manifest.permission.CAMERA),
+                                    1
+                                )
+                            }
+
+
                         } else {
                             if (currentConnection == "ok") {
                                 Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()

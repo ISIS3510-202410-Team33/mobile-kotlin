@@ -2,6 +2,9 @@
 
 package com.example.ventura.ui.screens
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,6 +55,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ventura.R
 import com.example.ventura.model.data.StepCount
@@ -81,6 +85,7 @@ fun ProfileScreen(
     dailyStepsObjective: Int,
     dailyCaloriesObjective: Int,
     backToMainMenu: () -> Unit = { },
+    context: Context
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
     val themeUiState by themeViewModel.uiState.collectAsState()
@@ -147,7 +152,17 @@ fun ProfileScreen(
 
             // Step counting
             item {
-                if (stepCount == null) {
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACTIVITY_RECOGNITION) !=
+                        PackageManager.PERMISSION_GRANTED) {
+                    WalkObjectiveBar(
+                        title = "We don't have your permission for this functionality.",
+                        leftBound = 0,
+                        rightBound = 100,
+                        currentValue = 0
+                    )
+                } else if (stepCount == null) {
                     WalkObjectiveBar(
                         title = "We are fetching your daily steps...",
                         leftBound = 0,
@@ -169,7 +184,17 @@ fun ProfileScreen(
 
             // Calorie counting
             item {
-                if (stepCount == null) {
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACTIVITY_RECOGNITION) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                    WalkObjectiveBar(
+                        title = "We don't have your permission for this functionality.",
+                        leftBound = 0,
+                        rightBound = 100,
+                        currentValue = 0
+                    )
+                } else if (stepCount == null) {
                     WalkObjectiveBar(
                         title = "We are fetching your burned calories ...",
                         leftBound = 0,

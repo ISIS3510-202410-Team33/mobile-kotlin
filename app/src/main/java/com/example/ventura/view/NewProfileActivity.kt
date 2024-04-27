@@ -66,7 +66,8 @@ class NewProfileActivity : LightSensitiveThemeActivity(), SensorEventListener {
                             stepCount = stepCount,
                             dailyStepsObjective = stepCounterViewModel.getDailyStepsObjective(),
                             dailyCaloriesObjective = stepCounterViewModel.getDailyCaloriesObjective(),
-                            backToMainMenu = { finish() }
+                            backToMainMenu = { finish() },
+                            context = this
                         )
                     }
                 }
