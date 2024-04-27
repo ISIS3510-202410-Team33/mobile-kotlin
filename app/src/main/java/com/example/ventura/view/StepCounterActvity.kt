@@ -19,15 +19,13 @@ private val TAG = "STEP_COUNTER_ACTIVITY"
 
 class StepCounterActivity : ComponentActivity(), SensorEventListener {
 
-    private lateinit var sensorManager: SensorManager
-    private var steps: Sensor? = null
-    private lateinit var stepCounterViewModel: StepCounterViewModel
-
-
-    private fun setupStepSensor() {
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        steps = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+    private val sensorManager: SensorManager by lazy {
+        getSystemService(SENSOR_SERVICE) as SensorManager
     }
+    private val steps: Sensor? by lazy {
+        sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+    }
+    private lateinit var stepCounterViewModel: StepCounterViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,8 +37,6 @@ class StepCounterActivity : ComponentActivity(), SensorEventListener {
             this,
             StepCounterViewModelFactory((application as StepCounterApplication).repository)
         )[StepCounterViewModel::class.java]
-
-        setupStepSensor()
     }
 
 
