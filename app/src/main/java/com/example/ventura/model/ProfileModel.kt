@@ -3,13 +3,13 @@ package com.example.ventura.model
 import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.util.Log
-import com.example.ventura.model.data.Profile
-import com.example.ventura.model.data.ProfileBackendRepository
-import com.example.ventura.model.data.ProfileCache
+import com.example.ventura.data.models.Profile
+import com.example.ventura.repository.ProfileCache
+import com.example.ventura.repository.ProfileRemote
 
 class ProfileModel(application: Application) {
     private val profileCache = ProfileCache(application)
-    private val profileBackendRepository = ProfileBackendRepository(
+    private val profileRemote = ProfileRemote(
         backendUrl = "https://ventura-backend-jaj1.onrender.com/"
     )
     private val sharedPreferences = application.getSharedPreferences("MyPrefs", MODE_PRIVATE)
@@ -28,14 +28,14 @@ class ProfileModel(application: Application) {
     suspend fun getProfileDataFromRemote(): Profile {
         Log.d("profile-model", "Getting profile from network on caché")
 
-        val profile = profileBackendRepository.getProfileData(
+        val profile = profileRemote.getProfileData(
             sharedPreferences.getString("loginId", "1")!!
         )
 
         // caché data updated
         updateProfileDataToCache(profile)
 
-        return profileBackendRepository.noneProfile
+        return profileRemote.noneProfile
     }
 
 
@@ -54,7 +54,7 @@ class ProfileModel(application: Application) {
     suspend fun updateProfileDataToRemote(): Unit {
         Log.d("profile-model", "Updating profile data to remote from caché")
         val locallySavedProfile = profileCache.getProfileData()
-        profileBackendRepository.updateProfileData(
+        profileRemote.updateProfileData(
             id = sharedPreferences.getString("loginId", "1")!!,
             newProfile = locallySavedProfile
         )

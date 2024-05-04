@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ventura.viewmodel.ThemeViewModel
+import com.example.ventura.ui.viewmodel.ThemeViewModel
 
 
 private val lightScheme = lightColorScheme(

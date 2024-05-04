@@ -4,8 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.util.Log
 import androidx.annotation.WorkerThread
-import com.example.ventura.model.dao.StepCountDao
-import com.example.ventura.model.data.StepCount
+import com.example.ventura.data.models.StepCount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

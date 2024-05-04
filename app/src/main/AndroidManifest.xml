@@ -14,31 +14,31 @@
         android:theme="@style/Theme.Ventura"
         tools:targetApi="31">
         <activity
-            android:name=".view.MainMenuActivity"
+            android:name=".ui.activity.MainMenuActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
-            android:name=".view.SignUpActivity"
+            android:name=".ui.activity.SignUpActivity"
             android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
-            android:name=".view.NoInternetLogin"
+            android:name=".ui.activity.NoInternetLogin"
             android:exported="false" />
 
         <activity
-            android:name=".view.NotificationsActivity"
+            android:name=".ui.activity.NotificationsActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity
-            android:name=".view.ProfileActivity"
+            android:name=".ui.activity.ProfileActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity
-            android:name=".view.NewProfileActivity"
+            android:name=".ui.activity.NewProfileActivity"
             android:screenOrientation="portrait"
             android:exported="true" >
 
@@ -46,7 +46,7 @@
 
 
         <activity
-            android:name=".view.StepCounterActivity"
+            android:name=".ui.activity.StepCounterActivity"
             android:screenOrientation="portrait"
             android:exported="true">
         </activity>
@@ -55,7 +55,7 @@
         <!-- Actividad SplashActivity -->
 
         <activity
-            android:name=".view.SplashActivity"
+            android:name=".ui.activity.SplashActivity"
             android:screenOrientation="portrait"
             android:exported="true"
             android:label="@string/app_name"
@@ -67,7 +67,7 @@
             </intent-filter>
         </activity> <!-- Actividad MainActivity -->
         <activity
-            android:name=".view.LoginActivity"
+            android:name=".ui.activity.LoginActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppCompat">
@@ -75,7 +75,7 @@
 
         <!-- Actividad com.example.ventura.view.MapActivity -->
         <activity
-            android:name=".view.MapsActivity"
+            android:name=".ui.activity.MapsActivity"
             android:screenOrientation="portrait"
             android:label="Campus Sites"
             android:theme="@style/Theme.AppCompat">
