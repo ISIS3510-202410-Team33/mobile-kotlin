@@ -16,7 +16,8 @@
         <activity
             android:name=".ui.activity.MainMenuActivity"
             android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity
             android:name=".ui.activity.SignUpActivity"

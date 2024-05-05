@@ -149,6 +149,16 @@ class LoginActivity : ComponentActivity() {
             }
         }
 
+        /*
+        Second Juan Coroutine: <Dispatchers.IO>
+        Dispatcher.IO is used here because an I/O (input/output) operation
+        is being performed by registering a callback to listen for network changes.
+        That's the reason why we don't use launch here, because we are already in
+        a Main thread CoroutineScope, so, if we don't want to block the main thread,
+        we should use the "withContext" keyword and start a new async thread to do
+        an I/O job, which in this case, is suppose to register a network callback into
+        the connectivity manager instance.
+         */
         withContext(Dispatchers.IO) {
             connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
         }
@@ -158,10 +168,16 @@ class LoginActivity : ComponentActivity() {
         return sharedPreferences.contains("email")
     }
 
+    /*
+    Juan Usage of sharedPreferences to save data:
+    here we instance an object to edit the shared preferences
+    in a context.PRIVATE mode just for the app, we save the credentials
+    that the user put in the log in or sign up using apply, which
+    do the job in an asynchronous way.
+     */
     private fun saveCredentials(email: String) {
         val editor = sharedPreferences.edit()
         editor.putString("email", email)
-        // TODO: THIS MUST BE CHANGED
         editor.putString("loginId", 1.toString())
         editor.apply()
     }
