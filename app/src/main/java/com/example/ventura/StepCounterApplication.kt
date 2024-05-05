@@ -1,7 +1,7 @@
 package com.example.ventura
 
 import android.app.Application
-import com.example.ventura.model.databases.StepCountDatabase
+import com.example.ventura.repository.StepCountDatabase
 import com.example.ventura.repository.StepCounterRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob

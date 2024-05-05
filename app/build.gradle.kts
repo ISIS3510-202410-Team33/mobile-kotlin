@@ -57,11 +57,11 @@ android {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
-    implementation("com.google.firebase:firebase-crashlytics:18.6.2")
-    implementation("com.google.firebase:firebase-analytics:21.5.1")
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation(libs.firebase.crashlytics.v1862)
+    implementation(libs.firebase.analytics.v2151)
+    implementation(libs.play.services.maps)
     implementation("com.google.android.gms:play-services-location:18.0.0")
-    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    implementation (libs.glide)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage.ktx)
