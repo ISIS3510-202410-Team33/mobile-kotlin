@@ -52,7 +52,16 @@ class NotificationsActivity : AppCompatActivity() {
             }
 
             // Iniciar la corutina para verificar la conectividad a Internet
-            connectivityJob = CoroutineScope(Dispatchers.IO).launch {
+            /*
+            Third Juan Coroutine: <Dispatchers.Default>
+            The main reason for using Dispatchers.Default here
+            instead of Dispatchers.Main is that the task of checking
+            Internet connectivity can be a time-consuming operation,
+            but it does not block the user interface. Therefore,
+            it is appropriate to use a dispatcher other than
+            the main thread so as not to affect the responsiveness of the user interface.
+             */
+            connectivityJob = CoroutineScope(Dispatchers.Default).launch {
                 while (true) {
                     delay(1000) // Verificar cada segundo
                     val isConnected = isConnectedToNetwork()

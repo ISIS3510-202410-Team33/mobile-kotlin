@@ -23,10 +23,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
 import com.example.ventura.R
+import com.example.ventura.ui.fragment.ImageDialogFragment
 import com.example.ventura.utils.FeatureCrashHandler
 import com.example.ventura.ui.viewmodel.WeatherViewModel
 import com.example.ventura.ui.viewmodel.WeatherViewModelFactory
@@ -36,7 +38,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 
-class MainMenuActivity : ComponentActivity() {
+class MainMenuActivity : AppCompatActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels { WeatherViewModelFactory(this) }
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
@@ -54,13 +56,12 @@ class MainMenuActivity : ComponentActivity() {
             val bannerUniandes = findViewById<TextView>(R.id.textView3)
 
             bannerUniandes.setOnClickListener{
-
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse("https://uniandes.edu.co/")
-                startActivity(intent)
-
+                val fragmentManager = supportFragmentManager
+                val fragmentTransaction = fragmentManager.beginTransaction()
+                val fragment = ImageDialogFragment()
+                fragment.show(fragmentTransaction, "ImageDialogFragment")
             }
-            
+
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {

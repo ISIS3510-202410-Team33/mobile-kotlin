@@ -29,8 +29,15 @@ class SplashActivity : AppCompatActivity() {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_splash)
 
+            /*
+            First Juan Coroutine: < Dispatchers Main >
+            We launch the coroutine scope into the Main thread provided
+            by the grand central dispatcher. We use a suspend function which is
+            delay to give a breach of time for the bundles to be loaded. Like this,
+            we ensure that all the verifications and jobs inside
+            the block are made before we go into the next activity.
+             */
             CoroutineScope(Dispatchers.Main).launch {
-                delay(splashTimeOut)
 
                 val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
 
@@ -38,6 +45,12 @@ class SplashActivity : AppCompatActivity() {
                 if (isConnectedToNetwork()) {
                     // Verificar si las credenciales existen en el almacenamiento local
                     if (sharedPreferences.contains("email")) {
+
+                        /*
+                        First Juan Storage strategy: <shared preferences>,
+                        Context.MODE_PRIVATE ensures that the created file can only be accessed
+                        by the calling application, not by other apps.
+                         */
                         val email = sharedPreferences.getString("email", "")
                         Log.d("Cred Juan", "Las credenciales existen en el local storage," +
                                 "se procede con la actualizacion del Json de firebase" +
@@ -45,12 +58,14 @@ class SplashActivity : AppCompatActivity() {
                         fetchDataAndSaveToLocal(email)
 
                     }
+                    delay(splashTimeOut)
                     val intent = Intent(this@SplashActivity, LoginActivity::class.java)
                     startActivity(intent)
                     finish()
 
                 } else {
                     // Mostrar notificación emergente sobre la falta de conexión a Internet
+                    delay(splashTimeOut)
                     Toast.makeText(
                         this@SplashActivity,
                         "No internet connection, preferences may not be up to date.",
@@ -62,6 +77,7 @@ class SplashActivity : AppCompatActivity() {
                     finish()
 
                 }
+
 
             }
         } catch (e: Exception) {
@@ -87,7 +103,17 @@ class SplashActivity : AppCompatActivity() {
             .addOnSuccessListener { bytes ->
                 val jsonString = String(bytes, Charset.defaultCharset())
 
-                // Escribir en el almacenamiento local
+                /*
+                Second Juan Storage Strategy: <localStorageFile>
+                We are writing directly to the disk for the private app files.
+                With filesDir we are explicitly saying that the parent for our file
+                is the absolute path of the directory holding the app files. Our child
+                for this parent, is the file with the name "userEmail.json" where we
+                storage or overwrite the user preferences according to our backend
+                Ventura where we storage the most visited sites, the recommended ones,
+                etc.
+                 */
+
                 val localStorageFile = File(filesDir, "$userEmail.json")
                 if (overwrite || !localStorageFile.exists()) {
                     localStorageFile.writeText(jsonString, Charset.defaultCharset())
@@ -96,7 +122,7 @@ class SplashActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                // En caso de fallo, no hacemos nada o manejamos el error según tu lógica
+                //TODO
             }
     }
 
