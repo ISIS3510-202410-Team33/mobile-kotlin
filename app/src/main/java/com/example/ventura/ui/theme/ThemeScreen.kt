@@ -11,8 +11,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -263,6 +263,9 @@ val unspecified_scheme = ColorFamily(
 )
 
 
+private val TAG = "THEME_SCREEN"
+
+
 /**
  * Representación cruda del tema de la aplicación
  * Interactua
@@ -275,35 +278,40 @@ fun ThemeScreen (
     themeViewModel: ThemeViewModel = viewModel(),
     content: @Composable () -> Unit,
 ) {
-    val themeUiState by themeViewModel.uiState.collectAsState()
+    /*
+     observe the variables in ViewModel that define the theme. ViewModel guarantees that these
+     are always initialized, so at no moment are these null
+     */
+    val tooBrightUiState by themeViewModel.tooBright.observeAsState()
+    val themeUiState by themeViewModel.themeSetting.observeAsState()
 
-    Log.d("theme", "Theme set to ${themeUiState.theme.setting}")
-
-    val currentSetting = themeUiState.theme.setting
+    val context = LocalContext.current
     val colorScheme = when {
-        // sensible a la luz
-        currentSetting == "light_sensitive" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (themeUiState.brightness.tooBright) dynamicLightColorScheme(context)
+        // light sensitive
+        themeUiState!!.setting == "light_sensitive" && dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            if (tooBrightUiState == null) {
+                dynamicDarkColorScheme(context)
+                // TODO notify permissions are pending
+            }
+            else if (tooBrightUiState!!) dynamicLightColorScheme(context)
             else dynamicDarkColorScheme(context)
         }
 
-        // mismo del sistema - dinámico
-        currentSetting == "system" && dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            Log.d("theme", "Dynamic")
-            val context = LocalContext.current
+        // system
+        themeUiState!!.setting == "system" && dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        // oscuro
-        currentSetting == "dark" -> darkScheme
-        // claro
-        currentSetting == "light" -> lightScheme
-        // otros
-        // TODO: FIX se podría hacer más elegante llevando variable para darkTheme.
+
+        // dark
+        themeUiState!!.setting == "dark" -> darkScheme
+        // light
+        themeUiState!!.setting == "light" -> lightScheme
+        // else
         darkTheme -> darkScheme
         else -> lightScheme
     }
 
+    Log.d(TAG, "Theme changed")
 
     val view = LocalView.current
     if (!view.isInEditMode) {

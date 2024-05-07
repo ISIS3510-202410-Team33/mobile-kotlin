@@ -1,7 +1,5 @@
 package com.example.ventura.repository
 
-import android.hardware.Sensor
-import android.hardware.SensorEvent
 import android.util.Log
 import androidx.annotation.WorkerThread
 import com.example.ventura.data.models.StepCount
@@ -78,27 +76,23 @@ class StepCounterRepository(
      */
 
     @WorkerThread
-    suspend fun updateSteps(event: SensorEvent?) {
-        // verify that corresponds to step counting event
-        if (event?.sensor?.type == Sensor.TYPE_STEP_COUNTER) {
-            // no steps have been recorded for the day
-            if (!isDailyStepCountSet()) {
-                insertStepCount(
-                    stepsAtDayStart = event.values[0].toInt(),
-                    stepsAtNow = event.values[0].toInt(),
-                    dateOfMeasurement = LocalDate.now()
-                        .format(DateTimeFormatter.ISO_LOCAL_DATE)
-                )
-            } else {
-                updateStepsAtNow(
-                    dateOfMeasurement = LocalDate.now()
-                        .format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    stepsAtNow = event.values[0].toInt()
-                )
-            }
-
-            Log.d(TAG, "Steps updated in database")
+    suspend fun updateSteps(steps: Int) {
+        if (!isDailyStepCountSet()) {
+            insertStepCount(
+                stepsAtDayStart = steps,
+                stepsAtNow = steps,
+                dateOfMeasurement = LocalDate.now()
+                    .format(DateTimeFormatter.ISO_LOCAL_DATE)
+            )
+        } else {
+            updateStepsAtNow(
+                dateOfMeasurement = LocalDate.now()
+                    .format(DateTimeFormatter.ISO_LOCAL_DATE),
+                stepsAtNow = steps.toInt()
+            )
         }
+
+        Log.d(TAG, "Steps updated in database")
     }
 
 

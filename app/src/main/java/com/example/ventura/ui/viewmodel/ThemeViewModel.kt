@@ -1,81 +1,53 @@
 package com.example.ventura.ui.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.ventura.data.models.Brightness
+import androidx.lifecycle.ViewModelProvider
 import com.example.ventura.data.models.Theme
+import com.example.ventura.repository.LightSensitiveThemeRepository
 import com.example.ventura.repository.ThemeRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 
-/**
- * Data class for the theme
- */
-data class ThemeUiState(
-    val theme: Theme = Theme("system"),
-    val brightness: Brightness = Brightness(tooBright = true)
-)
+private val TAG = "THEME_VIEWMODEL"
 
 
-class ThemeViewModel : ViewModel() {
-    private val themeRepository = ThemeRepository()
-
-    // inner object, modifiable by the ViewModel
-    private val _uiState = MutableStateFlow(ThemeUiState())
-
-    // returned, only viewable object for the view
-    val uiState: StateFlow<ThemeUiState> = _uiState.asStateFlow()
-
-//    // brightness manager
-//    private lateinit var brightnessManager: BrightnessManager
-
-    /**
-     * At start it refreshes data
-     */
-    init {
-        Log.d("theme-vm", "ThemeViewModel init")
-        refreshThemeData()
+class ThemeViewModelFactory(
+    private val lightRepository: LightSensitiveThemeRepository,
+    private val themeRepository: ThemeRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ThemeViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ThemeViewModel(lightRepository, themeRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
+}
 
 
-    fun refreshThemeData() {
-        _uiState.value = ThemeUiState(theme = themeRepository.getThemeData())
-        Log.d("refresh-theme", "Current theme setting is ${_uiState.value.theme.setting}")
-    }
+
+class ThemeViewModel(
+    private val lightSensitiveThemeRepository: LightSensitiveThemeRepository,
+    private val themeRepository: ThemeRepository
+) : ViewModel() {
+
+    // observable for when it is too bright
+    val tooBright: LiveData <Boolean> = lightSensitiveThemeRepository.getBrightness()
+
+    // observable
+    private val _themeSetting = MutableLiveData(themeRepository.getThemeSetting())
+    val themeSetting: LiveData <Theme> = _themeSetting
 
 
     /**
      * Updates the theme setting
      * @param newSetting new value for the new lighting setting
      */
-    fun changeThemeSetting(newSetting: String) {
-        Log.d("change-theme", "Changing to $newSetting")
-        _uiState.update { currentState ->
-            currentState.copy(
-                theme = currentState.theme.copy(setting = newSetting)
-            )
-        }
-        // actualiza las preferencias de usuario en persistencia
-        themeRepository.updateThemeData(uiState.value.theme)
-//        brightnessManager.updateThemeSetting(uiState.value.theme)
-        Log.d("change-theme", "Changed to ${_uiState.value.theme.setting}")
+    fun updateThemeSetting(newSetting: String) {
+        themeRepository.updateThemeSetting(newSetting)
+        _themeSetting.value = themeRepository.getThemeSetting()
+        Log.d(TAG, "themeSetting.value = ${themeSetting.value}")
     }
-
-
-    fun onNewBrightness(newTooBright: Boolean) {
-        Log.d("brightness-manager", "Entered with $newTooBright")
-        // light state changed or not?
-        if (_uiState.value.brightness.tooBright != newTooBright) {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    brightness = currentState.brightness.copy(tooBright = newTooBright)
-                )
-            }
-            Log.d("brightness-manager", "Is it too bright? - $newTooBright")
-        }
-    }
-
 }
