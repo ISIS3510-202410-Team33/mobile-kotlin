@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -88,7 +89,7 @@ fun ProfileScreen(
     context: Context
 ) {
     val profileUiState by profileViewModel.uiState.collectAsState()
-    val themeUiState by themeViewModel.uiState.collectAsState()
+    val themeUiState by themeViewModel.themeSetting.observeAsState()
 
     Scaffold (
         topBar = {
@@ -145,8 +146,8 @@ fun ProfileScreen(
             item {
                 ThemeSettingSelection(
                     modifier = Modifier,
-                    currentTheme = themeUiState.theme.setting,
-                    onThemeChange = { themeViewModel.changeThemeSetting(it) }
+                    currentTheme = themeUiState!!.setting,
+                    onThemeChange = { themeViewModel.updateThemeSetting(it) }
                 )
             }
 
@@ -592,29 +593,29 @@ fun WalkObjectiveBarPreview() {
 
 
 
-@Preview
-@Composable
-fun ThemeSettingSelectionPreview() {
-    ThemeSettingSelection(
-        currentTheme = "dark",
-        onThemeChange = { }
-    )
-}
+//@Preview
+//@Composable
+//fun ThemeSettingSelectionPreview() {
+//    ThemeSettingSelection(
+//        currentTheme = "dark",
+//        onThemeChange = { }
+//    )
+//}
 
 
-@Preview
-@Composable
-fun ProfileItemPreview() {
-    ProfileItem(
-        itemTitle = "Name",
-        itemIcon = Icons.Default.Email,
-        itemText = "john.doe@university.com",
-        canEdit = false,
-        onNewText = {}
-    ) {
-
-    }
-}
+//@Preview
+//@Composable
+//fun ProfileItemPreview() {
+//    ProfileItem(
+//        itemTitle = "Name",
+//        itemIcon = Icons.Default.Email,
+//        itemText = "john.doe@university.com",
+//        canEdit = false,
+//        onNewText = {}
+//    ) {
+//
+//    }
+//}
 
 
 //@Preview

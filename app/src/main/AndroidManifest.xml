@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
-        android:name=".StepCounterApplication"
+        android:name=".PermanentSensorsApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -82,7 +82,11 @@
             android:theme="@style/Theme.AppCompat">
         </activity>
 
-
+        <service
+            android:name=".utils.SensorService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
 
     </application>
 

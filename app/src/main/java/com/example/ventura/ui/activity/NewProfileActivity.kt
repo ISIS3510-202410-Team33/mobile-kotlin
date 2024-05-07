@@ -1,11 +1,6 @@
 package com.example.ventura.ui.activity
 
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -14,7 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModelProvider
-import com.example.ventura.StepCounterApplication
+import com.example.ventura.PermanentSensorsApplication
 import com.example.ventura.ui.screen.ProfileScreen
 import com.example.ventura.ui.theme.ThemeScreen
 import com.example.ventura.ui.viewmodel.ProfileViewModel
@@ -26,16 +21,9 @@ import com.example.ventura.ui.viewmodel.StepCounterViewModelFactory
 private val TAG = "PROFILE_ACTIVITY"
 
 
-class NewProfileActivity : LightSensitiveThemeActivity(), SensorEventListener {
+class NewProfileActivity : LightSensitiveThemeActivity() {
 
-    private val sensorManager: SensorManager by lazy {
-        getSystemService(SENSOR_SERVICE) as SensorManager
-    }
-    private val steps: Sensor? by lazy {
-        sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-    }
     private lateinit var stepCounterViewModel: StepCounterViewModel
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -48,7 +36,7 @@ class NewProfileActivity : LightSensitiveThemeActivity(), SensorEventListener {
 
         stepCounterViewModel = ViewModelProvider(
             this,
-            StepCounterViewModelFactory((application as StepCounterApplication).repository)
+            StepCounterViewModelFactory((application as PermanentSensorsApplication).stepCounterRepository)
         )[StepCounterViewModel::class.java]
 
         stepCounterViewModel.stepCount.observe(this) { stepCount ->
@@ -73,35 +61,6 @@ class NewProfileActivity : LightSensitiveThemeActivity(), SensorEventListener {
                 }
             }
         }
-    }
-
-
-    override fun onResume() {
-        Log.d(TAG, "Resumed")
-        super.onResume()
-        sensorManager.registerListener(this, steps, SensorManager.SENSOR_DELAY_NORMAL)
-    }
-
-
-    override fun onPause() {
-        Log.d(TAG, "Paused")
-        super.onPause()
-        sensorManager.unregisterListener(this)
-    }
-
-
-    override fun onSensorChanged(event: SensorEvent?) {
-        Log.d(TAG, "Sensor changed...")
-        if (event?.sensor?.type == Sensor.TYPE_STEP_COUNTER) {
-            stepCounterViewModel.updateSteps(event)
-        }
-//        Log.d(TAG, "Steps: ${stepCounterViewModel.stepCount.value?.stepsAtNow}")
-    }
-
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        Log.d(TAG, "Accuracy changed...")
-        return
     }
 }
 
