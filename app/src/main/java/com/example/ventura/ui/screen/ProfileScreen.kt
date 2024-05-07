@@ -158,7 +158,7 @@ fun ProfileScreen(
                         Manifest.permission.ACTIVITY_RECOGNITION) !=
                         PackageManager.PERMISSION_GRANTED) {
                     WalkObjectiveBar(
-                        title = "We don't have your permission for this functionality.",
+                        title = "We don't have your permission to count your steps",
                         leftBound = 0,
                         rightBound = 100,
                         currentValue = 0
@@ -190,7 +190,7 @@ fun ProfileScreen(
                         Manifest.permission.ACTIVITY_RECOGNITION) !=
                     PackageManager.PERMISSION_GRANTED) {
                     WalkObjectiveBar(
-                        title = "We don't have your permission for this functionality.",
+                        title = "We don't have your permission to count your steps",
                         leftBound = 0,
                         rightBound = 100,
                         currentValue = 0
