@@ -70,6 +70,7 @@ class NotificationsActivity : AppCompatActivity() {
                             // No hay conexión a Internet
                             textViewNoConnection.visibility = TextView.VISIBLE
                             imageViewNoNet.visibility = ImageView.VISIBLE
+
                         } else {
                             // Hay conexión a Internet
                             textViewNoConnection.visibility = TextView.GONE

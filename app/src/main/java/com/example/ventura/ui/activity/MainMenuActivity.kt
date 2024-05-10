@@ -56,12 +56,9 @@ class MainMenuActivity : AppCompatActivity() {
             val bannerUniandes = findViewById<TextView>(R.id.textView3)
 
             bannerUniandes.setOnClickListener{
-                val fragmentManager = supportFragmentManager
-                val fragmentTransaction = fragmentManager.beginTransaction()
-                val fragment = ImageDialogFragment()
-                fragment.show(fragmentTransaction, "ImageDialogFragment")
+                val intent = Intent(this, CampusImagesActivity::class.java)
+                startActivity(intent)
             }
-
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -270,6 +267,7 @@ class MainMenuActivity : AppCompatActivity() {
             val logOutButton = findViewById<TextView>(R.id.log_out)
 
             logOutButton.setOnClickListener {
+                clearCache(this)
                 clearCredentials()
                 Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
                 val intent = if (isInternetAvailable(this)) {
@@ -386,5 +384,20 @@ class MainMenuActivity : AppCompatActivity() {
         val network = connectivityManager.activeNetwork ?: return false
         val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
         return networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        clearCache(this)
+    }
+
+    private fun clearCache(context: Context) {
+        try {
+            val cacheDir = context.cacheDir
+            cacheDir.deleteRecursively()
+            Log.d("Cache", "Cache cleared successfully")
+        } catch (e: Exception) {
+            Log.e("Cache", "Failed to clear cache: ${e.message}")
+        }
     }
 }
