@@ -8,9 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -21,17 +18,17 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.example.ventura.PermanentSensorsApplication
 import com.example.ventura.R
-import com.example.ventura.ui.fragment.ImageDialogFragment
-import com.example.ventura.utils.FeatureCrashHandler
 import com.example.ventura.ui.viewmodel.WeatherViewModel
 import com.example.ventura.ui.viewmodel.WeatherViewModelFactory
+import com.example.ventura.utils.FeatureCrashHandler
+import com.example.ventura.utils.NetworkHandler
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -39,7 +36,10 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 
 class MainMenuActivity : AppCompatActivity() {
-    private val weatherViewModel: WeatherViewModel by viewModels { WeatherViewModelFactory(this) }
+    private lateinit var app: PermanentSensorsApplication
+    // app context is passed in order to
+    private lateinit var weatherViewModel: WeatherViewModel
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
@@ -47,13 +47,25 @@ class MainMenuActivity : AppCompatActivity() {
     var currentConnection = "ok"
     var sentWeatherNotification = false
 
+    // network utility
+    private lateinit var networkHandler: NetworkHandler
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_main_menu)
 
+            app = application as PermanentSensorsApplication
+            networkHandler = app.networkHandler
+            weatherViewModel = ViewModelProvider(
+                this,
+                WeatherViewModelFactory(app)
+            )[WeatherViewModel::class.java]
+
+            setContentView(R.layout.activity_main_menu)
             val bannerUniandes = findViewById<TextView>(R.id.textView3)
+
+
 
             bannerUniandes.setOnClickListener{
                 val intent = Intent(this, CampusImagesActivity::class.java)
@@ -183,7 +195,7 @@ class MainMenuActivity : AppCompatActivity() {
 
             Thread {
                 while (true) {
-                    val isConnected = isInternetAvailable(this)
+                    val isConnected = networkHandler.isInternetAvailable()
                     runOnUiThread {
                         
                         // sends a log message to the Logcat
@@ -270,7 +282,7 @@ class MainMenuActivity : AppCompatActivity() {
                 clearCache(this)
                 clearCredentials()
                 Toast.makeText(this, "Successfully logged out!", Toast.LENGTH_SHORT).show()
-                val intent = if (isInternetAvailable(this)) {
+                val intent = if (networkHandler.isInternetAvailable()) {
                     Intent(this, LoginActivity::class.java)
                 } else {
                     Intent(this, NoInternetLogin::class.java)
@@ -337,7 +349,7 @@ class MainMenuActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        weatherViewModel.checkInternetConnection(this)
+        weatherViewModel.checkInternetConnection()
     }
 
     override fun onPause() {
@@ -379,12 +391,6 @@ class MainMenuActivity : AppCompatActivity() {
         return email?.substringBefore("@") ?: ""
     }
 
-    private fun isInternetAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
 
     override fun onDestroy() {
         super.onDestroy()

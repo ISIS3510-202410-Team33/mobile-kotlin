@@ -28,7 +28,6 @@ class ProfileRemote (
      * @param id email of the user
      */
     override suspend fun getProfileData(id: String): Profile {
-        // TODO: check that it returns
         val userResponse = profileService.getUserById(id)
         Log.e("profile-remrepo", userResponse.detail)
         val collegeResponse = profileService.getUniversityById(userResponse.college.toString())

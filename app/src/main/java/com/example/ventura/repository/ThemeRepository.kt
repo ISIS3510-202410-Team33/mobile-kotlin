@@ -6,7 +6,7 @@ import android.util.Log
 import com.example.ventura.data.models.Theme
 
 
-private val TAG = "THEME_REPOSITORY"
+private val TAG = "ThemeRepository"
 
 
 class ThemeRepository(

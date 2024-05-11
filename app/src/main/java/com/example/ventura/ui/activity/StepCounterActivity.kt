@@ -3,7 +3,7 @@ package com.example.ventura.ui.activity
 import androidx.activity.ComponentActivity
 
 
-private const val TAG = "STEP_COUNTER_ACTIVITY"
+private const val TAG = "StepCounterActivity"
 
 
 class StepCounterActivity : ComponentActivity() {

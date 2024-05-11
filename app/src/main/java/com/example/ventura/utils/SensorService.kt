@@ -15,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private const val TAG = "SENSOR_SERVICE"
+private const val TAG = "SensorService"
 
 
 /**
@@ -62,7 +62,7 @@ class SensorService : Service(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         Log.d(TAG, "Sensor changed")
         event?.sensor?.type?.let {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(Dispatchers.Default).launch {
                 try {
                     sensorModel.processSensorEvent(event)
                 } catch (e: Exception) {

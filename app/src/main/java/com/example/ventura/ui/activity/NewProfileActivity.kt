@@ -18,7 +18,7 @@ import com.example.ventura.ui.viewmodel.StepCounterViewModel
 import com.example.ventura.ui.viewmodel.StepCounterViewModelFactory
 
 
-private val TAG = "PROFILE_ACTIVITY"
+private val TAG = "NewProfileActivity"
 
 
 class NewProfileActivity : LightSensitiveThemeActivity() {

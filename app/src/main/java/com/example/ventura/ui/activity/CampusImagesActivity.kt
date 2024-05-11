@@ -1,21 +1,19 @@
 package com.example.ventura.ui.activity
 
-import android.content.Context
-import android.net.ConnectivityManager
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.ventura.PermanentSensorsApplication
 import com.example.ventura.R
 import com.example.ventura.utils.FeatureCrashHandler
+import com.example.ventura.utils.NetworkHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,6 +22,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class CampusImagesActivity: AppCompatActivity() {
+    private lateinit var app: PermanentSensorsApplication
+
+    // network utility
+    private lateinit var networkHandler: NetworkHandler
 
     private val featureCrashHandler = FeatureCrashHandler("campus_images")
     private lateinit var imagesRecyclerView: RecyclerView
@@ -35,6 +37,10 @@ class CampusImagesActivity: AppCompatActivity() {
         {
             // Activity UI set
             super.onCreate(savedInstanceState)
+
+            app = application as PermanentSensorsApplication
+            networkHandler = app.networkHandler
+
             setContentView(R.layout.campus_images)
 
             // Find view elements and initialize them
@@ -70,7 +76,7 @@ class CampusImagesActivity: AppCompatActivity() {
 
             internetJob = CoroutineScope(Dispatchers.IO).launch {
                 while (isActive) {
-                    val isConnected = isInternetConnected()
+                    val isConnected = networkHandler.isInternetAvailable()
                     updateMainText(isConnected)
                     delay(1000) // Verificar la conexión cada segundo
                 }
@@ -86,12 +92,6 @@ class CampusImagesActivity: AppCompatActivity() {
 
     }
 
-    private fun isInternetConnected(): Boolean {
-        val connectivityManager =
-            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = connectivityManager.activeNetworkInfo
-        return networkInfo != null && networkInfo.isConnected
-    }
 
     private fun updateMainText(isConnected: Boolean) {
         runOnUiThread {

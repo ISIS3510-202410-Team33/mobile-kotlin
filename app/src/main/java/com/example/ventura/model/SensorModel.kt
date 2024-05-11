@@ -7,7 +7,7 @@ import com.example.ventura.repository.LightSensitiveThemeRepository
 import com.example.ventura.repository.StepCounterRepository
 
 
-private val TAG = "SENSOR_MODEL"
+private val TAG = "SensorModel"
 
 
 class SensorModel(

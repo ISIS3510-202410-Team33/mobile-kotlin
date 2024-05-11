@@ -8,12 +8,13 @@ import com.example.ventura.repository.LightSensitiveThemeRepository
 import com.example.ventura.repository.StepCountDatabase
 import com.example.ventura.repository.StepCounterRepository
 import com.example.ventura.repository.ThemeRepository
+import com.example.ventura.utils.NetworkHandler
 import com.example.ventura.utils.SensorService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
 
-private val TAG = "PERMANENT_SENSORS_APP"
+private val TAG = "PermanentSensorsApplication"
 
 
 class PermanentSensorsApplication : Application() {
@@ -29,14 +30,29 @@ class PermanentSensorsApplication : Application() {
 
     val sensorModel by lazy { SensorModel(stepCounterRepository, lightRepository) }
 
+    private val sensorServiceIntent by lazy { Intent(this, SensorService::class.java) }
+
+    // network utility
+    // TODO: change visibility to prevent problems
+    lateinit var networkHandler: NetworkHandler
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Created")
 
-        // starts the sensor service
-        val serviceIntent = Intent(this, SensorService::class.java)
-        startService(serviceIntent)
+        // starts necesary services
+        startService(sensorServiceIntent)
+
+        // creates network handler
+        networkHandler = NetworkHandler(this)
         // TODO: manage crashes
+    }
+
+
+    override fun onTerminate() {
+        super.onTerminate()
+
+        stopService(sensorServiceIntent)
     }
 }
 
