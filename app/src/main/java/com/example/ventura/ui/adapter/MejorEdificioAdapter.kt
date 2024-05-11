@@ -14,6 +14,8 @@ import com.example.ventura.R
 class MejorEdificioAdapter(private val mejorEdificioList: MutableList<String>) :
     RecyclerView.Adapter<MejorEdificioAdapter.MejorEdificioViewHolder>() {
 
+        private lateinit var url: String
+
     class MejorEdificioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nombreEdificioTextView: TextView = itemView.findViewById(R.id.nombreEdificioTextView)
         val notificationDescription: TextView = itemView.findViewById(R.id.textView14)
@@ -34,7 +36,17 @@ class MejorEdificioAdapter(private val mejorEdificioList: MutableList<String>) :
 
         holder.visitButton.setOnClickListener {
             val context = holder.itemView.context
-            val url = "https://campusinfo.uniandes.edu.co/es/recursos/edificios/bloquew"
+
+            url = when {
+                "Japan Center" in mejorEdificio -> "https://centrodeljapon.uniandes.edu.co/"
+                "W building" in mejorEdificio -> "https://campusinfo.uniandes.edu.co/es/recursos/edificios/bloquew"
+                "ML Building" in mejorEdificio -> "https://campusinfo.uniandes.edu.co/es/recursos/edificios/bloqueml"
+                "ML Building" in mejorEdificio -> "https://campusinfo.uniandes.edu.co/es/recursos/edificios/bloquew"
+                "RGD Building" in mejorEdificio -> "https://uniandes.edu.co/es/noticias/arquitectura-y-diseno/centro-civico-universitario-un-gran-espacio-pedagogico"
+                "SD Building" in mejorEdificio -> "https://campusinfo.uniandes.edu.co/es/recursos/edificios/bloquesd"
+                else -> "https://uniandes.edu.co/"
+            }
+
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
             if (intent.resolveActivity(context.packageManager) == null) {
