@@ -62,7 +62,7 @@ class SensorService : Service(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         Log.d(TAG, "Sensor changed")
         event?.sensor?.type?.let {
-            CoroutineScope(Dispatchers.Default).launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 try {
                     sensorModel.processSensorEvent(event)
                 } catch (e: Exception) {
