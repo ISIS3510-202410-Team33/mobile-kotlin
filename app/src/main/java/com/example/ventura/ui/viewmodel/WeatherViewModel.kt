@@ -1,5 +1,6 @@
 package com.example.ventura.ui.viewmodel
 
+import android.app.Application
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class WeatherViewModel(private val model: WeatherModel) : ViewModel() {
     val weatherLiveData = MutableLiveData<WeatherResponse?>()
-    val isInternetAvailable = MutableLiveData<Boolean>()
+    private val isInternetAvailable = MutableLiveData<Boolean>()
 
     fun getWeather(context: Context, lat: Double, lon: Double) {
         viewModelScope.launch {
@@ -20,18 +21,20 @@ class WeatherViewModel(private val model: WeatherModel) : ViewModel() {
         }
     }
 
-    fun checkInternetConnection(context: Context) {
+    fun checkInternetConnection() {
         viewModelScope.launch {
-            val isConnected = model.checkInternetConnection(context)
+            val isConnected = model.checkInternetConnection()
             isInternetAvailable.postValue(isConnected)
         }
     }
 }
 
-class WeatherViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class WeatherViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WeatherViewModel::class.java)) {
-            val model = WeatherModel()
+
+            // application context passed to use network Handler
+            val model = WeatherModel(application)
             @Suppress("UNCHECKED_CAST")
             return WeatherViewModel(model) as T
         }

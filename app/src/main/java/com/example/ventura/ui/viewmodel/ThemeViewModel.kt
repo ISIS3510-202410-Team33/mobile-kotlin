@@ -10,7 +10,7 @@ import com.example.ventura.repository.LightSensitiveThemeRepository
 import com.example.ventura.repository.ThemeRepository
 
 
-private val TAG = "THEME_VIEWMODEL"
+private val TAG = "ThemeViewModel"
 
 
 class ThemeViewModelFactory(

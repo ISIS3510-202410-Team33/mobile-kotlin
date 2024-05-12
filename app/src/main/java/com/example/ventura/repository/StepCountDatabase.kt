@@ -30,9 +30,6 @@ public abstract class StepCountDatabase : RoomDatabase() {
     }
 
 
-
-
-
     companion object {
         // singleton to only have one open instance
         @Volatile

@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
-private val TAG = "STEP_COUNTER_REPOSITORY"
+private val TAG = "StepCounterRepository"
 
 
 class StepCounterRepository(

@@ -9,7 +9,7 @@ import com.example.ventura.data.ui.StepCountUi
 import com.example.ventura.repository.StepCounterRepository
 
 
-private val TAG = "STEP_COUNTER_VIEWMODEL"
+private val TAG = "StepCounterViewModel"
 
 data class StepCounterUiState(
     val stepCountUi: StepCountUi = StepCountUi()
