@@ -79,7 +79,7 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.datastore.core.android)
 //    implementation(libs.androidx.material3.android)
-    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.14.2")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.android.gms:play-services-location:18.0.0")
@@ -98,6 +98,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation(libs.material)
     implementation(libs.androidx.activity)
+
+    // Glide integration for Compose. Fails with one of Juan's fragments, so must not use
+    //implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.2.2")
 
     // Room components
 
