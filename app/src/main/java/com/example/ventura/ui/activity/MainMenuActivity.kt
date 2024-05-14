@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.example.ventura.PermanentSensorsApplication
 import com.example.ventura.R
 import com.example.ventura.ui.viewmodel.WeatherViewModel
@@ -64,7 +65,6 @@ class MainMenuActivity : AppCompatActivity() {
 
             setContentView(R.layout.activity_main_menu)
             val bannerUniandes = findViewById<TextView>(R.id.textView3)
-
 
 
             bannerUniandes.setOnClickListener{
@@ -119,6 +119,8 @@ class MainMenuActivity : AppCompatActivity() {
             val weatherMessageTextView = findViewById<TextView>(R.id.weatherMessageTextView)
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+            Glide.with(this).load(R.drawable.load3).into(weatherIconImageView)
+
             weatherViewModel.weatherLiveData.observe(this, Observer { weatherResponse ->
 
                 if (weatherResponse != null) {
@@ -151,7 +153,7 @@ class MainMenuActivity : AppCompatActivity() {
 
                         else -> R.drawable.cloud
                     }
-                    weatherIconImageView.setImageResource(weatherIconResource)
+                    Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
                     humidityTextView.text = "Humidity: $humidity%"
 
                     if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
@@ -186,7 +188,7 @@ class MainMenuActivity : AppCompatActivity() {
                     val weatherIconResource = R.drawable.error
                     val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                     relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                    weatherIconImageView.setImageResource(weatherIconResource)
+                    Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
 
                 }
 
@@ -205,6 +207,19 @@ class MainMenuActivity : AppCompatActivity() {
                             if (currentConnection == "offline") {
                                 Toast.makeText(this, "Connection restored, weather info will show up shortly", Toast.LENGTH_SHORT).show()
                                 currentConnection = "ok"
+
+
+                                weatherTextView.text = "Loading weather data..."
+                                temperatureTextView.text = "Loading weather data..."
+                                humidityTextView.text = "Loading weather data..."
+                                cityTextView.text = "Loading city..."
+
+                                // change the icon and background to indicate offline status
+                                val weatherIconResource = R.drawable.load3
+                                val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                                relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
+                                Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+
                             }
                             if (ActivityCompat.checkSelfPermission(
                                     this, Manifest.permission.ACCESS_FINE_LOCATION
@@ -262,7 +277,7 @@ class MainMenuActivity : AppCompatActivity() {
                             val weatherIconResource = R.drawable.error
                             val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                             relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                            weatherIconImageView.setImageResource(weatherIconResource)
+                            Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
 
 
                         }
