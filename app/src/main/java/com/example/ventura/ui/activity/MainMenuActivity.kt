@@ -45,11 +45,9 @@ class MainMenuActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
-    var currentConnection = "ok"
-    var sentWeatherNotification = false
-
-    // Java thread to check internet connection and update UI
-    private var networkThread: Thread? = null
+    private var currentConnection = "ok"
+    private var sentWeatherNotification = false
+    private var activityAlreadyDestroyed = false
 
 
     // network utility
@@ -101,7 +99,7 @@ class MainMenuActivity : AppCompatActivity() {
 
             locationRequest = LocationRequest.create().apply {
                 interval = 10000
-                fastestInterval = 5000
+                fastestInterval = 10000
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
 
@@ -181,7 +179,7 @@ class MainMenuActivity : AppCompatActivity() {
                 } else {
 
                     if (currentConnection == "ok") {
-                        Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "You have lost internet connection", Toast.LENGTH_SHORT).show()
                         // sendOfflineNotification()
                         currentConnection = "offline"
                     }
@@ -206,17 +204,21 @@ class MainMenuActivity : AppCompatActivity() {
 
             })
 
-            networkThread = Thread(Runnable {
-                while (true) {
+            Thread {
+                while (!Thread.currentThread().isInterrupted && !activityAlreadyDestroyed){
                     val isConnected = networkHandler.isInternetAvailable()
                     runOnUiThread {
-                        
+
                         // sends a log message to the Logcat
                         Log.d("Internet", "Internet connection: $isConnected")
 
                         if (isConnected) {
                             if (currentConnection == "offline") {
-                                Toast.makeText(this, "Connection restored, weather info will show up shortly", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Connection restored",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 currentConnection = "ok"
 
 
@@ -227,11 +229,13 @@ class MainMenuActivity : AppCompatActivity() {
 
                                 // change the icon and background to indicate offline status
                                 val weatherIconResource = R.drawable.load3
-                                val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                                val relativeLayout =
+                                    findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                                 relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
                                 if (!isFinishing && !isDestroyed) {
 
-                                    Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                                    Glide.with(this).load(weatherIconResource)
+                                        .into(weatherIconImageView)
                                 }
 
                             }
@@ -248,13 +252,18 @@ class MainMenuActivity : AppCompatActivity() {
                                     1
                                 )
                             } else {
-                                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+                                fusedLocationClient.requestLocationUpdates(
+                                    locationRequest,
+                                    locationCallback,
+                                    null
+                                )
                             }
 
                             // checks permission for physical activity / step sensor
                             if (ActivityCompat.checkSelfPermission(
-                                this, Manifest.permission.ACTIVITY_RECOGNITION
-                            ) != PackageManager.PERMISSION_GRANTED) {
+                                    this, Manifest.permission.ACTIVITY_RECOGNITION
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
                                 ActivityCompat.requestPermissions(
                                     this,
                                     arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
@@ -265,7 +274,8 @@ class MainMenuActivity : AppCompatActivity() {
                             // checks permission for camera / light sensor
                             if (ActivityCompat.checkSelfPermission(
                                     this, Manifest.permission.CAMERA
-                                ) != PackageManager.PERMISSION_GRANTED) {
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
                                 ActivityCompat.requestPermissions(
                                     this,
                                     arrayOf(Manifest.permission.CAMERA),
@@ -276,7 +286,11 @@ class MainMenuActivity : AppCompatActivity() {
 
                         } else {
                             if (currentConnection == "ok") {
-                                Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "You have lost internet connection",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 // sendOfflineNotification()
                                 currentConnection = "offline"
                             }
@@ -289,11 +303,13 @@ class MainMenuActivity : AppCompatActivity() {
 
                             // change the icon and background to indicate offline status
                             val weatherIconResource = R.drawable.error
-                            val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                            val relativeLayout =
+                                findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                             relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
                             if (!isFinishing && !isDestroyed) {
 
-                                Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                                Glide.with(this).load(weatherIconResource)
+                                    .into(weatherIconImageView)
                             }
 
 
@@ -308,9 +324,7 @@ class MainMenuActivity : AppCompatActivity() {
                     }
 
                 }
-            })
-
-            networkThread?.start()
+            }.start()
 
             val buttonProfile = findViewById<Button>(R.id.buttonProfile)
             val buttonMap = findViewById<Button>(R.id.buttonMap)
@@ -371,12 +385,17 @@ class MainMenuActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         weatherViewModel.checkInternetConnection()
+
     }
 
     override fun onPause() {
         try {
             super.onPause()
             stopLocationUpdates()
+
+            // interrupts the current thread in order to avoid memory leaks
+            Thread.currentThread().interrupt()
+
         } catch (e: Exception) { featureCrashHandler.logCrash("pause", e); }
     }
 
@@ -417,11 +436,11 @@ class MainMenuActivity : AppCompatActivity() {
         super.onDestroy()
         clearCache(this)
 
-        // stop the network thread
-        // BUT APPARENTLY JAVA THREADS CANT BE INTERRUPTED WHEN THEY ARE SLEEPING
-        // SO WE CATCH THE EXCEPTION AND RESTORE THE INTERRUPTED STATUS
+        // interrupts the current thread in order to avoid memory leaks
+        Thread.currentThread().interrupt()
+        activityAlreadyDestroyed = true
 
-        networkThread?.interrupt()
+
     }
 
     private fun clearCache(context: Context) {
