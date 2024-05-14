@@ -48,6 +48,10 @@ class MainMenuActivity : AppCompatActivity() {
     var currentConnection = "ok"
     var sentWeatherNotification = false
 
+    // Java thread to check internet connection and update UI
+    private var networkThread: Thread? = null
+
+
     // network utility
     private lateinit var networkHandler: NetworkHandler
 
@@ -96,8 +100,8 @@ class MainMenuActivity : AppCompatActivity() {
             dateTextView.text = date
 
             locationRequest = LocationRequest.create().apply {
-                interval = 1000
-                fastestInterval = 1000
+                interval = 10000
+                fastestInterval = 5000
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
 
@@ -119,8 +123,9 @@ class MainMenuActivity : AppCompatActivity() {
             val weatherMessageTextView = findViewById<TextView>(R.id.weatherMessageTextView)
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-            Glide.with(this).load(R.drawable.load3).into(weatherIconImageView)
-
+            if (!isFinishing && !isDestroyed) {
+                Glide.with(this).load(R.drawable.load3).into(weatherIconImageView)
+            }
             weatherViewModel.weatherLiveData.observe(this, Observer { weatherResponse ->
 
                 if (weatherResponse != null) {
@@ -153,7 +158,10 @@ class MainMenuActivity : AppCompatActivity() {
 
                         else -> R.drawable.cloud
                     }
-                    Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                    if (!isFinishing && !isDestroyed) {
+                        
+                        Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                    }
                     humidityTextView.text = "Humidity: $humidity%"
 
                     if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
@@ -188,14 +196,17 @@ class MainMenuActivity : AppCompatActivity() {
                     val weatherIconResource = R.drawable.error
                     val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                     relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                    Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                    if (!isFinishing && !isDestroyed) {
+
+                        Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                    }
 
                 }
 
 
             })
 
-            Thread {
+            networkThread = Thread(Runnable {
                 while (true) {
                     val isConnected = networkHandler.isInternetAvailable()
                     runOnUiThread {
@@ -218,7 +229,10 @@ class MainMenuActivity : AppCompatActivity() {
                                 val weatherIconResource = R.drawable.load3
                                 val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                                 relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                                Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                                if (!isFinishing && !isDestroyed) {
+
+                                    Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                                }
 
                             }
                             if (ActivityCompat.checkSelfPermission(
@@ -277,16 +291,26 @@ class MainMenuActivity : AppCompatActivity() {
                             val weatherIconResource = R.drawable.error
                             val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                             relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                            Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                            if (!isFinishing && !isDestroyed) {
+
+                                Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                            }
 
 
                         }
                     }
 
-                    Thread.sleep(5000)
+                    try {
+                        Thread.sleep(5000)
+                    } catch (e: InterruptedException) {
+                        // Restore the interrupted status
+                        Thread.currentThread().interrupt()
+                    }
 
                 }
-            }.start()
+            })
+
+            networkThread?.start()
 
             val buttonProfile = findViewById<Button>(R.id.buttonProfile)
             val buttonMap = findViewById<Button>(R.id.buttonMap)
@@ -392,6 +416,12 @@ class MainMenuActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         clearCache(this)
+
+        // stop the network thread
+        // BUT APPARENTLY JAVA THREADS CANT BE INTERRUPTED WHEN THEY ARE SLEEPING
+        // SO WE CATCH THE EXCEPTION AND RESTORE THE INTERRUPTED STATUS
+
+        networkThread?.interrupt()
     }
 
     private fun clearCache(context: Context) {
