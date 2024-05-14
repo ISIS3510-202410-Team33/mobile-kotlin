@@ -16,22 +16,29 @@ import com.example.ventura.ui.viewmodel.ProfileViewModel
 import com.example.ventura.ui.viewmodel.ProfileViewModelFactory
 import com.example.ventura.ui.viewmodel.StepCounterViewModel
 import com.example.ventura.ui.viewmodel.StepCounterViewModelFactory
+import com.example.ventura.utils.NetworkHandler
 
 
 private val TAG = "NewProfileActivity"
 
 
 class NewProfileActivity : LightSensitiveThemeActivity() {
-
+    private lateinit var app: PermanentSensorsApplication
     private lateinit var stepCounterViewModel: StepCounterViewModel
+
+    // network utility
+    private lateinit var networkHandler: NetworkHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        app = application as PermanentSensorsApplication
+        networkHandler = app.networkHandler
+
         val profileViewModel: ProfileViewModel = ViewModelProvider(
             this,
-            ProfileViewModelFactory(application)
+            ProfileViewModelFactory(app, networkHandler)
         )[ProfileViewModel::class.java]
 
         stepCounterViewModel = ViewModelProvider(

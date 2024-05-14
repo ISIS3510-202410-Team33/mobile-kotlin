@@ -8,7 +8,8 @@ package com.example.ventura.data.models
  */
 data class Profile(
 //    val profileImage: Int,
-    val name: String,
-    val email: String,
-    val universityName: String
+    val id: Int = -1,
+    val name: String = "Guest",
+    val email: String = "Unavailable",
+    val universityName: String = "Unavailable"
 )

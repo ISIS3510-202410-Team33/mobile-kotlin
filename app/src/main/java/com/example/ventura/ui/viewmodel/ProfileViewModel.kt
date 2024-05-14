@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.ventura.data.models.Profile
 import com.example.ventura.model.ProfileModel
+import com.example.ventura.utils.NetworkHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,18 +15,25 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
+private val TAG = "ProfileViewModel"
+
 /**
  * Data class for the profile
  */
 data class ProfileUiState(
-    val profile: Profile = Profile("","","")
+    val profile: Profile = Profile(),
+    val putInternetFail: Boolean = false,
+    val getInternetFail: Boolean = false
 )
 
-class ProfileViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+class ProfileViewModelFactory(
+    private val application: Application,
+    private val networkHandler: NetworkHandler
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return ProfileViewModel(application) as T
+            return ProfileViewModel(application, networkHandler) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
@@ -37,7 +45,10 @@ class ProfileViewModelFactory(private val application: Application) : ViewModelP
  * ViewModel for the Profile info. Contains all important
  * user info displayed on the ProfileScreen
  */
-class ProfileViewModel(application: Application) : ViewModel() {
+class ProfileViewModel(
+    application: Application,
+    private val networkHandler: NetworkHandler
+) : ViewModel() {
     private val profileModel = ProfileModel(application)
 
     // inner object, modifiable by the ViewModel
@@ -56,14 +67,16 @@ class ProfileViewModel(application: Application) : ViewModel() {
 
 
     fun refreshProfileData() {
-        Log.d("profile-vm", "Refreshing profile data")
-        _uiState.value = ProfileUiState(profile = profileModel.getProfileDataFromCache())
+        Log.d(TAG, "Refreshing profile data")
 
-//        viewModelScope.launch(Dispatchers.Default) {
-//            Log.d("profile-vm", "Retrieved remote profile is ")
-//            val remoteFetchedProfile = profileModel.getProfileDataFromRemote()
-//            _uiState.value = ProfileUiState(profile = remoteFetchedProfile)
-//        }
+        viewModelScope.launch {
+            _uiState.value = ProfileUiState(
+                profile = profileModel.getProfileData(
+                    fromRemote = networkHandler.isInternetAvailable()
+                ),
+                getInternetFail = !networkHandler.isInternetAvailable(),
+            )
+        }
     }
 
 
@@ -109,16 +122,39 @@ class ProfileViewModel(application: Application) : ViewModel() {
     }
 
 
-    fun updateProfileCache() {
-        Log.d("profile-vm", "Profile data updated")
-        profileModel.updateProfileDataToCache(uiState.value.profile)
+    fun updateProfile(
+        toRemote: Boolean = false
+    ) {
+        Log.d(TAG, "Cached profile data updated")
+        viewModelScope.launch {
+            profileModel.updateProfileData(
+                newProfile = uiState.value.profile,
+                toCache = true,
+                toRemote = toRemote && networkHandler.isInternetAvailable()
+            )
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    putInternetFail = toRemote && !networkHandler.isInternetAvailable()
+                )
+            }
+        }
     }
 
 
     fun updateProfileRemote() {
-        Log.d("profile-vm", "Profile data updated remotely")
+        Log.d(TAG, "Remote profile data updated")
         viewModelScope.launch {
-            profileModel.updateProfileDataToRemote()
+            profileModel.updateProfileData(
+                newProfile = uiState.value.profile,
+                toCache = true,
+                toRemote = true
+            )
         }
+    }
+
+
+    fun checkInternetStatus(): Boolean {
+        return networkHandler.isInternetAvailable()
     }
 }
