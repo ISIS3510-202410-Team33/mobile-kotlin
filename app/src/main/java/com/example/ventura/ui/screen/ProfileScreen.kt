@@ -224,6 +224,7 @@ fun ProfileScreen(
                         "Could not fetch profile data from the server. Check your internet connection.",
                         Toast.LENGTH_SHORT
                     ).show()
+                    profileViewModel.disableGetFailWarning()
                 }
 
                 if (profileUiState.putInternetFail) {
@@ -232,6 +233,7 @@ fun ProfileScreen(
                         "Could not update profile data to the server. Check your internet connection.",
                         Toast.LENGTH_SHORT
                     ).show()
+                    profileViewModel.disablePutFailWarning()
                 }
             }
         }
