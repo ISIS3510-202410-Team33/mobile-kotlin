@@ -5,17 +5,24 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -28,10 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ventura.data.models.Building
 import com.example.ventura.data.models.Site
+import com.example.ventura.data.remote.SiteResponse
 import com.example.ventura.ui.viewmodel.HighPrecisionRouteViewModel
 
 private val TAG = "HighPrecisionRouteScreen"
@@ -51,6 +61,9 @@ fun HighPrecisionRouteScreen(
                 modifier = Modifier,
                 backToMainMenu = { }
             )
+        },
+        bottomBar = {
+            Box(modifier = Modifier.padding(bottom = mediumPadding))
         }
 
     ) {
@@ -111,16 +124,72 @@ fun HighPrecisionRouteScreen(
             item {
                 if (highPrecisionRouteUiState.currentNodePath == null) {
                     // unavailable
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+
+                    }
                     Text(
                         text = "Follow the guiding images to your destination here!",
-                        modifier = Modifier.padding(largePadding)
+                        modifier = Modifier.padding(largePadding),
+                        textAlign = TextAlign.Center
                     )
                 } else {
-                    SiteImageNetwork(url = highPrecisionRouteUiState.currentNodePath!!, context = context)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Absolute.SpaceAround
+                    ) {
+                        GuidingInstruction(
+                            currentSite = highPrecisionRouteUiState.route!!.sites[highPrecisionRouteUiState.currentNodeIndex!!],
+                            totalDistance = highPrecisionRouteUiState.route!!.distance
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Absolute.SpaceAround
+                    ) {
+
+                        MoveSiteImageButton(
+                            onClick = { highPrecisionRouteViewModel.setPreviousNode() },
+                            disableCondition = highPrecisionRouteUiState.currentNodeIndex == 0,
+                            imageVector = Icons.Default.KeyboardArrowLeft
+                        )
+                        SiteImageNetwork(url = highPrecisionRouteUiState.currentNodePath!!, context = context)
+                        MoveSiteImageButton(
+                            onClick = { highPrecisionRouteViewModel.setNextNode() },
+                            disableCondition = highPrecisionRouteUiState.currentNodeIndex == highPrecisionRouteUiState.route!!.sites.size - 1,
+                            imageVector = Icons.Default.KeyboardArrowRight
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+fun GuidingInstruction(
+    modifier: Modifier = Modifier,
+    currentSite: SiteResponse,
+    totalDistance: Int
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Total distance: $totalDistance",
+            modifier = modifier,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = "Head to ${currentSite.name}",
+            modifier = modifier,
+            textAlign = TextAlign.Center,
+        )
+    }
+
 }
 
 
@@ -267,6 +336,32 @@ fun TakeMeThereButton(
             .fillMaxWidth()
     ) {
         Text("Take me there!")
+    }
+}
+
+
+@Composable
+fun MoveSiteImageButton(
+    modifier: Modifier = Modifier,
+    imageVector: ImageVector,
+    disableCondition: Boolean = true,
+    onClick: () -> Unit
+) {
+    IconButton(
+        // Disable the button if isFirst is true
+        enabled = !disableCondition,
+        onClick = {
+            if (!disableCondition) {
+                onClick()
+            }
+        }
+    ) {
+        Icon(
+            modifier = modifier
+                .size(mediumIcon),
+            imageVector = imageVector,
+            contentDescription = "Previous Site"
+        )
     }
 }
 
