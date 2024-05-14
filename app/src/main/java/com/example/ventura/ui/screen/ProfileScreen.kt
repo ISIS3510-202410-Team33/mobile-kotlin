@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
@@ -38,7 +37,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -75,7 +72,7 @@ val smallIcon = 56.dp
 val mediumIcon = 64.dp
 val maxTextBoxWidth = 200.dp
 
-private val TAG = "PROFILE_SCREEN"
+private val TAG = "ProfileScreen"
 
 
 @Composable
@@ -93,7 +90,7 @@ fun ProfileScreen(
 
     Scaffold (
         topBar = {
-            ProfileTopAppBar(
+            PersonalizedTopBar(
                 modifier = Modifier,
                 backToMainMenu = backToMainMenu
             )
@@ -216,51 +213,6 @@ fun ProfileScreen(
             }
         }
     }
-}
-
-
-@Composable
-private fun ProfileTopAppBar(
-    modifier: Modifier = Modifier,
-    backToMainMenu: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(mediumPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.Right
-
-            ) {
-                IconButton(
-                    modifier = modifier
-                        .padding(smallPadding),
-                    onClick = backToMainMenu
-                ) {
-                    Icon(
-                        modifier = modifier
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(smallPadding)
-                            .size(mediumIcon)
-                        ,
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back to main menu",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-//                Text(
-//                    modifier = modifier
-//                        .padding(smallPadding),
-//                    text = "Profile",
-//                    style = MaterialTheme.typography.displayLarge,
-//                    color = MaterialTheme.colorScheme.secondary
-//                )
-            }
-        },
-        modifier = modifier.background(Color.Transparent)
-    )
 }
 
 
