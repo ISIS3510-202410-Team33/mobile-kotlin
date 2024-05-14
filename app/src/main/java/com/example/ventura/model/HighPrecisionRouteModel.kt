@@ -21,7 +21,7 @@ class HighPrecisionRouteModel(
      * Returns the saved university ID
      */
     suspend fun getUniversityId(): Int {
-        return sharedPreferences.getInt("university", MONSTERS_UNIVERSITY)
+        return sharedPreferences.getInt("universityId", MONSTERS_UNIVERSITY)
     }
 
 
@@ -30,7 +30,7 @@ class HighPrecisionRouteModel(
      */
     suspend fun getBuildingsByUniversity(): List<Building> {
         return highPrecisionRouteRepository.getBuildingsByUniversity(
-            sharedPreferences.getInt("university", MONSTERS_UNIVERSITY)
+            sharedPreferences.getInt("universityId", MONSTERS_UNIVERSITY)
         )
     }
 

@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -92,7 +93,10 @@ fun ProfileScreen(
         topBar = {
             PersonalizedTopBar(
                 modifier = Modifier,
-                backToMainMenu = backToMainMenu
+                backToMainMenu = {
+                    backToMainMenu()
+                    profileViewModel.updateProfile(toRemote = true)
+                }
             )
         }
     ) { it ->
@@ -112,7 +116,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Filled.Person,
                     itemText = profileUiState.profile.name,
                     canEdit = true,
-                    onBoxExit = { profileViewModel.updateProfileCache() },
+                    onBoxExit = { profileViewModel.updateProfile() },
                     onNewText = { profileViewModel.changeProfileName(it) }
                 )
             }
@@ -123,7 +127,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Default.Email,
                     itemText = profileUiState.profile.email,
                     canEdit = false,
-                    onBoxExit = { profileViewModel.updateProfileCache() },
+                    onBoxExit = { profileViewModel.updateProfile() },
                     onNewText = { profileViewModel.changeProfileEmail(it) }
                 )
             }
@@ -135,7 +139,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Default.Home,
                     itemText = profileUiState.profile.universityName,
                     canEdit = false,
-                    onBoxExit = { profileViewModel.updateProfileCache() },
+                    onBoxExit = { profileViewModel.updateProfile() },
                     onNewText = { profileViewModel.changeProfileUniversity(it) }
                 )
             }
@@ -211,6 +215,25 @@ fun ProfileScreen(
                     )
                 }
             }
+
+            // Error message
+            item {
+                if (profileUiState.getInternetFail) {
+                    Toast.makeText(
+                        context,
+                        "Could not fetch profile data from the server. Check your internet connection.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                if (profileUiState.putInternetFail) {
+                    Toast.makeText(
+                        context,
+                        "Could not update profile data to the server. Check your internet connection.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 }
@@ -237,7 +260,7 @@ private fun ProfileImage(
                 .clip(CircleShape)
                 .size(200.dp)
             ,
-            painter = painterResource(R.drawable.john_doe_profile_picture),
+            painter = painterResource(R.drawable.profile_image),
             contentDescription = null,
             contentScale = ContentScale.Crop
         )

@@ -12,7 +12,7 @@ private const val TAG = "NetworkHandler"
 /**
  * Service to monitor and manage network connections
  */
-class NetworkHandler(
+open class NetworkHandler(
     application: Application
 ) {
 
@@ -33,7 +33,7 @@ class NetworkHandler(
     }
 
 
-    fun isInternetAvailable(): Boolean {
+    open fun isInternetAvailable(): Boolean {
         Log.d(TAG, "Internet availability requested")
         // active network must be checked each time
         val network = connectivityManager.activeNetwork ?: return false

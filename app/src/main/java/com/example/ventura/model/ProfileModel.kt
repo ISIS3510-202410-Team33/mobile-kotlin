@@ -7,44 +7,102 @@ import com.example.ventura.data.models.Profile
 import com.example.ventura.repository.ProfileCache
 import com.example.ventura.repository.ProfileRemote
 
+
+private val TAG = "ProfileModel"
+
 class ProfileModel(application: Application) {
     private val profileCache = ProfileCache(application)
-    private val profileRemote = ProfileRemote(
-        backendUrl = "https://ventura-backend-jaj1.onrender.com/"
-    )
+    private val profileRemote = ProfileRemote(backendUrl = "http://192.168.1.187:42069", application)
     private val sharedPreferences = application.getSharedPreferences("MyPrefs", MODE_PRIVATE)
+
+
+    suspend fun setFirstTime() {
+        val profile = profileRemote.getProfileData(
+            sharedPreferences.getString("email", "sullivan@mu.edu")!!
+        )
+
+        with (sharedPreferences.edit()) {
+            putInt("id", profile.id)
+            putString("name", profile.name)
+            putString("universityName", profile.universityName)
+        }
+    }
+
 
     /**
      * Returns current profile data from cache
      */
-    fun getProfileDataFromCache(): Profile {
-        Log.d("profile-model", "Getting profile from cache")
-        return  profileCache.getProfileData()
+    suspend fun getProfileDataFromCache(): Profile {
+        Log.d(TAG, "Getting profile from cache")
+        return  profileCache.getProfileData("")
     }
 
     /**
      * Returns current profile data from remote and updates the caché
      */
     suspend fun getProfileDataFromRemote(): Profile {
-        Log.d("profile-model", "Getting profile from network on caché")
+        Log.d(TAG, "Getting profile from network on caché")
 
         val profile = profileRemote.getProfileData(
             sharedPreferences.getString("loginId", "1")!!
         )
 
         // caché data updated
-        updateProfileDataToCache(profile)
+        updateProfileData(profile, toCache = true, toRemote = false)
 
         return profileRemote.noneProfile
     }
 
 
     /**
+     * Returns current profile data
+     * Strategy implies fetching from remote and saving on cache
+     */
+    suspend fun getProfileData(fromRemote: Boolean = true): Profile {
+        Log.d(TAG, "Get profile data. From remote = $fromRemote")
+        var profile: Profile? = null
+
+        // remote fetch
+        if (fromRemote) {
+            profile = profileRemote.getProfileData(
+                email = sharedPreferences.getString("email", "89")!!
+            )
+        }
+
+        // cache update
+        if (profile != null) updateProfileData(
+            newProfile = profile,
+            toCache = true,
+            toRemote = false
+        )
+        // cache fetch
+        else {
+            profile = profileCache.getProfileData(
+                email = sharedPreferences.getString("email", "89")!!
+            )
+        }
+
+        return profile
+    }
+
+
+    suspend fun updateProfileData(
+        newProfile: Profile,
+        toCache: Boolean = true,
+        toRemote: Boolean = false
+    ) {
+        Log.d(TAG, "Update profile data. To cache? $toCache . To remote? $toRemote")
+        if (toCache) profileCache.updateProfileData(newProfile.id, newProfile)
+        if (toRemote) profileRemote.updateProfileData(newProfile.id, newProfile)
+    }
+
+
+    /**
      * Updates profile data with the current profile to the cache
      */
-    fun updateProfileDataToCache(newProfile: Profile): Unit {
-        Log.d("profile-model", "Updating profile data to cache")
-        profileCache.updateProfileData(newProfile)
+    suspend fun updateProfileDataToCache(newProfile: Profile): Unit {
+        Log.d(TAG, "Updating profile data to cache")
+        profileCache.updateProfileData(newProfile.id, newProfile)
     }
 
 
@@ -53,9 +111,9 @@ class ProfileModel(application: Application) {
      */
     suspend fun updateProfileDataToRemote(): Unit {
         Log.d("profile-model", "Updating profile data to remote from caché")
-        val locallySavedProfile = profileCache.getProfileData()
+        val locallySavedProfile = profileCache.getProfileData("")
         profileRemote.updateProfileData(
-            id = sharedPreferences.getString("loginId", "1")!!,
+            id = sharedPreferences.getInt("id", 89),
             newProfile = locallySavedProfile
         )
     }
