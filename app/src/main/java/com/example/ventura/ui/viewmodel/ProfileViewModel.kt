@@ -85,7 +85,7 @@ class ProfileViewModel(
      * @param newName the new name of the profile
      */
     fun changeProfileName(newName: String) {
-        Log.d("profile-vm", "Changing display name to $newName")
+        Log.d(TAG, "Changing display name to $newName")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(name = newName)
@@ -99,7 +99,7 @@ class ProfileViewModel(
      * @param newEmail the new email of the profile
      */
     fun changeProfileEmail(newEmail: String) {
-        Log.d("profile-vm", "Changing display email to $newEmail")
+        Log.d(TAG, "Changing display email to $newEmail")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(email = newEmail)
@@ -113,7 +113,7 @@ class ProfileViewModel(
      * @param newUniversity the new universiy's name of the profile
      */
     fun changeProfileUniversity(newUniversity: String) {
-        Log.d("profile-vm", "Changing universityName to $newUniversity")
+        Log.d(TAG, "Changing universityName to $newUniversity")
         _uiState.update { currentState ->
             currentState.copy(
                 profile = currentState.profile.copy(name = newUniversity)
@@ -149,6 +149,24 @@ class ProfileViewModel(
                 newProfile = uiState.value.profile,
                 toCache = true,
                 toRemote = true
+            )
+        }
+    }
+
+
+    fun disablePutFailWarning() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                putInternetFail = false
+            )
+        }
+    }
+
+
+    fun disableGetFailWarning() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                getInternetFail = false
             )
         }
     }

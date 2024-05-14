@@ -12,7 +12,7 @@ private val TAG = "ProfileModel"
 
 class ProfileModel(application: Application) {
     private val profileCache = ProfileCache(application)
-    private val profileRemote = ProfileRemote(backendUrl = "http://192.168.1.187:42069", application)
+    private val profileRemote = ProfileRemote(backendUrl = "http://ventura-backend-jaj1.onrender.com/", application)
     private val sharedPreferences = application.getSharedPreferences("MyPrefs", MODE_PRIVATE)
 
 

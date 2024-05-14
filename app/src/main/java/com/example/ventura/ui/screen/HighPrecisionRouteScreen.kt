@@ -400,7 +400,7 @@ fun SiteImageNetwork(
     contentDescription: String? = null,
     context: Context
 ) {
-    val newUrl = "http://192.168.1.187:42069$url"
+    val newUrl = "https://ventura-backend-jaj1.onrender.com$url"
 //    Log.d(TAG, "Trying GlideImage with url = $newUrl")
 //
 //    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }

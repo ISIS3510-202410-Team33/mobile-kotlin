@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-private val BACKEND_URL = "http://192.168.1.187:42069/"
+private val BACKEND_URL = "http://ventura-backend-jaj1.onrender.com/"
 
 
 class HighPrecisionRouteRepository {
