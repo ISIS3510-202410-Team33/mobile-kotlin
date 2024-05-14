@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private val TAG = "HighPrecisionRouteViewModel"
 
@@ -75,9 +76,10 @@ class HighPrecisionRouteViewModel(
                     sitesFrom = highPrecisionRouteModel.getSitesByBuilding(buildingId)
                 )
             }
-            dropRoute()
-            unsetFromSite()
         }
+
+        dropRoute()
+        unsetFromSite()
     }
 
 
@@ -91,9 +93,10 @@ class HighPrecisionRouteViewModel(
             _uiState.update {
                 it.copy(sitesTo = highPrecisionRouteModel.getSitesByBuilding(buildingId))
             }
-            dropRoute()
-            unsetToSite()
         }
+
+        dropRoute()
+        unsetToSite()
     }
 
 
@@ -152,38 +155,52 @@ class HighPrecisionRouteViewModel(
         viewModelScope.launch (Dispatchers.IO) {
             // gets the route
             _uiState.update {
-                it.copy(route = highPrecisionRouteModel.getShortestRouteBetweenSites(
-                    siteFromId = uiState.value.selectedFromSite!!.id,
-                    siteToId = uiState.value.selectedToSite!!.id,
-                    universityId = highPrecisionRouteModel.getUniversityId()
-                ))
-            }
-            Log.d(TAG, "Route updated")
-
-            // checks if route is valid
-            if (_uiState.value.route != null && _uiState.value.route!!.sites.isNotEmpty()) {
-
-                // sets starting showing node
-                _uiState.update {
-                    it.copy(
-                        currentNodeIndex = 0,
+                it.copy(
+                    route = highPrecisionRouteModel.getShortestRouteBetweenSites(
+                        siteFromId = uiState.value.selectedFromSite!!.id,
+                        siteToId = uiState.value.selectedToSite!!.id,
+                        universityId = highPrecisionRouteModel.getUniversityId()
                     )
-                }
-                Log.d(TAG, "Current node index updated")
-
-                val currentNodeIndex = _uiState.value.currentNodeIndex
-
-                // sets current node image path to be shown
-                _uiState.update {
-                    it.copy(
-                        currentNodePath = _uiState.value.route!!.sites[currentNodeIndex!!].img
-                    )
-                }
-                Log.d(TAG, "Current node path updated")
-
-                // sets first node image
-                updateSiteImage()
+                )
             }
+
+            // no network operations = up the execution thread
+            // it also waits for the previous step in order to redraw
+            withContext(Dispatchers.Main) {
+                Log.d(TAG, "Route updated")
+
+                // checks if route is valid
+                if (_uiState.value.route != null && _uiState.value.route!!.sites.isNotEmpty()) {
+
+                    // sets starting showing node
+                    _uiState.update {
+                        it.copy(
+                            currentNodeIndex = 0,
+                        )
+                    }
+                    Log.d(TAG, "Current node index updated")
+
+                    updateSiteImagePath()
+
+                    // sets first node image
+                    updateSiteImage()
+                }
+            }
+        }
+    }
+
+
+    private fun updateSiteImagePath() {
+        // sets current node image path to be shown
+        val currentNodeIndex = _uiState.value.currentNodeIndex
+
+        if (currentNodeIndex != null) {
+            _uiState.update {
+                it.copy(
+                    currentNodePath = _uiState.value.route!!.sites[currentNodeIndex].img
+                )
+            }
+            Log.d(TAG, "Current node path updated")
         }
     }
 
@@ -191,7 +208,7 @@ class HighPrecisionRouteViewModel(
     /**
      * Returns the image associated with the URL
      */
-    suspend fun updateSiteImage() {
+    private suspend fun updateSiteImage() {
         Log.d(TAG, "Current node image updated")
         // checks the current node
         if (_uiState.value.currentNodePath != null) {
@@ -205,6 +222,48 @@ class HighPrecisionRouteViewModel(
                     )
                 }
             }
+        }
+    }
+
+
+    /**
+     *
+     */
+    fun setPreviousNode() {
+        // Extra checks, just for caution
+        if (_uiState.value.currentNodeIndex != null && _uiState.value.currentNodeIndex!! > 0) {
+            val newNodeIndex = _uiState.value.currentNodeIndex!! - 1
+
+            _uiState.update {
+                it.copy(
+                    currentNodeIndex = newNodeIndex,
+                )
+            }
+            Log.d(TAG, "Previous node set. Current node is $newNodeIndex")
+
+            updateSiteImagePath()
+        }
+    }
+
+
+    fun setNextNode() {
+        // Extra checks, just for caution
+        if (
+            _uiState.value.currentNodeIndex != null
+            && _uiState.value.currentNodeIndex != null
+            && _uiState.value.route != null
+            && _uiState.value.currentNodeIndex!!< _uiState.value.route!!.sites.size - 1
+            ) {
+            val newNodeIndex = _uiState.value.currentNodeIndex!! + 1
+
+            _uiState.update {
+                it.copy(
+                    currentNodeIndex = newNodeIndex,
+                )
+            }
+            Log.d(TAG, "Next node set. Current node is $newNodeIndex")
+
+            updateSiteImagePath()
         }
     }
 }
