@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -55,11 +56,13 @@ fun HighPrecisionRouteScreen(
 ) {
     val highPrecisionRouteUiState by highPrecisionRouteViewModel.uiState.collectAsState()
 
+    val lazyListState = rememberLazyListState()
+
     Scaffold (
         topBar = {
             PersonalizedTopBar(
                 modifier = Modifier,
-                backToMainMenu = { }
+                backToMainMenu = backToMainMenu
             )
         },
         bottomBar = {
@@ -70,7 +73,8 @@ fun HighPrecisionRouteScreen(
         LazyColumn(
             modifier = Modifier.padding(top= smallPadding),
             contentPadding = it,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            state = lazyListState
         ) {
             // Building selection
             item {
@@ -116,7 +120,14 @@ fun HighPrecisionRouteScreen(
                                     && highPrecisionRouteUiState.selectedToSite != null
                             ),
                     onSitesSelected = { highPrecisionRouteViewModel.getRouteSites() },
-                    context = context
+                    context = context,
+                    modifier = Modifier
+                        .padding(
+                            start = largePadding,
+                            top = mediumPadding,
+                            end = largePadding,
+                            bottom = smallPadding
+                        )
                 )
             }
 
@@ -138,11 +149,17 @@ fun HighPrecisionRouteScreen(
                 } else {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Absolute.SpaceAround
                     ) {
                         GuidingInstruction(
                             currentSite = highPrecisionRouteUiState.route!!.sites[highPrecisionRouteUiState.currentNodeIndex!!],
-                            totalDistance = highPrecisionRouteUiState.route!!.distance
+                            totalDistance = highPrecisionRouteUiState.route!!.distance,
+                            modifier = Modifier
+                                .padding(
+                                    start = largePadding,
+                                    top = smallPadding,
+                                    end = largePadding,
+                                    bottom = smallPadding
+                                )
                         )
                     }
                     Row(
@@ -176,18 +193,33 @@ fun GuidingInstruction(
 ) {
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Total distance: $totalDistance",
-            modifier = modifier,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = "Head to ${currentSite.name}",
-            modifier = modifier,
-            textAlign = TextAlign.Center,
-        )
+        Button(
+            onClick = { },
+            enabled = true,
+            modifier = modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "Total distance: $totalDistance meters",
+                modifier = modifier,
+                textAlign = TextAlign.Center,
+            )
+        }
+
+        Button(
+            onClick = { },
+            enabled = true,
+            modifier = modifier
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "Head to ${currentSite.name}",
+                modifier = modifier,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 
 }
@@ -312,6 +344,7 @@ fun ExposedDropdownMenuSiteSelection(
 
 @Composable
 fun TakeMeThereButton(
+    modifier: Modifier = Modifier,
     selected: Boolean = false,
     onSitesSelected: () -> Unit,
     context: Context
@@ -326,13 +359,7 @@ fun TakeMeThereButton(
                 ).show()
             } else onSitesSelected()
         },
-        modifier = Modifier
-            .padding(
-                start = largePadding,
-                top = mediumPadding,
-                end = largePadding,
-                bottom = smallPadding
-            )
+        modifier = modifier
             .fillMaxWidth()
     ) {
         Text("Take me there!")

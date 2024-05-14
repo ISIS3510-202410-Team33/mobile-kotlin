@@ -348,6 +348,7 @@ class MainMenuActivity : AppCompatActivity() {
 
             val buttonProfile = findViewById<Button>(R.id.buttonProfile)
             val buttonMap = findViewById<Button>(R.id.buttonMap)
+            val buttonHPMap = findViewById<Button>(R.id.buttonHPMap)
             val buttonSettings = findViewById<Button>(R.id.buttonSettings)
             val logOutButton = findViewById<TextView>(R.id.log_out)
 
@@ -373,6 +374,12 @@ class MainMenuActivity : AppCompatActivity() {
             buttonMap.setOnClickListener {
                 val intent = Intent(this, MapsActivity::class.java)
                 intent.putExtra("user_email", userEmail)
+                startActivity(intent)
+            }
+
+            buttonHPMap.setOnClickListener {
+                val intent = Intent(this, HighPrecisionRouteActivity::class.java)
+                intent.putExtra("email", userEmail)
                 startActivity(intent)
             }
 
