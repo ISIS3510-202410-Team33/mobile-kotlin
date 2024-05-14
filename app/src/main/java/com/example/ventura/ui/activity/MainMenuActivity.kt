@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.example.ventura.PermanentSensorsApplication
 import com.example.ventura.R
 import com.example.ventura.ui.viewmodel.WeatherViewModel
@@ -44,8 +45,10 @@ class MainMenuActivity : AppCompatActivity() {
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
-    var currentConnection = "ok"
-    var sentWeatherNotification = false
+    private var currentConnection = "ok"
+    private var sentWeatherNotification = false
+    private var activityAlreadyDestroyed = false
+
 
     // network utility
     private lateinit var networkHandler: NetworkHandler
@@ -64,7 +67,6 @@ class MainMenuActivity : AppCompatActivity() {
 
             setContentView(R.layout.activity_main_menu)
             val bannerUniandes = findViewById<TextView>(R.id.textView3)
-
 
 
             bannerUniandes.setOnClickListener{
@@ -119,6 +121,9 @@ class MainMenuActivity : AppCompatActivity() {
             val weatherMessageTextView = findViewById<TextView>(R.id.weatherMessageTextView)
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+            if (!isFinishing && !isDestroyed) {
+                Glide.with(this).load(R.drawable.load3).into(weatherIconImageView)
+            }
             weatherViewModel.weatherLiveData.observe(this, Observer { weatherResponse ->
 
                 if (weatherResponse != null) {
@@ -151,7 +156,10 @@ class MainMenuActivity : AppCompatActivity() {
 
                         else -> R.drawable.cloud
                     }
-                    weatherIconImageView.setImageResource(weatherIconResource)
+                    if (!isFinishing && !isDestroyed) {
+                        
+                        Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                    }
                     humidityTextView.text = "Humidity: $humidity%"
 
                     if (weatherDescription.contains("rain") || weatherDescription.contains("drizzle")) {
@@ -171,7 +179,7 @@ class MainMenuActivity : AppCompatActivity() {
                 } else {
 
                     if (currentConnection == "ok") {
-                        Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "You have lost internet connection", Toast.LENGTH_SHORT).show()
                         // sendOfflineNotification()
                         currentConnection = "offline"
                     }
@@ -186,7 +194,10 @@ class MainMenuActivity : AppCompatActivity() {
                     val weatherIconResource = R.drawable.error
                     val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                     relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                    weatherIconImageView.setImageResource(weatherIconResource)
+                    if (!isFinishing && !isDestroyed) {
+
+                        Glide.with(this).load(weatherIconResource).into(weatherIconImageView)
+                    }
 
                 }
 
@@ -194,17 +205,39 @@ class MainMenuActivity : AppCompatActivity() {
             })
 
             Thread {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted && !activityAlreadyDestroyed){
                     val isConnected = networkHandler.isInternetAvailable()
                     runOnUiThread {
-                        
+
                         // sends a log message to the Logcat
                         Log.d("Internet", "Internet connection: $isConnected")
 
                         if (isConnected) {
                             if (currentConnection == "offline") {
-                                Toast.makeText(this, "Connection restored, weather info will show up shortly", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Connection restored",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 currentConnection = "ok"
+
+
+                                weatherTextView.text = "Loading weather data..."
+                                temperatureTextView.text = "Loading weather data..."
+                                humidityTextView.text = "Loading weather data..."
+                                cityTextView.text = "Loading city..."
+
+                                // change the icon and background to indicate offline status
+                                val weatherIconResource = R.drawable.load3
+                                val relativeLayout =
+                                    findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                                relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
+                                if (!isFinishing && !isDestroyed) {
+
+                                    Glide.with(this).load(weatherIconResource)
+                                        .into(weatherIconImageView)
+                                }
+
                             }
                             if (ActivityCompat.checkSelfPermission(
                                     this, Manifest.permission.ACCESS_FINE_LOCATION
@@ -219,13 +252,18 @@ class MainMenuActivity : AppCompatActivity() {
                                     1
                                 )
                             } else {
-                                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+                                fusedLocationClient.requestLocationUpdates(
+                                    locationRequest,
+                                    locationCallback,
+                                    null
+                                )
                             }
 
                             // checks permission for physical activity / step sensor
                             if (ActivityCompat.checkSelfPermission(
-                                this, Manifest.permission.ACTIVITY_RECOGNITION
-                            ) != PackageManager.PERMISSION_GRANTED) {
+                                    this, Manifest.permission.ACTIVITY_RECOGNITION
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
                                 ActivityCompat.requestPermissions(
                                     this,
                                     arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
@@ -236,7 +274,8 @@ class MainMenuActivity : AppCompatActivity() {
                             // checks permission for camera / light sensor
                             if (ActivityCompat.checkSelfPermission(
                                     this, Manifest.permission.CAMERA
-                                ) != PackageManager.PERMISSION_GRANTED) {
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
                                 ActivityCompat.requestPermissions(
                                     this,
                                     arrayOf(Manifest.permission.CAMERA),
@@ -247,7 +286,11 @@ class MainMenuActivity : AppCompatActivity() {
 
                         } else {
                             if (currentConnection == "ok") {
-                                Toast.makeText(this, "No internet connection, cannot fetch weather info", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "You have lost internet connection",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 // sendOfflineNotification()
                                 currentConnection = "offline"
                             }
@@ -260,15 +303,25 @@ class MainMenuActivity : AppCompatActivity() {
 
                             // change the icon and background to indicate offline status
                             val weatherIconResource = R.drawable.error
-                            val relativeLayout = findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
+                            val relativeLayout =
+                                findViewById<RelativeLayout>(R.id.weatherInfoRelativeLayout)
                             relativeLayout.setBackgroundResource(R.drawable.rounded_corners)
-                            weatherIconImageView.setImageResource(weatherIconResource)
+                            if (!isFinishing && !isDestroyed) {
+
+                                Glide.with(this).load(weatherIconResource)
+                                    .into(weatherIconImageView)
+                            }
 
 
                         }
                     }
 
-                    Thread.sleep(5000)
+                    try {
+                        Thread.sleep(5000)
+                    } catch (e: InterruptedException) {
+                        // Restore the interrupted status
+                        Thread.currentThread().interrupt()
+                    }
 
                 }
             }.start()
@@ -329,33 +382,20 @@ class MainMenuActivity : AppCompatActivity() {
         notificationManager.notify(0, notificationBuilder.build())
     }
 
-    private fun sendOfflineNotification() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationChannelId = "OFFLINE_NOTIFICATION_CHANNEL"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(notificationChannelId, "Offline Notifications", NotificationManager.IMPORTANCE_HIGH)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
-
-        val notificationBuilder = NotificationCompat.Builder(this, notificationChannelId)
-            .setSmallIcon(R.drawable.error)
-            .setContentTitle("Offline Alert")
-            .setContentText("You're offline. Unable to fetch weather info.")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-
-        notificationManager.notify(1, notificationBuilder.build())
-    }
-
     override fun onResume() {
         super.onResume()
         weatherViewModel.checkInternetConnection()
+
     }
 
     override fun onPause() {
         try {
             super.onPause()
             stopLocationUpdates()
+
+            // interrupts the current thread in order to avoid memory leaks
+            Thread.currentThread().interrupt()
+
         } catch (e: Exception) { featureCrashHandler.logCrash("pause", e); }
     }
 
@@ -395,6 +435,12 @@ class MainMenuActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         clearCache(this)
+
+        // interrupts the current thread in order to avoid memory leaks
+        Thread.currentThread().interrupt()
+        activityAlreadyDestroyed = true
+
+
     }
 
     private fun clearCache(context: Context) {

@@ -58,6 +58,7 @@ class MapsActivity : AppCompatActivity() {
     private lateinit var locationCallback: LocationCallback
     private var jsonOb: JSONObject? = null
     private var lastKnownLocation: Location? = null
+    private var presentedFetchDate: Boolean = true
 
     // Variable to support swipe down
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -114,11 +115,11 @@ class MapsActivity : AppCompatActivity() {
                     } else {
                         lifecycleScope.launch {
                             try {
-                                jsonViewModel.updateJsonData()
+                                val (jsonObject, message) =jsonViewModel.updateJsonData()
                                 swipeRefreshLayout.isRefreshing = false
 
                                 // Display a Toast message
-                                Toast.makeText(this@MapsActivity, "Campus locations updated successfully", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@MapsActivity, message, Toast.LENGTH_LONG).show()
                                 
                                 // refresh the activity
                                 removeAllLocations()
@@ -252,7 +253,11 @@ class MapsActivity : AppCompatActivity() {
             val (jsonObject, message) = jsonViewModel.fetchJsonData()
             // Handle the obtained JSONObject here, update your UI accordingly
             // Displaying a Toast message
-            Toast.makeText(this@MapsActivity, message, Toast.LENGTH_LONG).show()
+
+            if (presentedFetchDate){
+                Toast.makeText(this@MapsActivity, message, Toast.LENGTH_LONG).show()
+                presentedFetchDate = false
+            }
 
             // If jsonObject is not null, update UI or do further processing
             jsonObject?.let {

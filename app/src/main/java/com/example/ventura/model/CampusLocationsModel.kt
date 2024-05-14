@@ -51,10 +51,19 @@ class CampusLocationsModel(private val context: Context) {
             val jsonBytes = jsonRef.getBytes(10 * 1024 * 1024).await()
             val jsonString = String(jsonBytes)
             val json = JSONObject(jsonString)
-            FileOutputStream(localFile).use { output ->
-                output.write(jsonBytes)
+
+            // Read the existing local JSON file
+            val localJsonString = if (localFile.exists()) localFile.readText() else ""
+
+            // Compare the local and remote JSON
+            if (jsonString == localJsonString) {
+                return Pair(json, "No new campus locations found!")
+            } else {
+                FileOutputStream(localFile).use { output ->
+                    output.write(jsonBytes)
+                }
+                return Pair(json, "Campus locations updated successfully!")
             }
-            return Pair(json, "Data downloaded and stored locally")
         } catch (e: Exception) {
             return Pair(null, "Error downloading data: ${e.localizedMessage}")
         }
