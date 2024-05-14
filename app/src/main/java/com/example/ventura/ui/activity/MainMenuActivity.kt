@@ -96,8 +96,8 @@ class MainMenuActivity : AppCompatActivity() {
             dateTextView.text = date
 
             locationRequest = LocationRequest.create().apply {
-                interval = 10000
-                fastestInterval = 10000
+                interval = 1000
+                fastestInterval = 1000
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
 
@@ -342,24 +342,6 @@ class MainMenuActivity : AppCompatActivity() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
         notificationManager.notify(0, notificationBuilder.build())
-    }
-
-    private fun sendOfflineNotification() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationChannelId = "OFFLINE_NOTIFICATION_CHANNEL"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(notificationChannelId, "Offline Notifications", NotificationManager.IMPORTANCE_HIGH)
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
-
-        val notificationBuilder = NotificationCompat.Builder(this, notificationChannelId)
-            .setSmallIcon(R.drawable.error)
-            .setContentTitle("Offline Alert")
-            .setContentText("You're offline. Unable to fetch weather info.")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-
-        notificationManager.notify(1, notificationBuilder.build())
     }
 
     override fun onResume() {

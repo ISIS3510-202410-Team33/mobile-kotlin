@@ -115,11 +115,11 @@ class MapsActivity : AppCompatActivity() {
                     } else {
                         lifecycleScope.launch {
                             try {
-                                jsonViewModel.updateJsonData()
+                                val (jsonObject, message) =jsonViewModel.updateJsonData()
                                 swipeRefreshLayout.isRefreshing = false
 
                                 // Display a Toast message
-                                Toast.makeText(this@MapsActivity, "Campus locations updated successfully", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@MapsActivity, message, Toast.LENGTH_LONG).show()
                                 
                                 // refresh the activity
                                 removeAllLocations()
