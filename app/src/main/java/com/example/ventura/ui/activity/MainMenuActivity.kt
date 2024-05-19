@@ -14,8 +14,10 @@ import android.provider.Settings
 import android.text.Html
 import android.util.Log
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -42,6 +44,7 @@ class MainMenuActivity : AppCompatActivity() {
     private lateinit var weatherViewModel: WeatherViewModel
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var coursesLayout: FrameLayout
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
@@ -67,6 +70,15 @@ class MainMenuActivity : AppCompatActivity() {
 
             setContentView(R.layout.activity_main_menu)
             val bannerUniandes = findViewById<TextView>(R.id.textView3)
+            val userEmail = intent.getStringExtra("user_email")
+
+            coursesLayout = findViewById(R.id.coursesLayout)
+
+            coursesLayout.setOnClickListener{
+                val intent = Intent(this, CoursesActivity::class.java )
+                intent.putExtra("user_email", userEmail)
+                startActivity(intent)
+            }
 
 
             bannerUniandes.setOnClickListener{
@@ -85,7 +97,7 @@ class MainMenuActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            val userEmail = intent.getStringExtra("user_email")
+
 
             Log.d("screen-flow", "¡Welcome, $userEmail!")
 
