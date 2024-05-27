@@ -1,6 +1,7 @@
 package com.example.ventura.repository
 
 import android.content.Context
+import com.example.ventura.BuildConfig
 import com.example.ventura.data.models.Profile
 import com.example.ventura.data.remote.CollegeResponse
 import com.example.ventura.data.remote.UserResponse
@@ -17,7 +18,7 @@ private val TAG = "ProfileRemote"
 /**
  * Implementation of the ProfileRepository by using the remote, deployed database API
  */
-class ProfileRemote (backendUrl: String, context: Context) : ProfileRepository {
+class ProfileRemote (context: Context) : ProfileRepository {
 
     // firebase authenticator. Used to get user info
     private var auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -25,7 +26,7 @@ class ProfileRemote (backendUrl: String, context: Context) : ProfileRepository {
 
     // to make backend requests
     private val retrofit = Retrofit.Builder()
-        .baseUrl(backendUrl)
+        .baseUrl(BuildConfig.DJANGO_BACKEND_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

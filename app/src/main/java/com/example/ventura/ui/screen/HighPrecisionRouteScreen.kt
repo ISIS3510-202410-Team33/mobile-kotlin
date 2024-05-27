@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.ventura.BuildConfig
 import com.example.ventura.data.models.Building
 import com.example.ventura.data.models.Site
 import com.example.ventura.data.remote.SiteResponse
@@ -172,7 +173,7 @@ fun HighPrecisionRouteScreen(
                             disableCondition = highPrecisionRouteUiState.currentNodeIndex == 0,
                             imageVector = Icons.Default.KeyboardArrowLeft
                         )
-                        SiteImageNetwork(url = highPrecisionRouteUiState.currentNodePath!!, context = context)
+                        SiteImageNetwork(url = highPrecisionRouteUiState.currentNodePath!! , context = context)
                         MoveSiteImageButton(
                             onClick = { highPrecisionRouteViewModel.setNextNode() },
                             disableCondition = highPrecisionRouteUiState.currentNodeIndex == highPrecisionRouteUiState.route!!.sites.size - 1,
@@ -400,7 +401,12 @@ fun SiteImageNetwork(
     contentDescription: String? = null,
     context: Context
 ) {
-    val newUrl = "https://ventura-backend-jaj1.onrender.com$url"
+    var newUrl = BuildConfig.DJANGO_BACKEND_URL
+    newUrl += if (url.startsWith('/')) {
+        url.substring(1)
+    } else {
+        url
+    }
 //    Log.d(TAG, "Trying GlideImage with url = $newUrl")
 //
 //    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }

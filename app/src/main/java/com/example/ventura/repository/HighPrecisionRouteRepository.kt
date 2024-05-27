@@ -1,5 +1,6 @@
 package com.example.ventura.repository
 
+import com.example.ventura.BuildConfig
 import com.example.ventura.data.models.Building
 import com.example.ventura.data.models.Site
 import com.example.ventura.data.models.University
@@ -14,12 +15,10 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-private val BACKEND_URL = "http://ventura-backend-jaj1.onrender.com/"
-
 
 class HighPrecisionRouteRepository {
     private val retrofit = Retrofit.Builder()
-        .baseUrl(BACKEND_URL)
+        .baseUrl(BuildConfig.DJANGO_BACKEND_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

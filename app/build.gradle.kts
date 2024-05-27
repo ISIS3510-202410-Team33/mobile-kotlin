@@ -26,12 +26,25 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
+            buildConfigField("String", "DJANGO_BACKEND_URL", "\"http://192.168.1.115:80/\"")
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            buildConfigField("String", "DJANGO_BACKEND_URL", "\"https://ventura-backend-jaj1.onrender.com:443/\"")
         }
     }
     compileOptions {
@@ -48,6 +61,7 @@ android {
     buildFeatures {
         compose = true
         dataBinding = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
