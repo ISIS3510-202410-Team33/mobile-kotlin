@@ -14,7 +14,7 @@ class HighPrecisionRouteModel(
     application: Application
 ) {
     private val sharedPreferences = application.getSharedPreferences("MyPrefs", MODE_PRIVATE)
-    private val highPrecisionRouteRepository = HighPrecisionRouteRepository()
+    private val highPrecisionRouteRepository = HighPrecisionRouteRepository(application)
 
 
     /**

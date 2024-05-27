@@ -1,5 +1,6 @@
 package com.example.ventura.repository
 
+import android.content.Context
 import com.example.ventura.BuildConfig
 import com.example.ventura.data.models.Building
 import com.example.ventura.data.models.Site
@@ -12,18 +13,35 @@ import com.example.ventura.data.remote.UniversityResponse
 import com.example.ventura.service.HighPrecisionRouteService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Cache
+import okhttp3.ConnectionPool
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 
-class HighPrecisionRouteRepository {
+class HighPrecisionRouteRepository(context: Context) {
+    // Alive duration is long due to the fact that walking inside of university may take time
+    private val connectionPool = ConnectionPool(5, 5, TimeUnit.MINUTES)
+    // caching strategy
+    private val cacheSize = (20 * 1024 * 1024).toLong() // 20 MB
+    private val cache = Cache(context.cacheDir, cacheSize)
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectionPool(connectionPool)
+        .cache(cache)
+        .build()
     private val retrofit = Retrofit.Builder()
         .baseUrl(BuildConfig.DJANGO_BACKEND_URL)
+        .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     private val hprService = retrofit.create(HighPrecisionRouteService::class.java)
 
+    // Object pools
+//    private val buildingPool = Pools.SimplePool<Building>(10)
+//    private val sitePool = Pools.SimplePool<Site>(10)
 
     suspend fun getUniversity(universityId: Int): University {
         // uses empty university response to avoid NullPointer Exception
@@ -41,15 +59,15 @@ class HighPrecisionRouteRepository {
 
 
     suspend fun getBuilding(buildingId: String): Building {
-        var building: BuildingResponse = BuildingResponse()
-        var university: University = University()
+        var building: BuildingResponse
+        var university: University
 
         withContext (Dispatchers.IO) {
             building = hprService.getBuildingById(buildingId)
             // tries to retrieve the university by the response's university ID
             university = getUniversity(building.university)
-
         }
+
 
         return Building(
             id = building.id,
@@ -60,8 +78,8 @@ class HighPrecisionRouteRepository {
 
 
     suspend fun getSite(siteId: String): Site {
-        var site: SiteResponse = SiteResponse()
-        var building: Building = Building()
+        var site: SiteResponse
+        var building: Building
 
         withContext (Dispatchers.IO) {
             site = hprService.getSiteById(siteId)
@@ -80,8 +98,8 @@ class HighPrecisionRouteRepository {
 
 
     suspend fun getBuildingsByUniversity(universityId: Int): List<Building> {
-        var buildings: List<BuildingResponse> = emptyList()
-        var university: University = University()
+        var buildings: List<BuildingResponse>
+        var university: University
 
         withContext (Dispatchers.IO) {
             buildings = hprService.getBuildingsByUniversity(universityId)
@@ -99,8 +117,8 @@ class HighPrecisionRouteRepository {
 
 
     suspend fun getSitesByBuilding(buildingId: String): List<Site> {
-        var sites: List<SiteResponse> = emptyList()
-        var building: Building = Building()
+        var sites: List<SiteResponse>
+        var building: Building
 
         withContext (Dispatchers.IO) {
             sites = hprService.getSitesByBuilding(buildingId)
