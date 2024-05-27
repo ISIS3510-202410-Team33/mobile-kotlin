@@ -17,7 +17,6 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -45,6 +44,7 @@ class MainMenuActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var coursesLayout: FrameLayout
+    private lateinit var agendaLayout: FrameLayout
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
     private val featureCrashHandler = FeatureCrashHandler("main_menu")
@@ -76,6 +76,14 @@ class MainMenuActivity : AppCompatActivity() {
 
             coursesLayout.setOnClickListener{
                 val intent = Intent(this, CoursesActivity::class.java )
+                intent.putExtra("user_email", userEmail)
+                startActivity(intent)
+            }
+
+            agendaLayout = findViewById(R.id.agendaLayout)
+
+            agendaLayout.setOnClickListener{
+                val intent = Intent(this, AgendaMainActivity::class.java)
                 intent.putExtra("user_email", userEmail)
                 startActivity(intent)
             }
