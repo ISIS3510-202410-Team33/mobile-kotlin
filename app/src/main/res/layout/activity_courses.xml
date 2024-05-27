@@ -7,7 +7,21 @@
     android:background="#E4E4E4"
     android:backgroundTintMode="add">
 
+    <TextView
+        android:id="@+id/snackBar"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:background="@color/black"
+        android:gravity="center"
+        android:text="No internet connection available!"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
+        android:id="@+id/linear2"
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:orientation="vertical"
@@ -37,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:text="here you cand find the courses you have added"
+            android:text="here you cand find the courses that you have added"
             android:textColor="#5A5A5A"
             android:textSize="20sp" />
 
@@ -52,10 +66,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="5dp"
+                android:layout_gravity="center_vertical"
                 android:ems="10"
                 android:inputType="text"
-                android:text="Search a course"
+                android:hint="Search a course"
+                android:backgroundTint="#00FFFFFF"
                 android:textColor="#808080" />
         </FrameLayout>
 
@@ -122,6 +137,8 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_height="0dp">
 
+
+
         <ScrollView
             android:id="@+id/scroll1"
             android:layout_width="match_parent"
@@ -134,10 +151,12 @@
 
 
                 <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/coursesRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </LinearLayout>
         </ScrollView>
+
     </LinearLayout>
 
     <LinearLayout
@@ -156,6 +175,7 @@
             android:padding="20dp">
 
             <FrameLayout
+                android:id="@+id/addCourseBanner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/university_button3">
