@@ -13,9 +13,7 @@ import com.example.ventura.utils.SensorService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
-
 private val TAG = "PermanentSensorsApplication"
-
 
 class PermanentSensorsApplication : Application() {
     val applicationScope = CoroutineScope(SupervisorJob())
@@ -40,14 +38,13 @@ class PermanentSensorsApplication : Application() {
         super.onCreate()
         Log.d(TAG, "Created")
 
-        // starts necesary services
-        startService(sensorServiceIntent)
+        // starts necessary services
+        startForegroundService(sensorServiceIntent)
 
         // creates network handler
         networkHandler = NetworkHandler(this)
         // TODO: manage crashes
     }
-
 
     override fun onTerminate() {
         super.onTerminate()
@@ -55,4 +52,3 @@ class PermanentSensorsApplication : Application() {
         stopService(sensorServiceIntent)
     }
 }
-
