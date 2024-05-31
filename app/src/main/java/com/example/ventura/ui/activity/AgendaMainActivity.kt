@@ -23,8 +23,9 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.CalendarView
-import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.ViewContainer
+import com.kizitonwose.calendar.view.MonthDayBinder
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
@@ -32,27 +33,35 @@ import java.util.*
 class AgendaMainActivity : AppCompatActivity() {
 
     private val tasksViewModel: TasksViewModel by viewModels()
-
     private lateinit var backButton: ImageView
+    private lateinit var addTaskButton: Button
+    private lateinit var taskAdapter: TaskAdapter
     private lateinit var calendarView: CalendarView
-    private lateinit var tasksAdapter: TaskAdapter
+    private var selectedDate: LocalDate? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        // ============================== @UI initialization ==============================
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_cal)
 
         calendarView = findViewById(R.id.calendarView)
         val titlesContainer = findViewById<ViewGroup>(R.id.titlesContainer)
-        val tasksListView = findViewById<ListView>(R.id.tasksListView)
-        val addTaskButton = findViewById<Button>(R.id.addTaskButton)
-
-        tasksAdapter = TaskAdapter(this, emptyList())
-        tasksListView.adapter = tasksAdapter
-
-        // ============================== @backButton attributes ==========================
         backButton = findViewById(R.id.backButton_cal)
+        addTaskButton = findViewById(R.id.addTaskButton)
+        val tasksListView = findViewById<ListView>(R.id.tasksListView)
+
+        taskAdapter = TaskAdapter(this, emptyList())
+        tasksListView.adapter = taskAdapter
+
+        tasksViewModel.tasks.observe(this, Observer { tasks ->
+            taskAdapter.updateTasks(tasks)
+        })
+
+        tasksViewModel.selectedDate.observe(this, Observer { date ->
+            selectedDate = date
+            calendarView.notifyCalendarChanged()
+            tasksViewModel.loadTasksForDate(date)
+        })
+
         backButton.setOnClickListener {
             finish()
         }
@@ -95,7 +104,7 @@ class AgendaMainActivity : AppCompatActivity() {
                 container.day = data
                 container.textView.text = data.date.dayOfMonth.toString()
 
-                if (data.date == tasksViewModel.selectedDate.value) {
+                if (data.date == selectedDate) {
                     container.textView.setBackgroundResource(R.drawable.selected_date_bg)
                 } else {
                     container.textView.background = null
@@ -110,18 +119,14 @@ class AgendaMainActivity : AppCompatActivity() {
         }
 
         addTaskButton.setOnClickListener {
-            if (tasksViewModel.selectedDate.value != null) {
-                val intent = Intent(this, NewTaskActivity::class.java)
-                intent.putExtra("selectedDate", tasksViewModel.selectedDate.value.toString())
-                startActivity(intent)
-            } else {
+            if (selectedDate == null) {
                 Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(this, NewTaskActivity::class.java)
+                intent.putExtra("selectedDate", selectedDate.toString())
+                startActivity(intent)
             }
         }
-
-        tasksViewModel.tasks.observe(this, Observer { tasks ->
-            tasksAdapter.updateTasks(tasks)
-        })
     }
 
     inner class DayViewContainer(view: View) : ViewContainer(view) {
@@ -131,12 +136,7 @@ class AgendaMainActivity : AppCompatActivity() {
         init {
             view.setOnClickListener {
                 if (day.position == DayPosition.MonthDate) {
-                    val currentSelection = tasksViewModel.selectedDate.value
-                    if (currentSelection == day.date) {
-                        tasksViewModel.setSelectedDate(null)
-                    } else {
-                        tasksViewModel.setSelectedDate(day.date)
-                    }
+                    tasksViewModel.setSelectedDate(day.date)
                 }
             }
         }
