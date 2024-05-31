@@ -219,16 +219,6 @@
                 android:text="Profile"
                 android:textColor="@android:color/white" />
 
-            <Button
-                android:id="@+id/buttonSettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:height="80dp"
-                android:background="@drawable/main_menu_scroll2"
-                android:text="Settings"
-                android:textColor="@android:color/white" />
-
             <HorizontalScrollView
                 android:id="@+id/bottomScrollView"
                 android:layout_width="match_parent"

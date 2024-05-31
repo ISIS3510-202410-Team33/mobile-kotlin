@@ -349,7 +349,6 @@ class MainMenuActivity : AppCompatActivity() {
             val buttonProfile = findViewById<Button>(R.id.buttonProfile)
             val buttonMap = findViewById<Button>(R.id.buttonMap)
             val buttonHPMap = findViewById<Button>(R.id.buttonHPMap)
-            val buttonSettings = findViewById<Button>(R.id.buttonSettings)
             val logOutButton = findViewById<TextView>(R.id.log_out)
 
             logOutButton.setOnClickListener {
@@ -383,9 +382,6 @@ class MainMenuActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            buttonSettings.setOnClickListener {
-                // Navigate to Settings Activity
-            }
         } catch (e: Exception) { featureCrashHandler.logCrash("display", e); }
     }
 
