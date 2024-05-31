@@ -1,8 +1,11 @@
 package com.example.ventura.ui.activity
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.view.TouchDelegate
@@ -27,6 +30,12 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.ViewContainer
 import com.kizitonwose.calendar.view.MonthDayBinder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -36,15 +45,21 @@ class AgendaMainActivity : AppCompatActivity() {
 
     private val tasksViewModel: TasksViewModel by viewModels()
     private lateinit var backButton: ImageView
+    private lateinit var userEmail: String
     private lateinit var addTaskButton: Button
     private lateinit var taskAdapter: TaskAdapter
     private lateinit var calendarView: CalendarView
     private var selectedDate: LocalDate? = null
+    private val connectivityManager by lazy {
+        getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+    private var isConnected = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_cal)
 
+        userEmail = intent.getStringExtra("user_email").toString()
         calendarView = findViewById(R.id.calendarView)
         val titlesContainer = findViewById<ViewGroup>(R.id.titlesContainer)
         backButton = findViewById(R.id.backButton_cal)
@@ -66,6 +81,8 @@ class AgendaMainActivity : AppCompatActivity() {
             tasksViewModel.loadTasksForDate(date)
             Log.d("AgendaMainActivity", "selectedDate: $selectedDate" )
         })
+
+        listenToNetworkChanges()
 
         backButton.setOnClickListener {
             finish()
@@ -131,6 +148,31 @@ class AgendaMainActivity : AppCompatActivity() {
         }
     }
 
+    private fun listenToNetworkChanges() {
+        CoroutineScope(Dispatchers.Main).launch {
+            while (isActive) {
+                val currentlyConnected = isNetworkAvailable()
+                if (currentlyConnected != isConnected) {
+                    isConnected = currentlyConnected
+                    addTaskButton.isEnabled = isConnected
+                    if (!isConnected) {
+                        Toast.makeText(this@AgendaMainActivity, "No internet connection. Can't create tasks.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                delay(2000) // Check connectivity every 2 seconds
+            }
+        }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val activeNetwork = connectivityManager.activeNetwork ?: return false
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+    }
+
+
+
     inner class DayViewContainer(view: View) : ViewContainer(view) {
         val textView: TextView = view.findViewById(R.id.calendarDayText)
         lateinit var day: CalendarDay
@@ -142,5 +184,11 @@ class AgendaMainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Cancel all coroutines when the activity is destroyed
+        CoroutineScope(Dispatchers.Main).cancel()
     }
 }

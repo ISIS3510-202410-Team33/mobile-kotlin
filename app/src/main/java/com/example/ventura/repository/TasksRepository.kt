@@ -2,10 +2,11 @@ package com.example.ventura.repository
 
 import android.util.LruCache
 import com.example.ventura.data.TaskDao
+import com.example.ventura.data.FirebaseTaskDao
 import com.example.ventura.model.Task
 import java.time.LocalDate
 
-class TasksRepository(private val taskDao: TaskDao) {
+class TasksRepository(private val taskDao: TaskDao, private val firebaseTaskDao: FirebaseTaskDao) {
 
     private val cacheSize = 50 // Define the size of the cache
 
@@ -24,8 +25,13 @@ class TasksRepository(private val taskDao: TaskDao) {
             return cachedData
         }
 
-        // If not available in cache, fetch from the database
-        val tasks = taskDao.getTasksForDate(date)
+        // If not available in cache, fetch from the local database
+        var tasks = taskDao.getTasksForDate(date)
+
+        // If not available in local database, fetch from Firebase
+        if (tasks.isEmpty()) {
+            tasks = firebaseTaskDao.getTasksForDate(date)
+        }
 
         // Put the fetched data into the cache
         cache.put(date, tasks)
@@ -37,6 +43,9 @@ class TasksRepository(private val taskDao: TaskDao) {
         // Perform database operation
         taskDao.insert(task)
 
+        // Perform Firebase operation
+        firebaseTaskDao.insert(task)
+
         // Clear the cache as the data is modified
         cache.evictAll()
     }
@@ -44,6 +53,9 @@ class TasksRepository(private val taskDao: TaskDao) {
     suspend fun update(task: Task) {
         // Perform database operation
         taskDao.update(task)
+
+        // Perform Firebase operation
+        firebaseTaskDao.update(task)
 
         // Clear the cache as the data is modified
         cache.evictAll()

@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.ventura.data.FirebaseTaskDao
 import com.example.ventura.data.TaskDatabase
 import com.example.ventura.model.Task
 import com.example.ventura.repository.TasksRepository
@@ -17,7 +18,8 @@ import java.time.LocalDate
 class TasksViewModel(application: Application) : AndroidViewModel(application) {
 
     private val taskDao = TaskDatabase.getDatabase(application).taskDao()
-    private val repository = TasksRepository(taskDao)
+    private val firebaseTaskDao = FirebaseTaskDao()
+    private val repository = TasksRepository(taskDao, firebaseTaskDao)
 
     private val _tasks = MutableLiveData<List<Task>>()
     val tasks: LiveData<List<Task>> = _tasks

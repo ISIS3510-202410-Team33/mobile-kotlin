@@ -423,6 +423,8 @@ class MainMenuActivity : AppCompatActivity() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
+
+
     private fun mostrarDialogoGPS() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("GPS Disabled")
