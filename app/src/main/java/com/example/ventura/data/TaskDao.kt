@@ -18,5 +18,5 @@ interface TaskDao {
     suspend fun insert(task: Task)
 
     @Update
-    suspend fun update(task: Task) // New method to update a task
+    suspend fun update(task: Task)
 }

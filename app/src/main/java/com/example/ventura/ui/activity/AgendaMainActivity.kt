@@ -55,7 +55,9 @@ class AgendaMainActivity : AppCompatActivity() {
         tasksRecyclerView.layoutManager = LinearLayoutManager(this)
 
         tasksViewModel.tasks.observe(this, Observer { tasks ->
-            taskAdapter.updateTasks(tasks)
+            if (tasks != null) {
+                taskAdapter.updateTasks(tasks)
+            }
         })
 
         tasksViewModel.selectedDate.observe(this, Observer { date ->
