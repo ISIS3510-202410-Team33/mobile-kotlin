@@ -1,6 +1,7 @@
 package com.example.ventura.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,6 +28,7 @@ class TasksViewModel(application: Application) : AndroidViewModel(application) {
     fun loadTasksForDate(date: LocalDate?) {
         viewModelScope.launch {
             date?.let {
+
                 _tasks.value = repository.getTasksForDate(it)
             } ?: run {
                 _tasks.value = emptyList()

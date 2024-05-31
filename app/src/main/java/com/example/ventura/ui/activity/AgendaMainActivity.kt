@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
@@ -50,20 +51,20 @@ class AgendaMainActivity : AppCompatActivity() {
         addTaskButton = findViewById(R.id.addTaskButton)
         val tasksRecyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
 
-        taskAdapter = TaskAdapter(this, emptyList(), tasksViewModel)
-        tasksRecyclerView.adapter = taskAdapter
+        taskAdapter = TaskAdapter(mutableListOf(), tasksViewModel)
         tasksRecyclerView.layoutManager = LinearLayoutManager(this)
+        tasksRecyclerView.adapter = taskAdapter
 
         tasksViewModel.tasks.observe(this, Observer { tasks ->
-            if (tasks != null) {
-                taskAdapter.updateTasks(tasks)
-            }
+            Log.d("AgendaMainActivity", "tasks: $tasks" )
+            taskAdapter.updateTasks(tasks)
         })
 
         tasksViewModel.selectedDate.observe(this, Observer { date ->
             selectedDate = date
             calendarView.notifyCalendarChanged()
             tasksViewModel.loadTasksForDate(date)
+            Log.d("AgendaMainActivity", "selectedDate: $selectedDate" )
         })
 
         backButton.setOnClickListener {
@@ -72,16 +73,13 @@ class AgendaMainActivity : AppCompatActivity() {
 
         backButton.post {
             val parent = backButton.parent as View
-
             val rect = Rect()
             backButton.getHitRect(rect)
-
             val extraPadding = 100 // Extra hitbox for the back button
             rect.top -= extraPadding
             rect.bottom += extraPadding
             rect.left -= extraPadding
             rect.right += extraPadding
-
             parent.touchDelegate = TouchDelegate(rect, backButton)
         }
 
