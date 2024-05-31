@@ -1,5 +1,6 @@
 package com.example.ventura.ui.adapter
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,10 +29,23 @@ class TaskAdapter(
         holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
             task.completed = isChecked
             tasksViewModel.updateTask(task)
+            setStrikeThrough(holder.title, isChecked)
+            setStrikeThrough(holder.description, isChecked)
         }
+
+        setStrikeThrough(holder.title, task.completed)
+        setStrikeThrough(holder.description, task.completed)
 
         holder.title.text = task.title
         holder.description.text = task.description
+    }
+
+    private fun setStrikeThrough(textView: TextView, strikeThrough: Boolean) {
+        if (strikeThrough) {
+            textView.paintFlags = textView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        } else {
+            textView.paintFlags = textView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+        }
     }
 
     override fun getItemCount(): Int {
