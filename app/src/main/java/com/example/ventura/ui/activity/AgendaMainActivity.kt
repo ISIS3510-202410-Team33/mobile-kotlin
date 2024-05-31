@@ -12,29 +12,30 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
-import com.kizitonwose.calendar.view.CalendarView
+import androidx.lifecycle.Observer
+import com.example.ventura.R
+import com.example.ventura.ui.adapter.TaskAdapter
+import com.example.ventura.viewmodel.TasksViewModel
 import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.view.CalendarView
+import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.ViewContainer
-import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
-import com.example.ventura.R
-import com.example.ventura.database.DatabaseHelper
-import com.kizitonwose.calendar.core.DayPosition
-import com.kizitonwose.calendar.view.MonthDayBinder
 
 class AgendaMainActivity : AppCompatActivity() {
 
-    private var selectedDate: LocalDate? = null
+    private val tasksViewModel: TasksViewModel by viewModels()
+
     private lateinit var backButton: ImageView
-    private lateinit var tasksListView: ListView
-    private lateinit var addTaskButton: Button
-    private lateinit var dbHelper: DatabaseHelper
-    private lateinit var selectedDateTasksLabel:  TextView
+    private lateinit var calendarView: CalendarView
+    private lateinit var tasksAdapter: TaskAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -42,18 +43,17 @@ class AgendaMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_cal)
 
-
-        val calendarView = findViewById<CalendarView>(R.id.calendarView)
+        calendarView = findViewById(R.id.calendarView)
         val titlesContainer = findViewById<ViewGroup>(R.id.titlesContainer)
-        tasksListView = findViewById(R.id.tasksListView)
-        addTaskButton = findViewById(R.id.addTaskButton)
-        selectedDateTasksLabel = findViewById(R.id.selectedDateTasksLabel)
+        val tasksListView = findViewById<ListView>(R.id.tasksListView)
+        val addTaskButton = findViewById<Button>(R.id.addTaskButton)
 
-        dbHelper = DatabaseHelper(this)
+        tasksAdapter = TaskAdapter(this, emptyList())
+        tasksListView.adapter = tasksAdapter
 
         // ============================== @backButton attributes ==========================
         backButton = findViewById(R.id.backButton_cal)
-        backButton.setOnClickListener{
+        backButton.setOnClickListener {
             finish()
         }
 
@@ -95,7 +95,7 @@ class AgendaMainActivity : AppCompatActivity() {
                 container.day = data
                 container.textView.text = data.date.dayOfMonth.toString()
 
-                if (data.date == selectedDate) {
+                if (data.date == tasksViewModel.selectedDate.value) {
                     container.textView.setBackgroundResource(R.drawable.selected_date_bg)
                 } else {
                     container.textView.background = null
@@ -110,59 +110,35 @@ class AgendaMainActivity : AppCompatActivity() {
         }
 
         addTaskButton.setOnClickListener {
-            if (selectedDate != null) {
+            if (tasksViewModel.selectedDate.value != null) {
                 val intent = Intent(this, NewTaskActivity::class.java)
-                intent.putExtra("selectedDate", selectedDate.toString())
+                intent.putExtra("selectedDate", tasksViewModel.selectedDate.value.toString())
                 startActivity(intent)
             } else {
                 Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show()
             }
         }
 
-        updateTaskMessage()
-
+        tasksViewModel.tasks.observe(this, Observer { tasks ->
+            tasksAdapter.updateTasks(tasks)
+        })
     }
 
     inner class DayViewContainer(view: View) : ViewContainer(view) {
         val textView: TextView = view.findViewById(R.id.calendarDayText)
         lateinit var day: CalendarDay
 
-        val calendarView = findViewById<CalendarView>(R.id.calendarView)
         init {
             view.setOnClickListener {
                 if (day.position == DayPosition.MonthDate) {
-                    val currentSelection = selectedDate
+                    val currentSelection = tasksViewModel.selectedDate.value
                     if (currentSelection == day.date) {
-                        selectedDate = null
-                        calendarView.notifyDateChanged(currentSelection)
+                        tasksViewModel.setSelectedDate(null)
                     } else {
-                        selectedDate = day.date
-                        calendarView.notifyDateChanged(day.date)
-                        if (currentSelection != null) {
-                            calendarView.notifyDateChanged(currentSelection)
-                        }
+                        tasksViewModel.setSelectedDate(day.date)
                     }
-                    loadTasksForSelectedDate()
                 }
             }
         }
     }
-
-    private fun loadTasksForSelectedDate() {
-        selectedDate?.let { date ->
-            val tasks = dbHelper.getTasksForDate(date)
-            val adapter = TaskAdapter(this, tasks)
-            tasksListView.adapter = adapter
-        }
-    }
-
-    private fun updateTaskMessage() {
-        val message = if (selectedDate != null) {
-            "Tasks for the selected date:"
-        } else {
-            "Please select a date to view your tasks"
-        }
-        selectedDateTasksLabel.text = message
-    }
-
 }

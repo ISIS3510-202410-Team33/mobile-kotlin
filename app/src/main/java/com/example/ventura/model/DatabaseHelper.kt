@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.ventura.model.Task
 import java.time.LocalDate
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -44,7 +45,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
     }
 
-    fun getTasksForDate(date: LocalDate): List<Task> {
+    fun getTasksForDate(date: LocalDate?): List<Task> {
         val tasks = mutableListOf<Task>()
         val db = this.readableDatabase
         val cursor = db.query(
@@ -75,10 +76,3 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return tasks
     }
 }
-
-data class Task(
-    val id: Int,
-    val date: LocalDate,
-    val title: String,
-    val description: String
-)

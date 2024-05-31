@@ -17,7 +17,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-
         <ImageView
             android:id="@+id/backButton_cal"
             android:layout_width="wrap_content"
@@ -46,7 +45,6 @@
             android:id="@+id/titlesContainer"
             layout="@layout/calendar_day_titles_container" />
 
-
         <com.kizitonwose.calendar.view.CalendarView
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
@@ -66,6 +64,7 @@
             android:id="@+id/tasksListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="0.5dp" />
 
@@ -74,10 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add Task"
-            android:layout_marginTop="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
