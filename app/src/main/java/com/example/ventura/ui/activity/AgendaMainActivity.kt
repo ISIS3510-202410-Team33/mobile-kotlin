@@ -169,9 +169,7 @@ class AgendaMainActivity : AppCompatActivity() {
                 if (currentlyConnected != isConnected) {
                     isConnected = currentlyConnected
                     addTaskButton.isEnabled = isConnected
-                    if (!isConnected) {
-                        Toast.makeText(this@AgendaMainActivity, "No internet connection. Can't create tasks.", Toast.LENGTH_SHORT).show()
-                    }
+
                 }
                 delay(2000) // Check connectivity every 2 seconds
             }
