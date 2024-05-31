@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.ventura.model.Task
 import java.time.LocalDate
 
@@ -15,4 +16,7 @@ interface TaskDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(task: Task)
+
+    @Update
+    suspend fun update(task: Task) // New method to update a task
 }

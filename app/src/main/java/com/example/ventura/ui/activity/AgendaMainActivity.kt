@@ -9,13 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.ventura.R
 import com.example.ventura.ui.adapter.TaskAdapter
 import com.example.ventura.viewmodel.TasksViewModel
@@ -47,10 +48,11 @@ class AgendaMainActivity : AppCompatActivity() {
         val titlesContainer = findViewById<ViewGroup>(R.id.titlesContainer)
         backButton = findViewById(R.id.backButton_cal)
         addTaskButton = findViewById(R.id.addTaskButton)
-        val tasksListView = findViewById<ListView>(R.id.tasksListView)
+        val tasksRecyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
 
-        taskAdapter = TaskAdapter(this, emptyList())
-        tasksListView.adapter = taskAdapter
+        taskAdapter = TaskAdapter(this, emptyList(), tasksViewModel)
+        tasksRecyclerView.adapter = taskAdapter
+        tasksRecyclerView.layoutManager = LinearLayoutManager(this)
 
         tasksViewModel.tasks.observe(this, Observer { tasks ->
             taskAdapter.updateTasks(tasks)

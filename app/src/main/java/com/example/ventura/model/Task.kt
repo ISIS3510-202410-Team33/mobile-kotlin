@@ -9,5 +9,6 @@ data class Task(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val date: LocalDate,
     val title: String,
-    val description: String
+    val description: String,
+    var completed: Boolean = false // New field to indicate if the task is completed
 )

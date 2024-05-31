@@ -41,4 +41,11 @@ class TasksViewModel(application: Application) : AndroidViewModel(application) {
             loadTasksForDate(date)
         }
     }
+
+    fun updateTask(task: Task) {
+        viewModelScope.launch {
+            taskDao.update(task)
+            loadTasksForDate(task.date)
+        }
+    }
 }
