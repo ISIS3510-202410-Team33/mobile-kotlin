@@ -34,7 +34,8 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "DJANGO_BACKEND_URL", "\"http://192.168.1.115:80/\"")
+            buildConfigField("String", "DJANGO_BACKEND_URL", "\"https://ventura-backend-jaj1.onrender.com:443/\"")
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         release {
