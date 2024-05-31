@@ -1,13 +1,17 @@
 package com.example.ventura.ui.activity
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import com.kizitonwose.calendar.view.CalendarView
@@ -19,6 +23,7 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
 import com.example.ventura.R
+import com.example.ventura.database.DatabaseHelper
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.view.MonthDayBinder
 
@@ -26,6 +31,10 @@ class AgendaMainActivity : AppCompatActivity() {
 
     private var selectedDate: LocalDate? = null
     private lateinit var backButton: ImageView
+    private lateinit var tasksListView: ListView
+    private lateinit var addTaskButton: Button
+    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var selectedDateTasksLabel:  TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -33,9 +42,14 @@ class AgendaMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_cal)
 
+
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
         val titlesContainer = findViewById<ViewGroup>(R.id.titlesContainer)
+        tasksListView = findViewById(R.id.tasksListView)
+        addTaskButton = findViewById(R.id.addTaskButton)
+        selectedDateTasksLabel = findViewById(R.id.selectedDateTasksLabel)
 
+        dbHelper = DatabaseHelper(this)
 
         // ============================== @backButton attributes ==========================
         backButton = findViewById(R.id.backButton_cal)
@@ -94,13 +108,24 @@ class AgendaMainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        addTaskButton.setOnClickListener {
+            if (selectedDate != null) {
+                val intent = Intent(this, NewTaskActivity::class.java)
+                intent.putExtra("selectedDate", selectedDate.toString())
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        updateTaskMessage()
+
     }
 
     inner class DayViewContainer(view: View) : ViewContainer(view) {
         val textView: TextView = view.findViewById(R.id.calendarDayText)
         lateinit var day: CalendarDay
-
-
 
         val calendarView = findViewById<CalendarView>(R.id.calendarView)
         init {
@@ -117,12 +142,27 @@ class AgendaMainActivity : AppCompatActivity() {
                             calendarView.notifyDateChanged(currentSelection)
                         }
                     }
+                    loadTasksForSelectedDate()
                 }
             }
         }
     }
 
-    private fun extractUsername(email: String?): String {
-        return email?.substringBefore("@") ?: ""
+    private fun loadTasksForSelectedDate() {
+        selectedDate?.let { date ->
+            val tasks = dbHelper.getTasksForDate(date)
+            val adapter = TaskAdapter(this, tasks)
+            tasksListView.adapter = adapter
+        }
     }
+
+    private fun updateTaskMessage() {
+        val message = if (selectedDate != null) {
+            "Tasks for the selected date:"
+        } else {
+            "Please select a date to view your tasks"
+        }
+        selectedDateTasksLabel.text = message
+    }
+
 }

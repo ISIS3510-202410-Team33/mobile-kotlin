@@ -77,6 +77,15 @@
         </activity>
 
         <activity
+            android:name=".ui.activity.NewTaskActivity"
+            android:screenOrientation="portrait"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+
+        </activity>
+
+        <activity
             android:name=".ui.activity.AgendaMainActivity"
             android:screenOrientation="portrait"
             android:exported="true"
