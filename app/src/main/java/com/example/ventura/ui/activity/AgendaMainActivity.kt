@@ -1,5 +1,6 @@
 package com.example.ventura.ui.activity
 
+
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -37,6 +38,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -92,18 +94,22 @@ class AgendaMainActivity : AppCompatActivity() {
         listenToNetworkChanges()
 
         backButton.setOnClickListener {
+
             finish()
         }
 
         backButton.post {
             val parent = backButton.parent as View
+
             val rect = Rect()
             backButton.getHitRect(rect)
+
             val extraPadding = 100 // Extra hitbox for the back button
             rect.top -= extraPadding
             rect.bottom += extraPadding
             rect.left -= extraPadding
             rect.right += extraPadding
+
             parent.touchDelegate = TouchDelegate(rect, backButton)
         }
 
@@ -144,6 +150,7 @@ class AgendaMainActivity : AppCompatActivity() {
             }
         }
 
+
         addTaskButton.setOnClickListener {
             if (selectedDate == null) {
                 Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show()
@@ -177,6 +184,7 @@ class AgendaMainActivity : AppCompatActivity() {
         return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
                 networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
     }
+
 
 
 
@@ -251,3 +259,4 @@ class AgendaMainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).cancel()
     }
 }
+

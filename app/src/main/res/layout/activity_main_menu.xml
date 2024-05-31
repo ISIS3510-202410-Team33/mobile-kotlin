@@ -200,6 +200,16 @@
                 android:textColor="@android:color/white" />
 
             <Button
+                android:id="@+id/buttonHPMap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:height="80dp"
+                android:background="@drawable/main_menu_scroll2"
+                android:text="High Precision Map"
+                android:textColor="@android:color/white" />
+
+            <Button
                 android:id="@+id/buttonProfile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -207,16 +217,6 @@
                 android:height="80dp"
                 android:background="@drawable/main_menu_scroll2"
                 android:text="Profile"
-                android:textColor="@android:color/white" />
-
-            <Button
-                android:id="@+id/buttonSettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:height="80dp"
-                android:background="@drawable/main_menu_scroll2"
-                android:text="Settings"
                 android:textColor="@android:color/white" />
 
             <HorizontalScrollView

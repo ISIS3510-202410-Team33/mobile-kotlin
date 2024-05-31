@@ -17,6 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+
         <ImageView
             android:id="@+id/backButton_cal"
             android:layout_width="wrap_content"
@@ -45,6 +46,7 @@
             android:id="@+id/titlesContainer"
             layout="@layout/calendar_day_titles_container" />
 
+
         <com.kizitonwose.calendar.view.CalendarView
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
@@ -59,6 +61,7 @@
             android:textColor="#090909"
             android:layout_marginTop="10dp"
             android:textSize="20sp" />
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/tasksRecyclerView"
@@ -80,6 +83,7 @@
             android:layout_height="wrap_content"
             android:text="Find time in agenda"
             android:layout_marginTop="10dp" />
+
 
 
     </LinearLayout>
