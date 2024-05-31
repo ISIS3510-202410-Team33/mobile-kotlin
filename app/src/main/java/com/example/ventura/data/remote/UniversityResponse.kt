@@ -1,6 +1,6 @@
 package com.example.ventura.data.remote
 
-data class CollegeResponse(
+data class UniversityResponse(
     val id: Int = -1,
     val name: String = ""
 )

@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
@@ -38,7 +38,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,7 +47,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -75,7 +73,7 @@ val smallIcon = 56.dp
 val mediumIcon = 64.dp
 val maxTextBoxWidth = 200.dp
 
-private val TAG = "PROFILE_SCREEN"
+private val TAG = "ProfileScreen"
 
 
 @Composable
@@ -93,9 +91,12 @@ fun ProfileScreen(
 
     Scaffold (
         topBar = {
-            ProfileTopAppBar(
+            PersonalizedTopBar(
                 modifier = Modifier,
-                backToMainMenu = backToMainMenu
+                backToMainMenu = {
+                    backToMainMenu()
+                    profileViewModel.updateProfile(toRemote = true)
+                }
             )
         }
     ) { it ->
@@ -115,7 +116,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Filled.Person,
                     itemText = profileUiState.profile.name,
                     canEdit = true,
-                    onBoxExit = { profileViewModel.updateProfileCache() },
+                    onBoxExit = { profileViewModel.updateProfile() },
                     onNewText = { profileViewModel.changeProfileName(it) }
                 )
             }
@@ -126,7 +127,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Default.Email,
                     itemText = profileUiState.profile.email,
                     canEdit = false,
-                    onBoxExit = { profileViewModel.updateProfileCache() },
+                    onBoxExit = { profileViewModel.updateProfile() },
                     onNewText = { profileViewModel.changeProfileEmail(it) }
                 )
             }
@@ -138,7 +139,7 @@ fun ProfileScreen(
                     itemIcon = Icons.Default.Home,
                     itemText = profileUiState.profile.universityName,
                     canEdit = false,
-                    onBoxExit = { profileViewModel.updateProfileCache() },
+                    onBoxExit = { profileViewModel.updateProfile() },
                     onNewText = { profileViewModel.changeProfileUniversity(it) }
                 )
             }
@@ -214,53 +215,29 @@ fun ProfileScreen(
                     )
                 }
             }
+
+            // Error message
+            item {
+                if (profileUiState.getInternetFail) {
+                    Toast.makeText(
+                        context,
+                        "Could not fetch profile data from the server. Check your internet connection.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    profileViewModel.disableGetFailWarning()
+                }
+
+                if (profileUiState.putInternetFail) {
+                    Toast.makeText(
+                        context,
+                        "Could not update profile data to the server. Check your internet connection.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    profileViewModel.disablePutFailWarning()
+                }
+            }
         }
     }
-}
-
-
-@Composable
-private fun ProfileTopAppBar(
-    modifier: Modifier = Modifier,
-    backToMainMenu: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(mediumPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Absolute.Right
-
-            ) {
-                IconButton(
-                    modifier = modifier
-                        .padding(smallPadding),
-                    onClick = backToMainMenu
-                ) {
-                    Icon(
-                        modifier = modifier
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(smallPadding)
-                            .size(mediumIcon)
-                        ,
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back to main menu",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-//                Text(
-//                    modifier = modifier
-//                        .padding(smallPadding),
-//                    text = "Profile",
-//                    style = MaterialTheme.typography.displayLarge,
-//                    color = MaterialTheme.colorScheme.secondary
-//                )
-            }
-        },
-        modifier = modifier.background(Color.Transparent)
-    )
 }
 
 
@@ -285,7 +262,7 @@ private fun ProfileImage(
                 .clip(CircleShape)
                 .size(200.dp)
             ,
-            painter = painterResource(R.drawable.john_doe_profile_picture),
+            painter = painterResource(R.drawable.profile_image),
             contentDescription = null,
             contentScale = ContentScale.Crop
         )

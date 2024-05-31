@@ -348,7 +348,7 @@ class MainMenuActivity : AppCompatActivity() {
 
             val buttonProfile = findViewById<Button>(R.id.buttonProfile)
             val buttonMap = findViewById<Button>(R.id.buttonMap)
-            val buttonSettings = findViewById<Button>(R.id.buttonSettings)
+            val buttonHPMap = findViewById<Button>(R.id.buttonHPMap)
             val logOutButton = findViewById<TextView>(R.id.log_out)
 
             logOutButton.setOnClickListener {
@@ -376,9 +376,12 @@ class MainMenuActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            buttonSettings.setOnClickListener {
-                // Navigate to Settings Activity
+            buttonHPMap.setOnClickListener {
+                val intent = Intent(this, HighPrecisionRouteActivity::class.java)
+                intent.putExtra("email", userEmail)
+                startActivity(intent)
             }
+
         } catch (e: Exception) { featureCrashHandler.logCrash("display", e); }
     }
 
