@@ -73,5 +73,14 @@
             android:text="Add Task"
             android:layout_marginTop="10dp" />
 
+
+        <Button
+            android:id="@+id/findAvailableTimeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Find time in agenda"
+            android:layout_marginTop="10dp" />
+
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
